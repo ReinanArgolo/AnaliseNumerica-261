@@ -74,8 +74,10 @@ Os arquivos foram organizados em uma hierarquia de diretórios, onde os dados de
 Os dados são salvos em arquivos de texto simples (TXT) para as entradas, contendo os limites do intervalo, a tolerância e também a quantidade máxima de iterações. Já os resultados das iterações são armazenados em arquivos CSV, contendo colunas para o número da iteração, os valores de $a$, $b$, $c$, $f(c)$ e o erro relativo, facilitando a análise quantitativa e a geração de gráficos subsequentes.
 
 
-\subsection{Problema Teste 1: Tempo de Subida de um Amplificador}
-\label{subsec:problema_teste_1}
+\subsection{Problemas Testes}
+\label{subsec:problemas_testes_bisseccao}
+
+\subsubsection{Tempo de Subida de um Amplificador}
 
 O problema proposto requer a determinação do tempo de subida de um amplificador eletrônico, definido pelo intervalo temporal necessário para que a resposta $g(T)$ evolua de $10\%$ a $90\%$ de seu valor assintótico. A função normalizada é expressa por:
 \begin{equation}
@@ -152,7 +154,7 @@ Conforme os dados processados, a convergência para $T_{0.1}$ atingiu a tolerân
     \Delta T = T_{0.9} - T_{0.1} \approx 5.322320 - 1.102058 = 4.220262.
 \end{equation}
 
-\subsection{Análise de Convergência}
+\paragraph{Análise de Convergência}{}
 \label{subsec:convergencia_bisseccao}
 
 Para ilustrar de forma gráfica a eficácia e o comportamento analítico da técnica frente à função $f_1(T)$, construiu-se a plotagem da convergência evidenciada pela contração progressiva do hipervolume de busca, expressa pelo amortecimento contínuo do erro e da magnitude absoluta da função, ilustrada na Figura \ref{fig:convergencia_bisseccao}.
