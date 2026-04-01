@@ -1,0 +1,6 @@
+# Preencha os parametros para o script e o rode novamente.
+a:0.0
+b:1.0
+x0:0.5
+tol:1e-4
+max_iter:100

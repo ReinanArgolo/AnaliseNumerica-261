@@ -1,0 +1,140 @@
+\section{Método da Bissecção}
+\label{sec:metodo_bisseccao}
+
+O Método da Bissecção constitui uma das abordagens numéricas mais elementares e robustas para a determinação de raízes de funções reais. Fundamentado no Teorema de Bolzano, o algoritmo garante convergência incondicional, desde que a função seja contínua no intervalo fechado $[a, b]$ e que os valores da função nos extremos apresentem sinais opostos.
+
+\subsection{Estratégia de Implementação}
+\label{subsec:estrategia_implementacao_bisseccao}
+
+O desenvolvimento do algorítmo foi estruturad0 de forma modular, sendo sua implementação principal em \texttt{src/metodos/zeros\_de\_funcao.py}. 
+
+\begin{lstlisting}[language=Python, caption=Código de implementação do Método da Bissecção]
+
+def bisseccao(funcao, a, b, tol=1e-6, max_iter=100):
+    historico = [] 
+    
+    for i in range(max_iter):
+        c = (a + b)/2
+        fc = funcao(c)
+        denominador = a + b
+
+        if denominador != 0:
+            er = abs((a - b) / denominador)
+        else:
+            er = abs(b - a) 
+        
+        historico.append({
+            'iter': i, 
+            'a': a, 
+            'b': b, 
+            'c': c, 
+            'f(c)': fc,
+            'erro': er
+        })
+        
+        if fc == 0 or er < tol:
+            return c, i, historico
+            
+        if utils.teorema_bolzano(funcao, a, c):
+            b = c
+        else:
+            a = c
+            
+    return c, max_iter, historico
+
+\end{lstlisting}
+
+
+A cada iteração $k$, o ponto médio do subintervalo vigente é calculado pela média aritmética simples:
+
+\begin{equation}
+        c_k = \frac{a_k + b_k}{2}
+\end{equation}
+
+A seleção do subintervalo subsequente é ddefinida pela comparação dos valore de $a$ e $c$, se eles não foram diferentes, então o novo intervalo será $[c,b]$, caso sejam diferentes, então $[a,c]$
+
+No que tange à avaliação da precisão, adotou-se preliminarmente o erro relativo associado à amplitude do intervalo, definido matematicamente por:
+\begin{equation}
+    \epsilon_{rel} = \left| \frac{a_k - b_k}{a_k + b_k} \right|.
+\end{equation}
+
+Caso a soma de $a_k + a_k$ seja seja igual a zero, assume se apenas que $\epsilon_{abs} = |b_k - a_k|$.
+
+Para limitar o algorítimo e evitar que exista um processamento desnecessário, estipulou-se um número máximo de iterações ($max\_iter$) e uma tolerância ($tol$) para a convergência. O critério de parada é acionado quando a função avaliada no ponto médio $c_k$ for exatamente zero ou quando o erro relativo for inferior à tolerância estabelecida.
+
+% Os critérios de parada estipulados para a interrupção do laço iterativo compreendem: a obtenção da raiz exata ($f(c_k) = 0$), a convergência da métrica de erro para um valor inferior à tolerância preestabelecida, ou o esgotamento do limite máximo de iterações.
+
+\subsection{Estrutura dos Arquivos de Entrada e Saída}
+\label{subsec:estrutura_arquivos_bisseccao}
+
+Sendo este um critério de avaliação, todos os dados de entrada e saída foram organizados em uma estrutura de arquivos padronizada, visando a clareza, a reprodutibilidade e a facilidade de análise posterior.
+
+Os arquivos foram organizados em uma hierarquia de diretórios, onde os dados de entrada foram alocados em \texttt{dados/entradas/} e os resultados processados foram persistidos em \texttt{dados/saidas/}.
+
+Os dados são salvos em arquivos de texto simples (TXT) para as entradas, contendo os limites do intervalo, a tolerância e também a quantidade máxima de iterações. Já os resultados das iterações são armazenados em arquivos CSV, contendo colunas para o número da iteração, os valores de $a$, $b$, $c$, $f(c)$ e o erro relativo, facilitando a análise quantitativa e a geração de gráficos subsequentes.
+
+
+\subsection{Problema Teste 1: Tempo de Subida de um Amplificador}
+\label{subsec:problema_teste_1}
+
+O problema proposto requer a determinação do tempo de subida de um amplificador eletrônico, definido pelo intervalo temporal necessário para que a resposta $g(T)$ evolua de $10\%$ a $90\%$ de seu valor assintótico. A função normalizada é expressa por:
+\begin{equation}
+    g(T) = 1 - \left(1 + T + \frac{T^2}{2}\right)e^{-T}.
+\end{equation}
+
+A resolução demanda a determinação de duas raízes, $T_{0.1}$ e $T_{0.9}$, as quais satisfazem, respectivamente, as funções auxiliares:
+\begin{align}
+    f_1(T) &= 0.9 - \left(1 + T + \frac{T^2}{2}\right)e^{-T} = 0, \label{eq:f1_bisseccao} \\
+    f_2(T) &= 0.1 - \left(1 + T + \frac{T^2}{2}\right)e^{-T} = 0. \label{eq:f2_bisseccao}
+\end{align}
+
+A Tabela \ref{tab:bisseccao_f1} sumariza o histórico iterativo gerado pelo algoritmo implementado para a determinação de $T_{0.1}$ (resolução da Equação \ref{eq:f1_bisseccao}), partindo do intervalo inicial $[1.0, 2.0]$.
+
+\begin{table}[htpb]
+\centering
+\caption{Histórico iterativo do Método da Bissecção para a função $f_1(T)$ (Busca de $T_{0.1}$).}
+\label{tab:bisseccao_f1}
+\small
+\begin{tabular}{@{}cccccc@{}}
+\toprule
+\textbf{Iteração} & $\mathbf{a}$ & $\mathbf{b}$ & $\mathbf{c}$ & $\mathbf{f_1(c)}$ & \textbf{Erro Relativo} \\ \midrule
+0  & 1.000000 & 2.000000 & 1.500000 & \phantom{-}0.09115317 & 0.33333333 \\
+1  & 1.000000 & 1.500000 & 1.250000 & \phantom{-}0.03153233 & 0.20000000 \\
+2  & 1.000000 & 1.250000 & 1.125000 & \phantom{-}0.00466937 & 0.11111111 \\
+3  & 1.000000 & 1.125000 & 1.062500 & -0.00785071           & 0.05882353 \\
+4  & 1.062500 & 1.125000 & 1.093750 & -0.00167172           & 0.02857143 \\
+5  & 1.093750 & 1.125000 & 1.109375 & \phantom{-}0.00147894 & 0.01408451 \\
+$\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$          & $\vdots$   \\
+14 & 1.102051 & 1.102112 & 1.102081 & \phantom{-}0.00000322 & 0.00002769 \\
+15 & 1.102051 & 1.102081 & 1.102066 & \phantom{-}0.00000014 & 0.00001385 \\
+16 & 1.102051 & 1.102066 & 1.102058 & -0.00000140           & 0.00000692 \\ \bottomrule
+\end{tabular}
+\end{table}
+
+Conforme os dados processados, a convergência para $T_{0.1}$ atingiu a tolerância estabelecida na 16ª iteração, resultando em $T_{0.1} \approx 1.102058$. Por procedimento análogo para a Equação \ref{eq:f2_bisseccao}, determina-se o valor de $T_{0.9} \approx 5.322320$. Consequentemente, o tempo de subida normalizado é dado por:
+\begin{equation}
+    \Delta T = T_{0.9} - T_{0.1} \approx 5.322320 - 1.102058 = 4.220262.
+\end{equation}
+
+\subsection{Análise de Convergência}
+\label{subsec:convergencia_bisseccao}
+
+Para ilustrar de forma gráfica a eficácia e o comportamento analítico da técnica frente à função $f_1(T)$, construiu-se a plotagem da convergência evidenciada pela contração progressiva do hipervolume de busca, expressa pelo amortecimento contínuo do erro e da magnitude absoluta da função, ilustrada na Figura \ref{fig:convergencia_bisseccao}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{img/bisseccao_convergencia.png}
+    \caption{Gráfico de convergência do erro relativo e magnitude da função $f_1(T)$ pelo Método da Bissecção.}
+    \label{fig:convergencia_bisseccao}
+\end{figure}
+
+Pela análise do gráfico submetido, nota-se que o decréscimo do valor absoluto de $f_1(c)$ possui uma tendência assintótica global de convergência sob o domínio semi-logarítmico, o que corrobora o rigor matemático do algoritmo, atestando sua estabilidade perante o teorema do valor intermediário, reduzindo o erro sempre em $\approx 50\%$ por iteração — um indicativo do característico desempenho de contração linear $\mathcal{O}(N)$ inerente ao Método da Bissecção.
+
+\subsection{Dificuldades Enfrentadas}
+\label{subsec:dificuldades_bisseccao}
+
+Durante o ciclo de desenvolvimento computacional, dois obstáculos de ordem técnica e arquitetural requisitaram intervenções precisas:
+
+Primeiramente, a formulação matemática para o cálculo de erro incorria em um risco inerente de singularidade. Ao calcular o erro relativo ponderado pela soma dos limites do intervalo $(a_k + b_k)$, constatou-se que caso a raiz estivesse centrada na origem de um intervalo simétrico (i.e., $a_k = -b_k$), o denominador se anularia, deflagrando uma interrupção por \texttt{ZeroDivisionError} no interpretador Python. A solução arquitetada consistiu na implementação de um fluxo condicional que, ao detectar a proximidade do denominador à nulidade, transita o cálculo para o domínio do erro absoluto, preservando a estabilidade do algoritmo sem sacrificar o rigor da convergência.
+
+Em segundo lugar, o estabelecimento de uma taxonomia de software aderente aos princípios de responsabilidade única (SOLID) exigiu esforço estrutural. O confinamento da lógica puramente matemática no método iterativo impôs restrições sobre como os dados seriam persistidos. A resolução demandou o encapsulamento do estado de cada iteração em dicionários, agrupados em uma lista transferida para a camada de controle ao fim do processo. Embora tal abstração tenha acrescido complexidade inicial ao desenvolvimento, ela resultou na plena ortogonalidade entre a computação analítica e a persistência em arquivos CSV, promovendo um design de software altamente escalável.

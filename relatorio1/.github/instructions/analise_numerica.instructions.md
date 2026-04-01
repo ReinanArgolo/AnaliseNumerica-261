@@ -1,6 +1,6 @@
 ---
 description: "Use when creating, editing, or evaluating numerical methods in Python, LaTeX reports, or data visualization pipelines. Covers architectural decisions, modularity rules, and the automated integration flow between Python scripts and LaTeX documents."
-applyTo: ["**/*.py", "**/*.tex"]
+applyTo: "**/*.{py,tex}"
 ---
 
 # Diretrizes do Projeto de Análise Numérica
