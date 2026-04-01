@@ -2,6 +2,27 @@ import math
 import sys
 import os
 
+
+# ==============================================================================
+# QUESTÃO 3.3
+# ==============================================================================
+"""
+PROBLEMA: Calcular a inclinaçào do angulo theta, em que o lançamento do míssil deve ser feito antes de atingir determinado alvo na equação abaixo:
+
+tg(theta/2) = [sen(alfa) cos(alfa)] / [(gR)/v^2 - cos^2(alfa), onde:
+
+alfa - angulo de inclicação com a superfíce da terra com a qual é feita o lancamento do míssil
+g - aceleração da gravidade (aprox. 9.81m/s^2)
+R - Raio da terra (aprox. 6371000m)
+v - velocidade de lançamento do míssil (m/s)
+theta - Ângulo (medido do centro da terra) entre o ponto de lançamento e o ponto de impacto desejado
+
+Resolva o problema considerando theta = 80 graus e v tal que v^2/gR = 1.25, ou seja, aproximadadmente 8.840m/s
+
+"""
+
+
+
 # Adiciona o diretório 'src' ao path principal se não estiver
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from metodos import zeros_de_funcao, utils
@@ -14,18 +35,10 @@ def modelar_funcoes():
     
     funcoes = {
         # Função principal (usada em Bissecção, Posição Falsa, Newton e Secante)
-        'f1': lambda x: 1 - (1 + x + (x**2)/2) * math.exp(-x) - 0.1, # f(t) = 1 - (1 + t + t^2/2) * e^(-t) - 0.1
-        'f2': lambda x: 1 - (1 + x + (x**2)/2) * math.exp(-x) - 0.9, # f(t) = 1 - (1 + t + t^2/2) * e^(-t) - 0.9
+        'f1': lambda x: ((math.sin(x) * math.cos(x))/ 0.8 - math.pow(math.cos(x), 2)), # f(alfa) = [sen(alfa) cos(alfa)] / [(gR)/v^2 - cos^2(alfa)]
 
         # Funções de iteração para Ponto Fixo (g(x) = x - f(x) ou outras formas)
-        'g1': lambda x: -math.log((1 - 0.1) / (1 + x + (x**2)/2)),
-        'g2': lambda x: -math.log((1 - 0.9) / (1 + x + (x**2)/2)),
-        'g3': lambda x: math.log((1 + x + (x**2)/2) / (1 - 0.1)),
-        'g4': lambda x: math.log((1 + x + (x**2)/2) / (1 - 0.9)),
-        'g7': lambda x: x - 0.5*(1 - (1 + x + (x**2)/2)*math.exp(-x) - 0.1),
-        'g8': lambda x: x - 0.5*(1 - (1 + x + (x**2)/2)*math.exp(-x) - 0.9),
-
-
+        'g1': lambda x: math.atan(math.tan(math.radians(80)/2) + math.pow(math.cos(x), 2)),
     }
 
     return funcoes
@@ -85,12 +98,9 @@ def rodar_algoritmos():
     funcoes_principais = {nome: func for nome, func in todas_funcoes.items() if nome.startswith('f')}
     funcoes_iteracao = {nome: func for nome, func in todas_funcoes.items() if nome.startswith('g')}
 
-    # Mapeando Chaves com valores padrão caso o TXT esteja incompleto
-    a = parametros.get('a', 0.0)
-    b = parametros.get('b', 1.0)
-    x0 = parametros.get('x0', 0.5)
-    tol = parametros.get('tol', 1e-4)
-    max_iter = int(parametros.get('max_iter', 100))
+    # Puxa parâmetros padrões genéricos (caso a função não tenha os seus)
+    default_a = parametros.get('a', 0.0)
+    default_b = parametros.get('b', 1.0)
 
     resultados = []
     print(f"\n=== RODANDO EXPERIMENTOS - SCRIPT [{nome_script}.py] ===")
@@ -99,11 +109,19 @@ def rodar_algoritmos():
     for id_f, f_loop in funcoes_principais.items():
         print(f"\n[Testando as raízes da Equação: {id_f}]")
 
+        # Busca os parâmetros ESPECÍFICOS para a função atual (ex: f1_a, f2_a)
+        # Se não encontrar, ele cai pro default
+        a = parametros.get(f'{id_f}_a', default_a)
+        b = parametros.get(f'{id_f}_b', default_b)
+        x0 = parametros.get(f'{id_f}_x0', parametros.get('x0', 0.5))
+        tol = parametros.get(f'{id_f}_tol', parametros.get('tol', 1e-4))
+        max_iter = int(parametros.get(f'{id_f}_max_iter', parametros.get('max_iter', 100)))
+
         metodos = {
-            f"{id_f} - Bissecção":      lambda f=f_loop: zeros_de_funcao.bisseccao(f, a, b, tol, max_iter),
-            f"{id_f} - Posição Falsa":  lambda f=f_loop: zeros_de_funcao.posicaoFalsa(f, a, b, tol, max_iter),
-            f"{id_f} - Newton-Raphson": lambda f=f_loop: zeros_de_funcao.newton_raphson(f, x0, tol, max_iter),
-            f"{id_f} - Secante":        lambda f=f_loop: zeros_de_funcao.secante(f, a, b, tol, max_iter)
+            f"{id_f} - Bissecção":      lambda f=f_loop, a=a, b=b: zeros_de_funcao.bisseccao(f, a, b, tol, max_iter),
+            f"{id_f} - Posição Falsa":  lambda f=f_loop, a=a, b=b: zeros_de_funcao.posicaoFalsa(f, a, b, tol, max_iter),
+            f"{id_f} - Newton-Raphson": lambda f=f_loop, x0=x0, tol=tol, max_iter=max_iter: zeros_de_funcao.newton_raphson(f, x0, tol, max_iter),
+            f"{id_f} - Secante":        lambda f=f_loop, a=a, b=b: zeros_de_funcao.secante(f, a, b, tol, max_iter)
         }
         
         # Acrescenta dinamicamente as execuções de Ponto Fixo (se houverem G(x)'s propostos)

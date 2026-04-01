@@ -13,7 +13,7 @@ Este documento resume as estratégias, funcionamentos e dificuldades referentes 
 
 ## 2. Estrutura de Arquivos de Entrada e Saída
 - **Entradas:** Ficam na pasta `dados/entradas/` (ex.: dados das questões em formato `.txt`), onde são lidos os parâmetros do problema (função, intervalo, precisão).
-- **Saídas:** Os históricos retornados pela função iterativa são gravados em planilhas CSV na pasta `dados/saidas/` (ex.: `questao_3_3_hist_f1_bisseccao.csv`), garantindo fácil rastreabilidade e facilitando a geração posterior de gráficos e integração com LaTeX.
+- **Saídas:** Os históricos retornados pela função iterativa são gravados em planilhas CSV na pasta `dados/saida/<questao>/` (ex.: `dados/saida/questao_3_3/questao_3_3_hist_f1_bisseccao.csv`), garantindo fácil rastreabilidade e facilitando a geração posterior de gráficos e integração com LaTeX.
 
 ## 3. Dificuldades Enfrentadas (Anotações do Código)
 - **Divisão por Zero no Erro Relativo:** Um dos problemas que exigiu atenção explícita na implementação está nas linhas 11-14: quando os limites do intervalo inicial são opostos ($a = -b$, ou ao longo das iterações a soma deles zera), a métrica de erro causaria um `ZeroDivisionError`. A solução foi contornar usando o erro absoluto `|b - a|` para esses casos.

@@ -55,7 +55,7 @@ def inicializar_ambiente(nome_script):
     """Garante a estrutura de pastas e arquivo config estático paramétrico."""
     base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
     entradas_dir = os.path.join(base_dir, 'dados', 'entradas')
-    saidas_dir = os.path.join(base_dir, 'dados', 'saidas')
+    saidas_dir = os.path.join(base_dir, 'dados', 'saida', nome_script)
     
     os.makedirs(entradas_dir, exist_ok=True)
     os.makedirs(saidas_dir, exist_ok=True)

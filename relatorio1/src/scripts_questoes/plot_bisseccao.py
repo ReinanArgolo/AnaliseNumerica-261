@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import os
 
 # Caminhos dos arquivos
-csv_path = '../../dados/saidas/questao_3_3_hist_f1_bisseccao.csv'
+csv_path = '../../dados/saida/questao_3_3/questao_3_3_hist_f1_bisseccao.csv'
 img_dir = '../../docs/img'
 img_path = os.path.join(img_dir, 'bisseccao_convergencia.png')
 

@@ -16,13 +16,40 @@
 \usepackage{hyperref}
 \usepackage{indentfirst}
 \usepackage{setspace} % Para espaçamento entre linhas
+\usepackage{titlesec} % Para configurar o espaçamento dos títulos ABNT
 
-% Configuração das margens (Padrão ABNT aproximado)
+% Configuração das margens (Padrão ABNT)
 \geometry{
     top=3cm,
     bottom=2cm,
     left=3cm,
     right=2cm
+}
+
+% Espaçamento entre linhas 1.5 e recuo de parágrafo de 1.25cm (Padrão ABNT)
+\onehalfspacing
+\setlength{\parindent}{1.25cm}
+
+% Espaçamento de 1.5 linha antes e depois dos títulos
+\titlespacing*{\section}{0pt}{1.5\baselineskip}{1.5\baselineskip}
+\titlespacing*{\subsection}{0pt}{1.5\baselineskip}{1.5\baselineskip}
+\titlespacing*{\subsubsection}{0pt}{1.5\baselineskip}{1.5\baselineskip}
+
+% Ambiente para citação longa (+3 linhas) ABNT: Recuo 4cm, fonte menor (small), espaçamento simples
+\newenvironment{citacaolonga}{
+    \begin{singlespacing}
+    \small
+    \begin{list}{}{
+        \setlength{\leftmargin}{4cm}
+        \setlength{\rightmargin}{0cm}
+        \setlength{\listparindent}{0cm}
+        \setlength{\itemindent}{0cm}
+        \setlength{\topsep}{0pt}
+    }
+    \item\relax
+}{
+    \end{list}
+    \end{singlespacing}
 }
 
 % --- PACOTES PARA GRÁFICOS (CSV) E CAIXAS MODERNAS ---
@@ -166,8 +193,10 @@ Use problemas das seções “Problemas Aplicados a Projetos” (ao final de cad
 (Escreva suas considerações finais aqui)
 
 \newpage
-% Referências Bibliográficas
+% Referências Bibliográficas (Espaçamento simples - Padrão ABNT)
+\begin{singlespace}
 \bibliographystyle{plain}
 \bibliography{referencias}
+\end{singlespace}
 
 \end{document}

@@ -114,4 +114,4 @@ Sempre que o professor passar uma lista de exercícios:
 2. Atualize localmente o *Lambda* da função $f(x)$ e a candidata a $g(x)$.
 3. Altere o escopo do intervalo (valores de `a`, `b`) e `x0` indicados na questão do livro.
 4. Execute o terminal: `python src/scripts_questoes/questao_X.py`.
-5. Vá na pasta `dados/saidas/` e colha o arquivo final em formato numérico `.csv`!
+5. Vá na pasta `dados/saida/<nome_da_questao>/` e colha o arquivo final em formato numérico `.csv`!
