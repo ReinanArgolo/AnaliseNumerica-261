@@ -90,6 +90,42 @@ A resolução demanda a determinação de duas raízes, $T_{0.1}$ e $T_{0.9}$, a
 
 A Tabela \ref{tab:bisseccao_f1} sumariza o histórico iterativo gerado pelo algoritmo implementado para a determinação de $T_{0.1}$ (resolução da Equação \ref{eq:f1_bisseccao}), partindo do intervalo inicial $[1.0, 2.0]$.
 
+
+
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}
+        \begin{axis}[
+            % Configurações visuais (cores, largura, fonte, grid...)
+            width=14cm, height=8cm,
+            title={\bfseries Evolução do Valor da Função \(f(c)\) no Método da Bissecção},
+            xlabel={Iteração (\(i\))},
+            ylabel={Valor de \(f(c)\)},
+            grid=both, % Adiciona linhas de grade no fundo
+            grid style={line width=.1pt, draw=gray!20},
+            major grid style={line width=.2pt,draw=gray!50},
+            legend pos=north east,
+            colormap name=viridis, % paletas de cor
+            tick label style={font=\footnotesize},
+            label style={font=\small},
+        ]
+        
+        % Plot do CSV, chamando as colunas 'iter' no Eixo X e 'f(c)' no Eixo Y
+        \addplot[
+            color=magenta, 
+            mark=*, % Marca estilo bolinha
+            mark options={fill=white, scale=1.2}, % Miolo da marcação branco
+            thick % Linha um pouco mais grossa
+        ] table [col sep=comma, x=iter, y={f(c)}] {../dados/saidas/questao_3_3_hist_f1_bisseccao.csv};
+        \addlegendentry{Valor \(f(c)\)}
+
+        \end{axis}
+    \end{tikzpicture}
+    \caption{Gráfico de convergência montado automaticamente via TikZ/pgfplots buscando dados do CSV do ambiente}
+    \label{fig:grafico_bisseccao_csv}
+\end{figure}
+
 \begin{table}[htpb]
 \centering
 \caption{Histórico iterativo do Método da Bissecção para a função $f_1(T)$ (Busca de $T_{0.1}$).}

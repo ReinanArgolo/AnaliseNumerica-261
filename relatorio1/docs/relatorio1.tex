@@ -25,6 +25,29 @@
     right=2cm
 }
 
+% --- PACOTES PARA GRÁFICOS (CSV) E CAIXAS MODERNAS ---
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usepackage{pgfplotstable} % Para ler os dados do CSV se necessário
+\usepackage[most]{tcolorbox}
+
+% --- CONFIGURAÇÕES DA CAIXA DE QUESTÃO ---
+\definecolor{azulquestao}{RGB}{1, 65, 105} % Cor baseada na imagem
+\newtcolorbox{questao}[1]{
+    enhanced,
+    colback=white!98!gray, % Fundo levemente acinzentado mas quase branco
+    colframe=azulquestao, % Borda azul
+    colbacktitle=azulquestao, % Fundo do título azul
+    coltitle=white, % Texto do título branco
+    fonttitle=\bfseries\large,
+    title={#1},
+    arc=3pt, % Arredondamento da borda externa
+    boxrule=1pt, % Espessura da borda
+    toptitle=1.5mm,
+    bottomtitle=1.5mm,
+    drop fuzzy shadow % Sombra suave para dar o toque moderno
+}
+
 % Configuração para códigos (listings)
 \definecolor{codepurple}{rgb}{0.58,0,0.82}
 \definecolor{backcolour}{rgb}{0.95,0.95,0.92}
