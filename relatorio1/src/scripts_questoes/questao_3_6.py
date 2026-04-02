@@ -31,16 +31,22 @@ from metodos import zeros_de_funcao, utils
 # SEÇÃO 1: MODELAGEM MATEMÁTICA 
 # ==============================================================================
 def modelar_funcoes():
-    """Defina as funções alvo para seu problema matemático aqui."""
+    theta_rad = math.radians(80) / 2  # 40 graus em radianos
+    tan_theta_2 = math.tan(theta_rad)
     
     funcoes = {
-        # Função principal (usada em Bissecção, Posição Falsa, Newton e Secante)
-        'f1': lambda x: ((math.sin(x) * math.cos(x))/ 0.8 - math.pow(math.cos(x), 2)), # f(alfa) = [sen(alfa) cos(alfa)] / [(gR)/v^2 - cos^2(alfa)]
-
-        # Funções de iteração para Ponto Fixo (g(x) = x - f(x) ou outras formas)
-        'g1': lambda x: math.atan(math.tan(math.radians(80)/2) + math.pow(math.cos(x), 2)),
+        # Resolver: sin(α)cos(α) = 0.8 * tan(40°) * [1 - cos²(α)]
+        'f1': lambda x: (math.sin(x) * math.cos(x)) - 0.8 * tan_theta_2 * (1 - math.pow(math.cos(x), 2)),
+        
+        # Ponto fixo: α = arctan(...)
+        'g1': lambda x: math.atan((0.8 * tan_theta_2 * (1 - math.pow(math.cos(x), 2))) / math.cos(x)),
+        'g2': lambda x: math.atan((math.sin(x) * math.cos(x)) / (0.8 - math.cos(x)**2)),
+        'g3': lambda x: math.acos(
+    math.sqrt(0.8 - (math.sin(x)*math.cos(x))/tan_theta_2)
+)
     }
-
+    # Mapeamento de quais g's pertencem a cada f
+    funcoes['_mapping'] = {'f1': ['g1', 'g2']}
     return funcoes
 
 # ==============================================================================
@@ -95,12 +101,17 @@ def rodar_algoritmos():
 
     # Recupera todas as funções matemáticas fornecidas no Modelador e separa Fs e Gs
     todas_funcoes = modelar_funcoes()
+    mapeamento_g_f = todas_funcoes.pop('_mapping', {})
     funcoes_principais = {nome: func for nome, func in todas_funcoes.items() if nome.startswith('f')}
     funcoes_iteracao = {nome: func for nome, func in todas_funcoes.items() if nome.startswith('g')}
 
     # Puxa parâmetros padrões genéricos (caso a função não tenha os seus)
     default_a = parametros.get('a', 0.0)
     default_b = parametros.get('b', 1.0)
+    
+    # Converte valores de entrada para radianos (ângulos em graus)
+    default_a_rad = math.radians(default_a)
+    default_b_rad = math.radians(default_b)
 
     resultados = []
     print(f"\n=== RODANDO EXPERIMENTOS - SCRIPT [{nome_script}.py] ===")
@@ -116,6 +127,11 @@ def rodar_algoritmos():
         x0 = parametros.get(f'{id_f}_x0', parametros.get('x0', 0.5))
         tol = parametros.get(f'{id_f}_tol', parametros.get('tol', 1e-4))
         max_iter = int(parametros.get(f'{id_f}_max_iter', parametros.get('max_iter', 100)))
+        
+        # Converte ângulos de graus para radianos
+        a = math.radians(a)
+        b = math.radians(b)
+        x0 = math.radians(x0)
 
         metodos = {
             f"{id_f} - Bissecção":      lambda f=f_loop, a=a, b=b: zeros_de_funcao.bisseccao(f, a, b, tol, max_iter),
@@ -125,9 +141,16 @@ def rodar_algoritmos():
         }
         
         # Acrescenta dinamicamente as execuções de Ponto Fixo (se houverem G(x)'s propostos)
-        for id_g, g_loop in funcoes_iteracao.items():
-            # Ex: A g1 pertence à f1, g2 à f2... Logo não cruza funções diferentes
-            if id_g.replace('g', '') == id_f.replace('f', ''): 
+        # Usa mapeamento se disponível, senão tenta correspondência por número
+        g_list = mapeamento_g_f.get(id_f, [])
+        if not g_list:
+            # Fallback: corresponde g1 com f1, g2 com f2, etc
+            numero_f = id_f.replace('f', '')
+            g_list = [g for g in funcoes_iteracao.keys() if g.replace('g', '') == numero_f]
+        
+        for id_g in g_list:
+            if id_g in funcoes_iteracao:
+                g_loop = funcoes_iteracao[id_g]
                 metodos[f"{id_f} - Ponto Fixo ({id_g})"] = lambda g=g_loop: zeros_de_funcao.ponto_fixo(g, x0, tol, max_iter)
 
         for nome_metodo, chamada in metodos.items():
