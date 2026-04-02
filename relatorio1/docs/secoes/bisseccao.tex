@@ -57,6 +57,28 @@ Visando aderência aos princípios de responsabilidade única e reprodutibilidad
     \item \textbf{Dados de Saída (\texttt{dados/saida/<questao>/}):} Os resultados iterativos foram consolidados em arquivos de valores separados por vírgula (\texttt{.csv}). A escolha do formato CSV justifica-se por sua interoperabilidade universal, permitindo a ingestão direta por bibliotecas de análise de dados (como Pandas) e por pacotes de renderização gráfica em LaTeX (como TikZ/pgfplots), viabilizando análises quantitativas automatizadas e plots de convergência nativos no documento final.
 \end{itemize}
 
+\subsubsection{Parâmetros de Entrada para a Bissecção}
+\label{subsubsec:parametros_entrada_bisseccao}
+
+Os arquivos de entrada definem os hiperparâmetros críticos para cada execução do método. A Tabela \ref{tab:parametros_bisseccao} sumariza os parâmetros utilizados nas questões propostas:
+
+\begin{table}[htpb]
+\centering
+\caption{Parâmetros de configuração para o Método da Bissecção.}
+\label{tab:parametros_bisseccao}
+\small
+\begin{tabular}{@{}lccccc@{}}
+\toprule
+\textbf{Questão} & \textbf{Função} & \textbf{Intervalo [a, b]} & \textbf{Tolerância} & \textbf{Máx Iter} \\ \midrule
+3.3 & $f_1(T)$ & [1.0, 2.0] & $1 \times 10^{-5}$ & 100 \\
+3.3 & $f_2(T)$ & [5.0, 9.0] & $1 \times 10^{-5}$ & 100 \\
+3.6 & $f(x)$ & [30.0, 60.0] & $1 \times 10^{-4}$ & 100 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Observa-se que a tolerância de $10^{-5}$ na Questão 3.3 exigirá um número maior de iterações comparativamente à tolerância mais relaxada de $10^{-4}$ na Questão 3.6. O limite máximo de 100 iterações constitui uma salvaguarda conservadora, garantindo que o algoritmo não incorra em consumo excessivo de recursos computacionais.
+
 \subsection{Problemas Teste}
 \label{subsec:problemas_testes_bisseccao}
 
@@ -76,26 +98,10 @@ O cálculo do tempo de subida, $\Delta T = T_{0.9} - T_{0.1}$, exige a determina
     f_2(T) &= 0.1 - \left(1 + T + \frac{T^2}{2}\right)e^{-T} = 0 \label{eq:f2_bisseccao}
 \end{align}
 
-O algoritmo processou $f_1(T)$ com intervalo inicial $[1.0, 2.0]$ e tolerância $10^{-5}$. A Tabela \ref{tab:bisseccao_f1} exibe a progressão numérica.
+% \textbf{Aquivo de entrada da solução:} O arquivo \texttt{questao\_3\_3\_bisseccao.txt} contém os parâmetros de controle para a execução do método, incluindo os intervalos iniciais $[1.0, 2.0]$ para $f_1(T)$ e $[0.0, 1.0]$ para $f_2(T)$, a tolerância de $10^{-5}$ e o limite máximo de iterações.
 
-\begin{table}[htpb]
-\centering
-\caption{Histórico iterativo do Método da Bissecção para a busca de $T_{0.1}$ na função $f_1(T)$.}
-\label{tab:bisseccao_f1}
-\small
-\begin{tabular}{@{}cccccc@{}}
-\toprule
-\textbf{Iteração} & $\mathbf{a_k}$ & $\mathbf{b_k}$ & $\mathbf{c_k}$ & $\mathbf{f_1(c_k)}$ & \textbf{Erro} ($\epsilon_k$) \\ \midrule
-0  & 1.000000 & 2.000000 & 1.500000 & \phantom{-}0.09115317 & 0.33333333 \\
-1  & 1.000000 & 1.500000 & 1.250000 & \phantom{-}0.03153233 & 0.20000000 \\
-2  & 1.000000 & 1.250000 & 1.125000 & \phantom{-}0.00466937 & 0.11111111 \\
-3  & 1.000000 & 1.125000 & 1.062500 & -0.00785071           & 0.05882353 \\
-$\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$          & $\vdots$   \\
-14 & 1.102051 & 1.102112 & 1.102081 & \phantom{-}0.00000322 & 0.00002769 \\
-15 & 1.102051 & 1.102081 & 1.102066 & \phantom{-}0.00000014 & 0.00001385 \\
-16 & 1.102051 & 1.102066 & 1.102058 & -0.00000140           & 0.00000692 \\ \bottomrule
-\end{tabular}
-\end{table}
+
+O algoritmo processou $f_1(T)$ com intervalo inicial $[1.0, 2.0]$ e tolerância $10^{-5}$. A Tabela \ref{tab:bisseccao_f1} exibe a progressão numérica.
 
 A convergência foi atingida na 16ª iteração, com o erro caindo abaixo da tolerância ($\epsilon_{16} \approx 6.92 \times 10^{-6}$), retornando $T_{0.1} \approx 1.102058$. A Figura \ref{fig:grafico_bisseccao_csv} ilustra este amortecimento da magnitude funcional, que demonstra a redução progressiva assintótica característica da contração de intervalo.
 
@@ -129,9 +135,29 @@ A convergência foi atingida na 16ª iteração, com o erro caindo abaixo da tol
 \begin{equation}
     f_1(1.102058) = 0.9 - \left(1 + 1.102058 + \frac{(1.102058)^2}{2}\right)e^{-1.102058} \approx -0.00000140
 \end{equation}
+
+\begin{table}[htpb]
+\centering
+\caption{Histórico iterativo do Método da Bissecção para a busca de $T_{0.1}$ na função $f_1(T)$.}
+\label{tab:bisseccao_f1}
+\small
+\begin{tabular}{@{}cccccc@{}}
+\toprule
+\textbf{Iteração} & $\mathbf{a_k}$ & $\mathbf{b_k}$ & $\mathbf{c_k}$ & $\mathbf{f_1(c_k)}$ & \textbf{Erro} ($\epsilon_k$) \\ \midrule
+0  & 1.000000 & 2.000000 & 1.500000 & \phantom{-}0.09115317 & 0.33333333 \\
+1  & 1.000000 & 1.500000 & 1.250000 & \phantom{-}0.03153233 & 0.20000000 \\
+2  & 1.000000 & 1.250000 & 1.125000 & \phantom{-}0.00466937 & 0.11111111 \\
+3  & 1.000000 & 1.125000 & 1.062500 & -0.00785071           & 0.05882353 \\
+$\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$          & $\vdots$   \\
+14 & 1.102051 & 1.102112 & 1.102081 & \phantom{-}0.00000322 & 0.00002769 \\
+15 & 1.102051 & 1.102081 & 1.102066 & \phantom{-}0.00000014 & 0.00001385 \\
+16 & 1.102051 & 1.102066 & 1.102058 & -0.00000140           & 0.00000692 \\ \bottomrule
+\end{tabular}
+\end{table}
+
 Observa-se que o resíduo apresenta magnitude estritamente compatível com a precisão exigida, confirmando tratar-se da raiz buscada. Procedimento análogo para $f_2(T)$ rendeu $T_{0.9} \approx 5.322320$. Consequentemente, o tempo de subida validado pelo método é $\Delta T = 5.322320 - 1.102058 = 4.220262$. Os resultados demonstram que a implementação comporta-se com a eficiência teórica esperada $\mathcal{O}(\log(1/\epsilon))$.
 
-\subsubsection{Problema Teste 2: [Nome do Problema 2]}
+\subsubsection{Problema Teste 2: [Estimação de lançcamento do míssil]}
 \label{subsubsec:problema_teste_2_bisseccao}
 
 % Para inclusão futura: Descrever o problema extraído do livro de Cálculo Numérico de Neide Franco.
