@@ -123,7 +123,7 @@ A convergência foi atingida na 16ª iteração, com o erro caindo abaixo da tol
         ]
         \addplot[
             color=magenta, mark=*, mark options={fill=white, scale=1.2}, thick 
-        ] table [col sep=comma, x=iter, y={f(c)}] {../dados/saida/questao_3_3/questao_3_3_hist_f1_bisseccao.csv};
+        ] table [col sep=comma, x=iter, y={f(c)}] {../../dados/saida/questao_3_3/questao_3_3_hist_f1_bisseccao.csv};
         \addlegendentry{Resíduo \(f_1(c)\)}
         \end{axis}
     \end{tikzpicture}
@@ -157,8 +157,92 @@ $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$          & $\vdots$   \\
 
 Observa-se que o resíduo apresenta magnitude estritamente compatível com a precisão exigida, confirmando tratar-se da raiz buscada. Procedimento análogo para $f_2(T)$ rendeu $T_{0.9} \approx 5.322320$. Consequentemente, o tempo de subida validado pelo método é $\Delta T = 5.322320 - 1.102058 = 4.220262$. Os resultados demonstram que a implementação comporta-se com a eficiência teórica esperada $\mathcal{O}(\log(1/\epsilon))$.
 
-\subsubsection{Problema Teste 2: [Estimação de lançcamento do míssil]}
+\subsubsection{Problema Teste 2: Ângulo de Lançamento Balístico de um Míssil}
 \label{subsubsec:problema_teste_2_bisseccao}
+
+A determinação de parâmetros balísticos constitui uma aplicação clássica para métodos numéricos de busca de raízes, dada a natureza das equações envolvidas. O Problema 3.6 demanda o cálculo do ângulo de inclinação ($\alpha$) para o lançamento de um míssil, de modo a atingir um alvo situado a um deslocamento angular $\theta$ (medido a partir do centro da Terra). A cinemática do problema é modelada pela equação:
+\begin{equation}
+    \operatorname{tg}\left(\frac{\theta}{2}\right) = \frac{\sin \alpha \cos \alpha}{\frac{g R}{v^2} - \cos^2 \alpha}
+    \label{eq:missil_original}
+\end{equation}
+
+Para submeter a Equação \ref{eq:missil_original} ao Método da Bissecção é necessário manipulá-la para a forma padrão de determinação de zeros, $f(\alpha) = 0$. A fim de mitigar potenciais instabilidades numéricas oriundas de divisões por termos próximos a zero, optou-se pela linearização do denominador através de multiplicação cruzada. Considerando os dados fornecidos, tem-se o deslocamento do alvo $\theta = 80^\circ$ e a relação adimensional de energia $\frac{v^2}{gR} = 1.25$, o que implica diretamente que $\frac{gR}{v^2} = 0.8$. A função objetivo, avaliada estritamente em radianos para compatibilidade com as bibliotecas matemáticas, torna-se:
+\begin{equation}
+    f(\alpha) = \sin(\alpha)\cos(\alpha) - \operatorname{tg}\left(40^\circ\right)\left(0.8 - \cos^2(\alpha)\right) = 0
+    \label{eq:missil_funcao_bisseccao}
+\end{equation}
+
+A estratégia de busca foi inicializada sob a premissa física de que o ângulo de lançamento localiza-se no primeiro quadrante. O intervalo submetido foi $[30^\circ, 60^\circ]$, cujos equivalentes em radianos correspondem a aproximadamente $[0.5236, 1.0472]$. O limite de tolerância estipulado para o erro relativo da amplitude do intervalo foi de $\epsilon < 10^{-4}$.
+
+A Tabela \ref{tab:bisseccao_missil} apresenta o histórico da progressão geométrica do hipervolume de busca ao longo das iterações computadas.
+
+\begin{table}[htpb]
+\centering
+\caption{Histórico iterativo do Método da Bissecção para a função do ângulo de lançamento balístico $f(\alpha)$.}
+\label{tab:bisseccao_missil}
+\small
+\begin{tabular}{@{}cccccc@{}}
+\toprule
+\textbf{Iteração ($k$)} & $\mathbf{a_k}$ & $\mathbf{b_k}$ & $\mathbf{c_k}$ & $\mathbf{f(c_k)}$ & \textbf{Erro} ($\epsilon_k$) \\ \midrule
+0  & 0.523598 & 1.047197 & 0.785398 & \phantom{-}0.24827011 & 0.33333333 \\
+1  & 0.785398 & 1.047197 & 0.916297 & \phantom{-}0.12264554 & 0.14285714 \\
+2  & 0.916297 & 1.047197 & 0.981747 & \phantom{-}0.04965511 & 0.06666666 \\
+3  & 0.981747 & 1.047197 & 1.014472 & \phantom{-}0.01114434 & 0.03225806 \\
+4  & 1.014472 & 1.047197 & 1.030835 & -0.00854367           & 0.01587301 \\
+5  & 1.014472 & 1.030835 & 1.022653 & \phantom{-}0.00133421 & 0.00800000 \\
+6  & 1.022653 & 1.030835 & 1.026744 & -0.00359642           & 0.00398406 \\
+$\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$          & $\vdots$   \\
+10 & 1.023676 & 1.024187 & 1.023932 & -0.00020480           & 0.00024968 \\
+11 & 1.023676 & 1.023932 & 1.023804 & -0.00005083           & 0.00012485 \\
+12 & 1.023676 & 1.023804 & 1.023740 & \phantom{-}0.00002614 & 0.00006243 \\ \bottomrule
+\end{tabular}
+\end{table}
+\vspace{1cm}
+
+A análise dos dados revela o cumprimento estrito do Teorema do Valor Intermediário, evidenciado pelas alternâncias de sinal na avaliação residual $f(c_k)$ (observadas, por exemplo, na transição entre a iteração 3 e 4). O algoritmo operou de maneira estável, sem deflagrar a condição de exceção arquitetada para divisões por zero, uma vez que o domínio da busca permaneceu estritamente positivo (no primeiro quadrante trigonométrico).
+
+A convergência foi matematicamente estabelecida na 12ª iteração ($k=12$). Neste estágio, a métrica de erro relativo $\epsilon_{12} \approx 6.24 \times 10^{-5}$ tornou-se inferior à barreira de tolerância imposta. O método extraiu a raiz aproximada $c_{12} \approx 1.023740$ radianos. Este valor numérico converte-se em um ângulo de inclinação de lançamento $\alpha \approx 58.65^\circ$.
+
+\textbf{Validação e Eficiência da Solução:}
+Para atestar a validade da aproximação numérica, submete-se o valor $c_{12} = 1.023740$ à Equação \ref{eq:missil_funcao_bisseccao}. O resíduo operacionalizado, $f(c_{12}) \approx 2.61 \times 10^{-5}$, apresenta uma magnitude da mesma ordem do erro de truncamento exigido. Isso confirma que a raiz satisfaz o modelo balístico proposto, atestando a robustez da implementação do Método da Bissecção frente a problemas contendo composições de funções trigonométricas. 
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}
+        \begin{axis}[
+            width=14cm, height=7cm,
+            title={\bfseries Amortecimento Residual para o Ângulo de Lançamento},
+            xlabel={Iteração (\(k\))},
+            ylabel={Magnitude do Erro \(\epsilon_k\) e Resíduo},
+            ymode=log, % Escala logarítmica é ideal para demonstrar convergência linear
+            grid=both,
+            grid style={line width=.1pt, draw=gray!20},
+            major grid style={line width=.2pt,draw=gray!50},
+            legend pos=north east,
+            tick label style={font=\footnotesize},
+            label style={font=\small},
+        ]
+        
+        % Plot do erro 
+        \addplot[
+            color=blue, mark=square, thick 
+        ] table [col sep=comma, x=iter, y=erro] {../../dados/saida/questao_3_6/questao_3_6_hist_f1_bisseccao.csv};
+        \addlegendentry{Erro Relativo (\(\epsilon_k\))}
+
+        % Plot do valor absoluto da função
+        \addplot[
+            color=magenta, mark=*, mark options={fill=white}, thick 
+        ] table [col sep=comma, x=iter, y expr=abs(\thisrow{f(c)})] {../../dados/saida/questao_3_6/questao_3_6_hist_f1_bisseccao.csv};
+        \addlegendentry{\(|f(c_k)|\)}
+
+        \end{axis}
+    \end{tikzpicture}
+    \caption{Comportamento da convergência em escala logarítmica para a busca de $\alpha$ (Problema 3.6). A inclinação reta atesta a taxa de convergência linear do método.}
+    \label{fig:convergencia_bisseccao_missil}
+\end{figure}
+
+A Figura \ref{fig:convergencia_bisseccao_missil} corrobora de forma visual a análise, demonstrando, através da escala semi-logarítmica, que o erro de fato diminui à taxa constante previsível pela relação de recorrência $|x^* - c_k| \leq \frac{b-a}{2^k}$. A eficiência do método para este problema em específico provou-se altamente satisfatória, isolando a raiz sem exigir recursos adicionais para mitigar pontos de inflexão que poderiam prejudicar métodos abertos baseados em derivadas.
+
 
 % Para inclusão futura: Descrever o problema extraído do livro de Cálculo Numérico de Neide Franco.
 % - Inserir a equação avaliada f(x) = 0.
@@ -167,8 +251,90 @@ Observa-se que o resíduo apresenta magnitude estritamente compatível com a pre
 % - Plotar o gráfico de convergência.
 % - TESTE DA SOLUÇÃO: Realizar a avaliação de f(c_final) e atestar a veracidade numérica. Se houver falha, levantar a hipótese do porquê (ex: multiplicidade da raiz par, quebra do teorema de Bolzano, etc).
 
-\subsubsection{Problema Teste 3: [Nome do Problema 3]}
+\subsubsection{Problema Teste 3: Análise de Taxas de Juros em Planos de Financiamento}
 \label{subsubsec:problema_teste_3_bisseccao}
+
+A modelagem de sistemas financeiros frequentemente esbarra em equações transcendentais ou polinomiais de alto grau, cujas soluções analíticas são inviáveis. O Problema 3.8 exige a determinação da taxa de juros implícita ($J$) em duas modalidades de financiamento, visando identificar a opção mais vantajosa para o consumidor. O valor financiado ($VF$) corresponde ao preço à vista deduzido da entrada, resultando em $VF = 162.00 - 22.00 = 140.00$.
+
+A priori, a relação matemática que rege o valor presente de uma série de pagamentos uniformes é expressa por:
+\begin{equation}
+    \frac{1 - (1+J)^{-P}}{J} = \frac{VF}{PM}
+    \label{eq:juros_original}
+\end{equation}
+onde $P$ é o número de parcelas e $PM$ o valor da prestação. No entanto, o isolamento algébrico de $J$ nesta formulação é impossível. Adicionalmente, a Equação \ref{eq:juros_original} apresenta uma singularidade numérica natural quando $J \to 0$. Para contornar essa limitação e condicionar o problema aos métodos de busca de raízes, aplica-se a substituição de variáveis $x = 1+J$ e a constante de proporcionalidade $k = \frac{VF}{PM}$. Dessa forma, o modelo é reescrito na forma polinomial:
+\begin{equation}
+    f(x) = kx^{P+1} - (k+1)x^P + 1 = 0
+    \label{eq:juros_polinomial}
+\end{equation}
+
+Para o \textbf{Plano A}, os parâmetros são $P = 9$ e $PM = 26.50$, o que fornece $k_A = \frac{140}{26.5} \approx 5.2830$. A função objetivo torna-se um polinômio de grau 10. Observa-se que a Equação \ref{eq:juros_polinomial} possui uma raiz trivial em $x=1$ (o que implicaria $J=0$, fisicamente inconsistente para um financiamento). Assim, para forçar a convergência do algoritmo para a raiz de interesse financeiro ($J > 0 \implies x > 1$), o intervalo inicial de busca deve ser estritamente superior à unidade.
+
+Os dados processados pelo algoritmo basearam-se no intervalo inicial $[1.05, 1.30]$, que equivale a buscar uma taxa de juros entre $5\%$ e $30\%$ ao período, com uma tolerância rigorosa de $\epsilon < 10^{-6}$. A Tabela \ref{tab:bisseccao_juros} sumariza a evolução da convergência para o Plano A.
+
+\begin{table}[htpb]
+\centering
+\caption{Histórico iterativo do Método da Bissecção para determinação da taxa do Plano A ($f_1(x)$).}
+\label{tab:bisseccao_juros}
+\small
+\begin{tabular}{@{}cccccc@{}}
+\toprule
+\textbf{Iteração ($k$)} & $\mathbf{a_k}$ & $\mathbf{b_k}$ & $\mathbf{c_k}$ & $\mathbf{f_1(c_k)}$ & \textbf{Erro} ($\epsilon_k$) \\ \midrule
+0  & 1.050000 & 1.300000 & 1.175000 & \phantom{-}0.67780045 & 0.10638297 \\
+1  & 1.050000 & 1.175000 & 1.112500 & -0.05891906           & 0.05617977 \\
+2  & 1.112500 & 1.175000 & 1.143750 & \phantom{-}0.19422409 & 0.02732240 \\
+3  & 1.112500 & 1.143750 & 1.128125 & \phantom{-}0.04375379 & 0.01385041 \\
+4  & 1.112500 & 1.128125 & 1.120312 & -0.01301356           & 0.00697350 \\
+$\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$          & $\vdots$   \\
+14 & 1.122235 & 1.122250 & 1.122242 & -0.00003841           & 0.00000679 \\
+15 & 1.122242 & 1.122250 & 1.122246 & -0.00001211           & 0.00000339 \\
+16 & 1.122246 & 1.122250 & 1.122248 & \phantom{-}0.00000104 & 0.00000169 \\
+17 & 1.122246 & 1.122248 & 1.122247 & -0.00000553           & 0.00000084 \\ \bottomrule
+\end{tabular}
+\end{table}
+
+A partir da análise dos dados computacionais, verifica-se que logo na primeira iteração ($k=1$), a detecção de alteração de sinal ($f(a_1) \cdot f(c_1) < 0$) confinou a raiz no subintervalo $[1.1125, 1.1750]$, descartando a parcela superior do domínio. Por mais que a função polinomial possua alto grau — o que frequentemente induz gradientes acentuados e compromete a estabilidade de métodos preditivos como Newton-Raphson —, o Método da Bissecção não demonstrou qualquer sensibilidade à inclinação da curva, atestando sua inquestionável robustez.
+
+Durante as iterações subsequentes, nota-se o declínio assintótico rigoroso do erro. Na 17ª iteração, o critério de parada foi satisfeito, uma vez que o erro relativo computado $\epsilon_{17} \approx 8.49 \times 10^{-7}$ ultrapassou o limiar de tolerância imposto. O valor convergido de $c_{17} \approx 1.122247$ permite extrair diretamente a taxa de juros do Plano A:
+\begin{equation}
+    J_A = x_A - 1 \approx 0.122247 \quad \text{ou} \quad 12.22\% \text{ ao período.}
+\end{equation}
+
+Observa-se ainda que a avaliação do resíduo em $c_{17}$ retornou $f_1(1.122247) \approx -5.53 \times 10^{-6}$, comprovando numericamente que o ponto determinado é, de fato, a raiz do polinômio de financiamento.
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}
+        \begin{axis}[
+            width=14cm, height=7cm,
+            title={\bfseries Evolução do Erro e do Resíduo para o Plano A},
+            xlabel={Iteração (\(k\))},
+            ylabel={Métricas (Escala Logarítmica)},
+            ymode=log,
+            grid=both,
+            grid style={line width=.1pt, draw=gray!20},
+            major grid style={line width=.2pt,draw=gray!50},
+            legend pos=south west,
+            tick label style={font=\footnotesize},
+            label style={font=\small},
+        ]
+        
+        \addplot[
+            color=cyan, mark=triangle, thick 
+        ] table [col sep=comma, x=iter, y=erro] {../../dados/saida/questao_3_8/questao_3_8_hist_f1_bisseccao.csv};
+        \addlegendentry{Erro \(\epsilon_k\)}
+
+        \addplot[
+            color=red, mark=*, mark options={fill=white}, thick 
+        ] table [col sep=comma, x=iter, y expr=abs(\thisrow{f(c)})] {../../dados/saida/questao_3_8/questao_3_8_hist_f1_bisseccao.csv};
+        \addlegendentry{\(|f_1(c_k)|\)}
+
+        \end{axis}
+    \end{tikzpicture}
+    \caption{Gráfico de convergência atestando a contração linear do hipervolume de erro para a determinação da taxa de juros no Plano A.}
+    \label{fig:convergencia_bisseccao_juros}
+\end{figure}
+
+Torna-se evidente que, ao replicar o mesmo arcabouço computacional para o \textbf{Plano B} ($P=12$, $k_B \approx 6.5116$), o método revelará a taxa $J_B$. A tomada de decisão final pelo consumidor deverá ser pautada na comparação quantitativa das soluções extraídas, optando-se pelo plano cuja raiz computada ($x-1$) possua a menor magnitude. A formulação numérica provou-se altamente aderente ao problema proposto, mitigando as singularidades do modelo matemático original por meio da estratégia de substituição polinomial acoplada ao isolamento conservador da Bissecção.
 
 % Para inclusão futura: Repetir a estrutura adotada acima, analisando diferentes condições de contorno ou comportamentos oscilatórios da função que desafiem o Método da Bissecção.
 
@@ -180,3 +346,6 @@ Durante o ciclo de desenvolvimento, duas barreiras fundamentais requisitaram an�
 A primeira dificuldade decorreu de uma limitação algorítmica associada à manipulação em linguagem Python envolvendo o cálculo de erro relativo. O equacionamento inicial do erro demandava a divisão pela soma dos limites do intervalo $(a_k + b_k)$. Em problemas cujo domínio submetido contemplasse raízes simétricas (como, por exemplo, funções ímpares centradas na origem onde $a_k = -b_k$), o denominador se tornava nulo, causando o encerramento abrupto da aplicação mediante a exceção \texttt{ZeroDivisionError}. A transição adaptativa do erro relativo para o erro absoluto nesses pontos críticos exigiu criteriosa instrumentação de \textit{if-statements}, solucionando a limitação do ambiente sem desrespeitar o rigor numérico.
 
 A segunda dificuldade envolveu a aderência aos padrões de projeto de software estruturado. A intenção de isolar a lógica matemática da escrita de arquivos resultou na necessidade de encapsular o estado iterativo. Em iterações profundas, manter um vetor histórico de dicionários em memória, para apenas no final transferi-los para a rotina de escrita CSV (camada de controle), demonstrou inicialmente um ligeiro sobrepeso na alocação de variáveis. A superação exigiu refinamento na forma como o Python instancia e mapeia essas estruturas temporárias. Ainda que houvesse maior complexidade inicial no planejamento desta abstração, as hipóteses projetuais confirmaram-se válidas, viabilizando o uso de dados de saída padronizados independentemente do método matemático em execução.
+
+
+

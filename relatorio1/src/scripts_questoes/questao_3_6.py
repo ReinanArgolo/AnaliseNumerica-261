@@ -36,17 +36,15 @@ def modelar_funcoes():
     
     funcoes = {
         # Resolver: sin(α)cos(α) = 0.8 * tan(40°) * [1 - cos²(α)]
-        'f1': lambda x: (math.sin(x) * math.cos(x)) - 0.8 * tan_theta_2 * (1 - math.pow(math.cos(x), 2)),
-        
+        'f1': lambda x: math.sin(x)*math.cos(x) - tan_theta_2*(0.8 - math.cos(x)**2),
         # Ponto fixo: α = arctan(...)
         'g1': lambda x: math.atan((0.8 * tan_theta_2 * (1 - math.pow(math.cos(x), 2))) / math.cos(x)),
         'g2': lambda x: math.atan((math.sin(x) * math.cos(x)) / (0.8 - math.cos(x)**2)),
-        'g3': lambda x: math.acos(
-    math.sqrt(0.8 - (math.sin(x)*math.cos(x))/tan_theta_2)
+        'g3': lambda x: math.acos(math.sqrt(0.8 - (math.sin(x)*math.cos(x))/tan_theta_2)
 )
     }
     # Mapeamento de quais g's pertencem a cada f
-    funcoes['_mapping'] = {'f1': ['g1', 'g2']}
+    funcoes['_mapping'] = {'f1': ['g1', 'g2','g3']}
     return funcoes
 
 # ==============================================================================

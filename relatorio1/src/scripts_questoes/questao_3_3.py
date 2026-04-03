@@ -46,6 +46,12 @@ def modelar_funcoes():
         'g8': lambda x: x - 0.5*(1 - (1 + x + (x**2)/2)*math.exp(-x) - 0.9),
     }
 
+    # Mapeamento de quais g's pertencem a cada f
+    funcoes['_mapping'] = {
+        'f1': ['g1', 'g3', 'g7'],
+        'f2': ['g2', 'g4', 'g8']
+    }
+
     return funcoes
 
 # ==============================================================================
@@ -100,6 +106,7 @@ def rodar_algoritmos():
 
     # Recupera todas as funções matemáticas fornecidas no Modelador e separa Fs e Gs
     todas_funcoes = modelar_funcoes()
+    mapeamento_g_f = todas_funcoes.pop('_mapping', {})
     funcoes_principais = {nome: func for nome, func in todas_funcoes.items() if nome.startswith('f')}
     funcoes_iteracao = {nome: func for nome, func in todas_funcoes.items() if nome.startswith('g')}
 
@@ -130,9 +137,16 @@ def rodar_algoritmos():
         }
         
         # Acrescenta dinamicamente as execuções de Ponto Fixo (se houverem G(x)'s propostos)
-        for id_g, g_loop in funcoes_iteracao.items():
-            # Ex: A g1 pertence à f1, g2 à f2... Logo não cruza funções diferentes
-            if id_g.replace('g', '') == id_f.replace('f', ''): 
+        # Usa mapeamento se disponível, senão tenta correspondência por número
+        g_list = mapeamento_g_f.get(id_f, [])
+        if not g_list:
+            # Fallback: corresponde g1 com f1, g2 com f2, etc
+            numero_f = id_f.replace('f', '')
+            g_list = [g for g in funcoes_iteracao.keys() if g.replace('g', '') == numero_f]
+
+        for id_g in g_list:
+            if id_g in funcoes_iteracao:
+                g_loop = funcoes_iteracao[id_g]
                 metodos[f"{id_f} - Ponto Fixo ({id_g})"] = lambda g=g_loop: zeros_de_funcao.ponto_fixo(g, x0, tol, max_iter)
 
         for nome_metodo, chamada in metodos.items():

@@ -15,3 +15,4 @@ Note que:Posição Falsa e Secante concordam em algo perto de 53.40.Bissecção 
 houve um erro na conversão do método para radianos
 
 o primeiro ponto fixo não convergiu
+
