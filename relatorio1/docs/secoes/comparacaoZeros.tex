@@ -1,0 +1,171 @@
+\section{Análise Comparativa de Desempenho dos Métodos Numéricos}
+\label{sec:analise_comparativa}
+
+A determinação de raízes de equações não lineares pressupõe um compromisso inerente entre a robustez do algoritmo, a velocidade de convergência e o esforço analítico exigido para sua implementação. A fim de estabelecer um paralelo rigoroso sobre a eficiência topológica de cada técnica abordada (Bissecção, Posição Falsa, Ponto Fixo, Newton-Raphson e Secante), esta seção consolida o comportamento iterativo dos algoritmos perante os três cenários físicos propostos. O escrutínio pauta-se na sensibilidade à semente inicial, na estabilidade frente a não linearidades agudas e na aderência prática às ordens de convergência teóricas ($\mathcal{O}(N)$, superlinear e quadrática).
+
+\subsection{Avaliação no Problema 1: Resposta Transiente do Amplificador R-C}
+\label{subsec:comparativo_amplificador}
+
+O primeiro problema, caracterizado pelo isolamento do tempo de subida ($T_{0.1} \approx 1.102$), submeteu os métodos a uma curva dominada por uma atenuação exponencial ($f_1(T) = 1 - (1+T+T^2/2)e^{-T} - 0.1$). A Tabela \ref{tab:comparativo_prob1} sintetiza o esforço computacional despendido por cada método para atingir a margem de tolerância $\epsilon < 10^{-5}$.
+
+\begin{table}[htpb]
+\centering
+\caption{Quadro comparativo de desempenho para o Problema 1 (Busca de $T_{0.1}$).}
+\label{tab:comparativo_prob1}
+\small
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}llccl@{}}
+\toprule
+\textbf{Método} & \textbf{Semente / Intervalo} & \textbf{Iterações} & \textbf{Erro Terminal ($\epsilon_k$)} & \textbf{Classificação / Observação} \\ \midrule
+Bissecção & $[1.0, 2.0]$ & 16 & $6.92 \times 10^{-6}$ & Linear; estritamente conservador. \\
+Ponto Fixo ($g_3$) & $T_0 = 0.5$ & 40 & $7.86 \times 10^{-6}$ & Linear lenta; alta dependência de $g'(T)$. \\
+Posição Falsa & $[1.0, 2.0]$ & 6 & $3.80 \times 10^{-6}$ & Superlinear prática; estagnação de extremo. \\
+Secante & $T_0=1.0, T_1=2.0$ & 5 & $5.28 \times 10^{-8}$ & Superlinear ($p \approx 1.618$); ágil e estável. \\
+Newton-Raphson & $T_0 = 0.5$ & 5 & $3.25 \times 10^{-7}$ & Quadrática; salto inicial abrupto, rápida contração. \\ \bottomrule
+\end{tabular}%
+}
+\end{table}
+
+A fundamentação analítica revela que as técnicas dependentes de derivadas (ou aproximações de gradiente) ostentaram superioridade incontestável. Newton-Raphson e Secante isolaram a raiz com precisão terminal da ordem de $10^{-7}$ a $10^{-8}$ em meras 5 iterações. 
+
+A priori, o Método do Ponto Fixo (via isolamento logarítmico) demonstrou o maior custo algorítmico (40 iterações). Isto ocorre pois a constante de Lipschitz da função iterativa $g_3(T)$ estava muito próxima da unidade, induzindo uma convergência extremamente amortecida. Em contrapartida, a Posição Falsa, mesmo sofrendo da estagnação do extremo direito, mitigou o hipervolume de erro em apenas 6 passos, atestando que a suavidade côncava da exponencial neste domínio favoreceu a interpolação retilínea.
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}
+        \begin{axis}[
+            width=14cm, height=7cm,
+            title={\bfseries Comparativo de Decaimento do Erro Relativo (Amplificador R-C)},
+            xlabel={Iteração (\(k\))},
+            ylabel={Erro Relativo \(\epsilon_k\) (Log)},
+            ymode=log,
+            xmin=0, xmax=42,
+            grid=both,
+            grid style={line width=.1pt, draw=gray!20},
+            major grid style={line width=.2pt,draw=gray!50},
+            legend style={at={(0.98,0.98)}, anchor=north east, font=\footnotesize},
+            label style={font=\small},
+        ]
+        
+        \addplot[color=magenta, mark=*, thick] table[col sep=comma, x=iter, y=erro] {../dados/saida/questao_3_3/questao_3_3_hist_f1_bisseccao.csv};
+        \addlegendentry{Bissecção}
+
+        \addplot[color=purple, mark=diamond, thick] table[col sep=comma, x=iter, y=erro] {../dados/saida/questao_3_3/questao_3_3_hist_f1_pontofixo_g3.csv};
+        \addlegendentry{Ponto Fixo}
+
+        \addplot[color=teal, mark=square, thick] table[col sep=comma, x=iter, y=erro] {../dados/saida/questao_3_3/questao_3_3_hist_f1_posicaofalsa.csv};
+        \addlegendentry{Posição Falsa}
+
+        \addplot[color=orange, mark=triangle, thick] table[col sep=comma, x=iter, y=erro] {../dados/saida/questao_3_3/questao_3_3_hist_f1_secante.csv};
+        \addlegendentry{Secante}
+
+        \addplot[color=green!60!black, mark=pentagon*, thick] table[col sep=comma, x=iter, y=erro] {../dados/saida/questao_3_3/questao_3_3_hist_f1_newton_raphson.csv};
+        \addlegendentry{Newton-Raphson}
+
+        \end{axis}
+    \end{tikzpicture}
+    \caption{Superposição vetorial das taxas de convergência. O contraste entre a reta longa do Ponto Fixo ($\mathcal{O}(N)$) e a inflexão abrupta (concavidade para baixo) do Método de Newton reflete geometricamente as distintas ordens assintóticas.}
+    \label{fig:comparativo_amplificador}
+\end{figure}
+
+\subsection{Avaliação no Problema 2: Ângulo Balístico de Lançamento}
+\label{subsec:comparativo_missil}
+
+O modelo balístico, embasado em composições trigonométricas, introduziu não linearidades periódicas que expõem as fraquezas de métodos puramente abertos a oscilações. A meta consistiu em encontrar o ângulo $\alpha \approx 1.02376$ rad ($58.66^\circ$) sob a tolerância $\epsilon < 10^{-4}$.
+
+\begin{table}[htpb]
+\centering
+\caption{Quadro comparativo de desempenho para o Problema 2 (Ângulo $\alpha$).}
+\label{tab:comparativo_prob2}
+\small
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}llccl@{}}
+\toprule
+\textbf{Método} & \textbf{Semente / Intervalo} & \textbf{Iterações} & \textbf{Erro Terminal ($\epsilon_k$)} & \textbf{Classificação / Observação} \\ \midrule
+Bissecção & $[0.523, 1.047]$ & 12 & $6.24 \times 10^{-5}$ & Contração espacial uniforme. \\
+Ponto Fixo ($g_3$) & $\alpha_0 = 1.058$ & 15 & $6.35 \times 10^{-5}$ & Convergência oscilatória amortecida. \\
+Posição Falsa & $[0.523, 1.047]$ & 3 & $1.04 \times 10^{-6}$ & Excepcionalmente aderente à curvatura local. \\
+Secante & $\alpha_0=1.011, \alpha_1=1.047$ & 4 & $5.88 \times 10^{-7}$ & Alta precisão direcional. \\
+Newton-Raphson & $\alpha_0 = 1.025$ & 3 & $1.92 \times 10^{-6}$ & Rápido devido à ausência de platôs tangenciais. \\ \bottomrule
+\end{tabular}%
+}
+\end{table}
+
+A inspeção da Tabela \ref{tab:comparativo_prob2} atesta um raríssimo cenário em que a Posição Falsa superou ou empatou com os métodos de alta ordem, isolando o ângulo em apenas 3 iterações. A curvatura perfeitamente bem-comportada do seio e cosseno no primeiro quadrante alinhou a secante interpoladora quase perfeitamente com a tangente real. 
+
+No que tange ao Ponto Fixo, a convergência oscilatória (que saltava sistematicamente para cima e para baixo da raiz) exigiu 15 iterações para atenuar as perturbações trigonométricas induzidas pelo arco-cosseno. A Bissecção manteve seu decaimento linear inabalável, indiferente à topologia da função, comportando-se como um isolador universal confiável (12 iterações).
+
+\subsection{Avaliação no Problema 3: O Teste de Estresse Financeiro (Polinômio Grau 10)}
+\label{subsec:comparativo_juros}
+
+A avaliação dos planos de financiamento provou ser o mais rigoroso teste de estresse da bateria experimental. O \textbf{Plano A} gerou um polinômio de grau 10, cuja topologia é marcada por convexidade extrema e gradientes elevadíssimos à medida que se distancia da origem. O objetivo foi extrair $x \approx 1.12224$, equivalente a $J = 12.22\%$.
+
+\begin{table}[htpb]
+\centering
+\caption{Quadro comparativo crítico para o Problema 3 (Plano A - Grau 10).}
+\label{tab:comparativo_prob3}
+\small
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}llccl@{}}
+\toprule
+\textbf{Método} & \textbf{Semente / Intervalo} & \textbf{Iterações} & \textbf{Erro Terminal ($\epsilon_k$)} & \textbf{Diagnóstico Analítico} \\ \midrule
+Bissecção & $[1.05, 1.30]$ & 17 & $8.49 \times 10^{-7}$ & Imune à inclinação acentuada; estável. \\
+Posição Falsa & $[1.05, 1.30]$ & 56 & $9.87 \times 10^{-7}$ & \textbf{Falha de eficiência}: arrasto sublinear severo. \\
+Ponto Fixo ($\lambda$) & $x_0 = 1.12$ & 16 & $8.32 \times 10^{-7}$ & Requisitou \textit{tuning} matemático ($\lambda=0.05$). \\
+Newton-Raphson & $x_0 = 1.12$ & 3 & $6.45 \times 10^{-8}$ & Absoluta maestria; dominou as altas derivadas. \\
+Secante & $x_0=1.05, x_1=1.30$ & 8 & $6.81 \times 10^{-7}$ & \textbf{Falha física}: divergiu para raiz trivial $x=1$. \\ \bottomrule
+\end{tabular}%
+}
+\end{table}
+
+A matriz de resultados expõe de forma inconteste a interdependência entre a topologia da função e o escopo matemático do método:
+
+\begin{enumerate}
+    \item \textbf{A Convexidade:} O Método da Posição Falsa, que havia sido excepcional no Problema 2, demonstrou ser ineficiente aqui. A intensa convexidade do polinômio reteve a curva inteiramente abaixo da reta secante por uma extensão massiva do subdomínio, congelando o limite superior $b_k = 1.30$. As estimativas $c_k$ arrastaram-se por 56 iterações assintóticas, obliterando o tempo computacional.
+    \item \textbf{Newton-Raphson:} Enquanto a alta derivada local representou um desafio de divergência para o Ponto Fixo (resolvido artificialmente via relaxação linear $\lambda$), Newton-Raphson valeu-se deste mesmo gradiente elevado ($f'(x_k) \approx 6.5$) no denominador do seu fator de correção iterativa para realizar saltos minúsculos e precisamente calibrados. O método extinguiu o erro em meras 3 iterações.
+    \item \textbf{A Raiz Espúria:} O Método da Secante alcançou a tolerância em 8 iterações, configurando-se rápido, contudo, a convergência ocorreu de forma cega para a raiz trivial $x = 1.0$ (o que implica um juro físico de $0\%$). Esta falha comprova que métodos abertos desprovidos de controle direcional podem cruzar vales polinomiais e serem capturados por bacias de atração não-físicas, requerendo instrumentação analítica humana para validar a integridade semântica da resposta.
+\end{enumerate}
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}
+        \begin{axis}[
+            width=14cm, height=7cm,
+            title={\bfseries Comportamento Extremado frente à Alta Convexidade Polinomial},
+            xlabel={Iteração (\(k\))},
+            ylabel={Erro Relativo \(\epsilon_k\) (Log)},
+            ymode=log,
+            xmin=0, xmax=60,
+            grid=both,
+            grid style={line width=.1pt, draw=gray!20},
+            major grid style={line width=.2pt,draw=gray!50},
+            legend style={at={(0.98,0.98)}, anchor=north east, font=\footnotesize},
+            label style={font=\small},
+        ]
+        
+        \addplot[color=magenta, mark=*, thick] table[col sep=comma, x=iter, y=erro] {../dados/saida/questao_3_8/questao_3_8_hist_f1_bisseccao.csv};
+        \addlegendentry{Bissecção}
+
+        \addplot[color=teal, mark=square, thick] table[col sep=comma, x=iter, y=erro] {../dados/saida/questao_3_8/questao_3_8_hist_f1_posicaofalsa.csv};
+        \addlegendentry{Posição Falsa (Estagnação)}
+
+        \addplot[color=purple, mark=diamond, thick] table[col sep=comma, x=iter, y=erro] {../dados/saida/questao_3_8/questao_3_8_hist_f1_pontofixo_g1.csv};
+        \addlegendentry{Ponto Fixo ($\lambda = 0.05$)}
+
+        \addplot[color=green!60!black, mark=pentagon*, mark options={scale=1.5}, thick] table[col sep=comma, x=iter, y=erro] {../dados/saida/questao_3_8/questao_3_8_hist_f1_newton_raphson.csv};
+        \addlegendentry{Newton-Raphson}
+
+        \end{axis}
+    \end{tikzpicture}
+    \caption{Visualização da penalidade imposta pela estagnação unilateral na Posição Falsa (arrasto até $k=56$) em nítido contraste com o colapso imediato da curva de Newton-Raphson.}
+    \label{fig:comparativo_juros}
+\end{figure}
+
+\subsection{Conclusão Analítica Global}
+\label{subsec:conclusao_comparativa}
+
+A consolidação de dados transparece que a eficácia em Análise Numérica é eminentemente contextual. A \textbf{Bissecção} solidificou-se como a espinha dorsal de segurança; inabalável frente à convexidade e sem exigências de derivadas, seu tempo de computação é previsível e livre de capturas espúrias. 
+
+A \textbf{Posição Falsa} apresentou volatilidade: extraordinária em funções trigonométricas/exponenciais suaves, mas fatalmente morosa em polinômios de grau elevado. O \textbf{Ponto Fixo} evidenciou que a sua utilidade no mundo físico depende inteiramente da sensibilidade matemática prévia na formulação de $g(x)$, punindo o usuário com divergências infinitas se a constante de Lipschitz não for estabilizada.
+
+Torna-se evidente que \textbf{Newton-Raphson} atua como o estimador definitivo nas vizinhanças da raiz, isolando não linearidades com precisão microscópica em tempos algorítmicos irrisórios, graças à retroalimentação contínua de seus gradientes. A \textbf{Secante} emula esta potência dispensando o cálculo formal da derivada; no entanto, o preço de tal agilidade extrapolativa é a perda de garantia de domínio geométrico, o que, como provado, pode conduzir um sistema a uma convergência matematicamente perfeita, porém catastroficamente inútil no plano físico.
