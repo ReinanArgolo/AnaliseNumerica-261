@@ -123,7 +123,7 @@ A convergência foi atingida na 16ª iteração, com o erro caindo abaixo da tol
         ]
         \addplot[
             color=magenta, mark=*, mark options={fill=white, scale=1.2}, thick 
-        ] table [col sep=comma, x=iter, y={f(c)}] {../../dados/saida/questao_3_3/questao_3_3_hist_f1_bisseccao.csv};
+        ] table [col sep=comma, x=iter, y={f(c)}] {../dados/saida/questao_3_3/questao_3_3_hist_f1_bisseccao.csv};
         \addlegendentry{Resíduo \(f_1(c)\)}
         \end{axis}
     \end{tikzpicture}
@@ -226,13 +226,13 @@ Para atestar a validade da aproximação numérica, submete-se o valor $c_{12} =
         % Plot do erro 
         \addplot[
             color=blue, mark=square, thick 
-        ] table [col sep=comma, x=iter, y=erro] {../../dados/saida/questao_3_6/questao_3_6_hist_f1_bisseccao.csv};
+        ] table [col sep=comma, x=iter, y=erro] {../dados/saida/questao_3_6/questao_3_6_hist_f1_bisseccao.csv};
         \addlegendentry{Erro Relativo (\(\epsilon_k\))}
 
         % Plot do valor absoluto da função
         \addplot[
             color=magenta, mark=*, mark options={fill=white}, thick 
-        ] table [col sep=comma, x=iter, y expr=abs(\thisrow{f(c)})] {../../dados/saida/questao_3_6/questao_3_6_hist_f1_bisseccao.csv};
+        ] table [col sep=comma, x=iter, y expr=abs(\thisrow{f(c)})] {../dados/saida/questao_3_6/questao_3_6_hist_f1_bisseccao.csv};
         \addlegendentry{\(|f(c_k)|\)}
 
         \end{axis}
@@ -320,12 +320,12 @@ Observa-se ainda que a avaliação do resíduo em $c_{17}$ retornou $f_1(1.12224
         
         \addplot[
             color=cyan, mark=triangle, thick 
-        ] table [col sep=comma, x=iter, y=erro] {../../dados/saida/questao_3_8/questao_3_8_hist_f1_bisseccao.csv};
+        ] table [col sep=comma, x=iter, y=erro] {../dados/saida/questao_3_8/questao_3_8_hist_f1_bisseccao.csv};
         \addlegendentry{Erro \(\epsilon_k\)}
 
         \addplot[
             color=red, mark=*, mark options={fill=white}, thick 
-        ] table [col sep=comma, x=iter, y expr=abs(\thisrow{f(c)})] {../../dados/saida/questao_3_8/questao_3_8_hist_f1_bisseccao.csv};
+        ] table [col sep=comma, x=iter, y expr=abs(\thisrow{f(c)})] {../dados/saida/questao_3_8/questao_3_8_hist_f1_bisseccao.csv};
         \addlegendentry{\(|f_1(c_k)|\)}
 
         \end{axis}

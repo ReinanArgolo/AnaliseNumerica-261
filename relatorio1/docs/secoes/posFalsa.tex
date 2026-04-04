@@ -1,0 +1,317 @@
+\section{Método da Posição Falsa}
+\label{sec:metodo_posicao_falsa}
+
+O Método da Posição Falsa (ou \textit{Regula Falsi}) constitui uma técnica numérica de confinamento para a determinação de raízes de equações não lineares que, à semelhança do Método da Bissecção, exige um intervalo inicial $[a, b]$ no qual a função $f(x)$ seja contínua e satisfaça o Teorema de Bolzano ($f(a) \cdot f(b) < 0$). No entanto, em vez de particionar o domínio cegamente ao meio, a estratégia utiliza uma interpolação linear: a raiz aproximada é definida como a interseção do eixo das abscissas com a reta secante que conecta os pontos $(a, f(a))$ e $(b, f(b))$. Essa ponderação geométrica atrai a estimativa iterativa para o extremo do intervalo que apresenta o menor valor absoluto da função, proporcionando, na maioria dos cenários não patológicos, uma convergência substancialmente mais acelerada do que a bissecção tradicional.
+
+\subsection{Estratégia de Implementação}
+\label{subsec:estrategia_implementacao_posicao_falsa}
+
+O desenvolvimento computacional da técnica priorizou a eficiência no cômputo da aproximação linear e a robustez na avaliação do erro. A rotina principal foi implementada no ambiente Python, aderindo aos mesmos padrões de modularidade previamente estabelecidos.
+
+\begin{lstlisting}[language=Python, caption={Código de implementação do Método da Posição Falsa}, label={lst:posicao_falsa_codigo}]
+def posicaoFalsa(funcao, a, b, tol=1e-6, max_iter=100):
+    historico =[] 
+    
+    for i in range(max_iter):
+        c_an = historico[-1]['c'] if historico else a  
+        c = b - (funcao(b) * (a - b)) / (funcao(a) - funcao(b))
+        fc = funcao(c)
+
+        er = abs(c - c_an) / c if c != 0 else 0
+       
+        historico.append({
+            'iter': i, 
+            'a': a, 
+            'b': b, 
+            'c': c, 
+            'f(c)': fc,
+            'erro': er
+        })
+        
+        if fc == 0 or er < tol:
+            return c, i, historico
+            
+        if utils.teorema_bolzano(funcao, a, c):
+            b = c
+        else:
+            a = c
+            
+    return c, max_iter, historico
+\end{lstlisting}
+
+A cada iteração $k$, o cálculo da nova estimativa da raiz $c_k$ é governado pela equação da reta secante, estruturada algebricamente para minimizar erros de cancelamento subtrativo:
+\begin{equation}
+    c_k = b_k - \frac{f(b_k)(a_k - b_k)}{f(a_k) - f(b_k)}
+    \label{eq:posicao_falsa_ck}
+\end{equation}
+
+Uma alteração arquitetural crítica em relação ao Método da Bissecção foi necessária na métrica de convergência. Como o Método da Posição Falsa tende a fixar um dos extremos do intervalo (estagnação de $a_k$ ou $b_k$ dependendo da concavidade da função), a amplitude do intervalo $(b_k - a_k)$ não converge a zero. Dessa forma, adotou-se o erro relativo entre aproximações consecutivas como critério principal:
+\begin{equation}
+    \epsilon_k = \frac{|c_k - c_{k-1}|}{|c_k|}
+    \label{eq:erro_posicao_falsa}
+\end{equation}
+
+Para prevenir interrupções sistêmicas (\texttt{ZeroDivisionError}) caso a raiz aproximada atinja o valor exato zero durante as iterações, condicionou-se matematicamente a expressão por meio de um operador ternário (\texttt{c != 0 else 0}). Os critérios de parada encerram a execução quer seja pela descoberta da raiz exata ($f(c_k) = 0$), pelo alcance da precisão tolerada ($\epsilon_k < tol$), ou pelo esgotamento da cota de iterações (\texttt{max\_iter}).
+
+\subsection{Estrutura dos Arquivos de Entrada e Saída}
+\label{subsec:estrutura_arquivos_posicao_falsa}
+
+A fim de assegurar a integridade dos testes e a geração automatizada das análises gráficas documentadas, preservou-se a mesma estrutura de diretórios implementada no método anterior. 
+
+Os hiperparâmetros de controle e os limites de busca iniciais foram dispostos em arquivos de configuração textual na pasta \texttt{dados/entradas/}. Em contrapartida, a extração dos dados iterativos operados pela função principal é transposta em tempo de execução para tabelas \texttt{.csv} localizadas em \texttt{dados/saidas/}. Tal formato possibilita que os resultados numéricos, as taxas de convergência de $\epsilon_k$ e os resíduos da função $f(c_k)$ sejam processados e integrados diretamente ao documento LaTeX de modo vetorizado e analítico, abstendo o leitor de análises manuais imprecisas.
+
+\subsection{Problemas Teste}
+\label{subsec:problemas_testes_posicao_falsa}
+
+A robustez analítica do método supracitado foi submetida a verificação mediante a resolução de problemas físicos e matemáticos provenientes de literatura canônica. O propósito intrínseco destas avaliações não é apenas aferir o funcionamento isolado da implementação, mas sobretudo diagnosticar comparativamente a sua eficiência iterativa face às não linearidades apresentadas pelas funções.
+
+% -----------------------------------------------------------------------------
+% NOTA: As subseções de problemas devem ser inseridas aqui nas etapas seguintes, 
+% seguindo a mesma estrutura de tabelas, gráficos TikZ, testes de validação do 
+% resíduo na equação e análises de convergência utilizadas anteriormente.
+% -----------------------------------------------------------------------------
+
+\subsubsection{Problema Teste 1: Tempo de Subida de um Amplificador}
+\label{subsubsec:problema_teste_1_posicao_falsa}
+
+O primeiro cenário de validação retoma o cálculo do tempo de subida de um amplificador eletrônico com acoplamento R-C. O objetivo físico consiste em determinar o intervalo temporal normalizado $\Delta T$ no qual a resposta ao degrau unitário, denotada por $g(T)$, evolui de $10\%$ para $90\%$ do seu valor estacionário. A modelagem matemática demanda a extração das raízes de duas funções auxiliares:
+\begin{align}
+    f_1(T) &= 1 - \left(1 + T + \frac{T^2}{2}\right)e^{-T} - 0.1 = 0 \label{eq:f1_posicao_falsa} \\
+    f_2(T) &= 1 - \left(1 + T + \frac{T^2}{2}\right)e^{-T} - 0.9 = 0 \label{eq:f2_posicao_falsa}
+\end{align}
+
+Para a resolução de $f_1(T)$ (busca por $T_{0.1}$), o algoritmo foi alimentado com o intervalo $[1.0, 2.0]$ e uma tolerância de erro relativo entre iterações estipulada em $\epsilon < 10^{-5}$. A Tabela \ref{tab:posicao_falsa_f1} explicita o progresso numérico do estimador.
+
+\begin{table}[htpb]
+\centering
+\caption{Histórico iterativo do Método da Posição Falsa para a busca de $T_{0.1}$ na função $f_1(T)$.}
+\label{tab:posicao_falsa_f1}
+\small
+\begin{tabular}{@{}cccccc@{}}
+\toprule
+\textbf{Iteração ($k$)} & $\mathbf{a_k}$ & $\mathbf{b_k}$ & $\mathbf{c_k}$ & $\mathbf{f_1(c_k)}$ & \textbf{Erro} ($\epsilon_k$) \\ \midrule
+0 & 1.000000 & 2.000000 & 1.081056 & -0.00420140 & 0.07497923 \\
+1 & 1.081056 & 2.000000 & 1.098025 & -0.00081355 & 0.01545402 \\
+2 & 1.098025 & 2.000000 & 1.101299 & -0.00015441 & 0.00297276 \\
+3 & 1.101299 & 2.000000 & 1.101920 & -0.00002919 & 0.00056352 \\
+4 & 1.101920 & 2.000000 & 1.102037 & -0.00000551 & 0.00010652 \\
+5 & 1.102037 & 2.000000 & 1.102060 & -0.00000104 & 0.00002012 \\
+6 & 1.102060 & 2.000000 & 1.102064 & -0.00000019 & 0.00000380 \\ \bottomrule
+\end{tabular}
+\end{table}
+
+A partir da análise da Tabela \ref{tab:posicao_falsa_f1}, torna-se evidente um traço comportamental intrínseco ao Método da Posição Falsa: a estagnação de extremidade. Observa-se que o limite superior $b_k = 2.0$ manteve-se inalterado por todo o laço iterativo. Este fenômeno é um efeito direto da concavidade da função $f_1(T)$ no domínio avaliado. Como a curva retém seu formato sem alternância de concavidade no subintervalo, a reta secante invariavelmente intercepta o eixo das abscissas à esquerda da raiz verdadeira, causando a atualização exclusiva do limite inferior $a_k$.
+
+Por mais que o intervalo de confinamento $[a_k, b_k]$ não convirja para a nulidade, a estimativa da raiz $c_k$ converge rapidamente. O critério de parada foi satisfeito na 6ª iteração ($\epsilon_6 \approx 3.80 \times 10^{-6}$), revelando a raiz $T_{0.1} \approx 1.102064$. 
+
+Em um procedimento espelhado, a busca por $T_{0.9}$ mediante a Equação \ref{eq:f2_posicao_falsa} foi conduzida no intervalo inicial $[5.0, 9.0]$. Os dados operacionais revelaram convergência em apenas 5 iterações. De forma diametralmente oposta ao primeiro caso, a concavidade local de $f_2(T)$ fixou o limite inferior $a_k = 5.0$, forçando a secante a atualizar exclusivamente o teto do intervalo $b_k$. A raiz isolada foi $T_{0.9} \approx 5.322324$.
+
+Por conseguinte, o tempo de subida normalizado do amplificador é computado por:
+\begin{equation}
+    \Delta T = T_{0.9} - T_{0.1} \approx 5.322324 - 1.102064 = 4.220260
+\end{equation}
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}
+        \begin{axis}[
+            width=14cm, height=7cm,
+            title={\bfseries Dinâmica de Convergência no Método da Posição Falsa (Busca de \(T_{0.1}\))},
+            xlabel={Iteração (\(k\))},
+            ylabel={Magnitude (Escala Logarítmica)},
+            ymode=log,
+            grid=both,
+            grid style={line width=.1pt, draw=gray!20},
+            major grid style={line width=.2pt,draw=gray!50},
+            legend pos=south west,
+            tick label style={font=\footnotesize},
+            label style={font=\small},
+        ]
+        
+        \addplot[
+            color=teal, mark=square, thick 
+        ] table[col sep=comma, x=iter, y=erro] {../dados/saida/questao_3_3/questao_3_3_hist_f1_posicaofalsa.csv};
+        \addlegendentry{Erro Relativo \(\epsilon_k\)}
+
+        \addplot[
+            color=orange, mark=*, mark options={fill=white}, thick 
+        ] table[col sep=comma, x=iter, y expr=abs(\thisrow{f(c)})] {../dados/saida/questao_3_3/questao_3_3_hist_f1_posicaofalsa.csv};
+        \addlegendentry{\(|f_1(c_k)|\)}
+
+        \end{axis}
+    \end{tikzpicture}
+    \caption{Amortecimento do erro relativo e do valor residual para $f_1(T)$. A inclinação contínua e acentuada nos primeiros estágios atesta a rápida convergência local proporcionada pela interpolação linear da secante.}
+    \label{fig:convergencia_posicao_falsa_amplificador}
+\end{figure}
+
+\textbf{Validação da Solução:}
+
+Para atestar a consistência matemática dos resultados obtidos em face do modelo físico proposto, procede-se à verificação dos resíduos. Substituindo a aproximação numérica extraída $T_{0.1} = 1.102064$ na Equação \ref{eq:f1_posicao_falsa}, constata-se que o resíduo recai na ordem de $f_1(c_6) \approx -1.96 \times 10^{-7}$. De maneira análoga, a injeção do valor correspondente $T_{0.9} = 5.322324$ na Equação \ref{eq:f2_posicao_falsa} produz um resíduo de magnitude $3.10 \times 10^{-7}$. 
+
+Nota-se que, em ambos os cenários de avaliação, a magnitude do erro absoluto associado à função encontra-se estritamente delimitada pela margem de tolerância algorítmica estipulada ($< 10^{-5}$). Dessa forma, valida-se o comportamento estável e convergente do Método da Posição Falsa, assegurando que o tempo de subida normalizado extraído ($\Delta T \approx 4.220260$) reflete de forma precisa e coerente a dinâmica real do amplificador R-C submetido a um degrau unitário de tensão.
+
+\subsubsection{Problema Teste 2: Ângulo de Lançamento Balístico de um Míssil}
+\label{subsubsec:problema_teste_2_posicao_falsa}
+
+O segundo escopo de validação avalia o desempenho algorítmico frente a equações transcendentais de natureza trigonométrica, cujo objetivo é determinar o ângulo de inclinação ótimo ($\alpha$) para o lançamento de um míssil visando atingir um alvo a um deslocamento angular $\theta = 80^\circ$. A partir dos parâmetros físicos fornecidos e da linearização algébrica necessária para mitigar singularidades (divisão por zero), retoma-se a função de avaliação em radianos:
+\begin{equation}
+    f(\alpha) = \sin(\alpha)\cos(\alpha) - \operatorname{tg}\left(40^\circ\right)\left(0.8 - \cos^2(\alpha)\right) = 0
+    \label{eq:missil_funcao_posicao_falsa}
+\end{equation}
+
+A pesquisa pelo zero da função foi delimitada ao primeiro quadrante trigonométrico, sob o intervalo inicial de $[30^\circ, 60^\circ]$, que no domínio radiano corresponde a aproximadamente $[0.5236, 1.0472]$. O limite de tolerância estabelecido para o critério de parada foi de $\epsilon < 10^{-4}$. O cômputo evolutivo das iterações está sumarizado na Tabela \ref{tab:posicao_falsa_missil}.
+
+\begin{table}[htpb]
+\centering
+\caption{Histórico iterativo do Método da Posição Falsa para o modelo balístico $f(\alpha)$.}
+\label{tab:posicao_falsa_missil}
+\small
+\begin{tabular}{@{}cccccc@{}}
+\toprule
+\textbf{Iteração ($k$)} & $\mathbf{a_k}$ & $\mathbf{b_k}$ & $\mathbf{c_k}$ & $\mathbf{f(c_k)}$ & \textbf{Erro Relativo} ($\epsilon_k$) \\ \midrule
+0 & 0.523598 & 1.047197 & 1.011639 & \phantom{-}0.01452542 & 0.48242546 \\
+1 & 1.011639 & 1.047197 & 1.023646 & \phantom{-}0.00013980 & 0.01172932 \\
+2 & 1.023646 & 1.047197 & 1.023761 & \phantom{-}0.00000130 & 0.00011232 \\
+3 & 1.023761 & 1.047197 & 1.023762 & \phantom{-}0.00000001 & 0.00000104 \\ \bottomrule
+\end{tabular}
+\end{table}
+
+A interpretação analítica dos dados revela, novamente, a forte assinatura de estagnação unilateral característica deste método heurístico. Torna-se evidente que o limite superior $b_k \approx 1.0472$ não sofreu atualização em nenhuma etapa do ciclo. Esse comportamento decorre do perfil suave e côncavo da composição trigonométrica no intervalo isolado, fazendo com que as retas secantes geradas sucessivamente cruzem o eixo das abscissas sempre à esquerda da raiz verdadeira, promovendo uma elevação estrita e contínua do limite inferior $a_k$.
+
+Embora a imobilidade de um dos extremos seja frequentemente vista como um fator limitante em alguns contextos numéricos, para esta topologia funcional específica, ela resultou em uma aceleração drástica da convergência. O critério de parada $\epsilon_k < 10^{-4}$ foi superado logo na 3ª iteração, atingindo-se um erro da ordem de $\approx 1.04 \times 10^{-6}$. A aproximação terminal computada foi de $c_3 \approx 1.023762$ radianos. Transpondo este valor para a grandeza física inteligível do problema, o ângulo ideal de lançamento obtido é $\alpha \approx 58.65^\circ$.
+
+\textbf{Validação da Solução:}
+
+A fim de atestar o rigor e a corretude da abstração computacional, procede-se à inserção da raiz isolada $c_3 = 1.023762$ no modelo fenomenológico original (Equação \ref{eq:missil_funcao_posicao_falsa}). A avaliação funcional produz um resíduo de magnitude $f(c_3) \approx 1.22 \times 10^{-8}$. 
+
+Nota-se que a discrepância matemática em relação ao zero perfeito se encontra próxima à fronteira do erro de arredondamento inerente à aritmética de ponto flutuante, atestando inequivocamente que a estimativa calculada representa a solução exata para o sistema cinemático. 
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}
+        \begin{axis}[
+            width=14cm, height=7cm,
+            title={\bfseries Evolução do Erro e Magnitude Residual para o Ângulo Balístico},
+            xlabel={Iteração (\(k\))},
+            ylabel={Métricas (Escala Logarítmica)},
+            ymode=log,
+            grid=both,
+            grid style={line width=.1pt, draw=gray!20},
+            major grid style={line width=.2pt,draw=gray!50},
+            legend pos=north east,
+            tick label style={font=\footnotesize},
+            label style={font=\small},
+        ]
+        
+        \addplot[
+            color=blue, mark=triangle, thick 
+        ] table[col sep=comma, x=iter, y=erro] {../dados/saida/questao_3_6/questao_3_6_hist_f1_posicaofalsa.csv};
+        \addlegendentry{Erro Relativo \(\epsilon_k\)}
+
+        \addplot[
+            color=magenta, mark=*, mark options={fill=white}, thick 
+        ] table[col sep=comma, x=iter, y expr=abs(\thisrow{f(c)})] {../dados/saida/questao_3_6/questao_3_6_hist_f1_posicaofalsa.csv};
+        \addlegendentry{\(|f(c_k)|\)}
+
+        \end{axis}
+    \end{tikzpicture}
+    \caption{Gráfico de convergência da aproximação do ângulo de lançamento $\alpha$ pelo Método da Posição Falsa. A queda abrupta nas primeiras iterações valida o alto desempenho da interpolação linear frente à topologia da função analisada.}
+    \label{fig:convergencia_posicao_falsa_missil}
+\end{figure}
+
+A Figura \ref{fig:convergencia_posicao_falsa_missil} ilustra, sob domínio semi-logarítmico, o decréscimo vertiginoso do resíduo e do erro relativo. A ausência de comportamento assintótico horizontal reafirma que o método, apesar da estagnação do extremo direito do intervalo, não sofreu penalizações severas por lentidão, consolidando a eficácia da implementação para sistemas trigonométricos bem condicionados.
+
+\subsubsection{Problema Teste 3: Análise de Taxas de Juros em Planos de Financiamento}
+\label{subsubsec:problema_teste_3_posicao_falsa}
+
+A modelagem de sistemas de amortização financeira frequentemente recai sobre a resolução de polinômios de alto grau, cujas raízes determinam as taxas de juros implícitas de uma transação. O Problema 3.8 propõe a avaliação de dois planos de financiamento para um bem com valor financiado $VF = 140.00$ (preço à vista deduzido da entrada). A determinação da taxa de juros $J$ exige a solução do polinômio característico derivado do valor presente:
+\begin{equation}
+    f(x) = kx^{P+1} - (k+1)x^P + 1 = 0
+    \label{eq:juros_polinomial_posicao_falsa}
+\end{equation}
+onde $x = 1+J$, $P$ é o número de parcelas e $k = \frac{VF}{PM}$ é a razão entre o valor financiado e a prestação mensal ($PM$).
+
+Para o \textbf{Plano A} ($P = 9$, $PM = 26.50$), obtém-se $k_A \approx 5.2830$, resultando em um polinômio de grau 10. O algoritmo da Posição Falsa foi instanciado com o intervalo inicial de busca em $[1.05, 1.30]$ e tolerância de erro relativo entre as aproximações de $\epsilon < 10^{-6}$. A Tabela \ref{tab:posicao_falsa_juros_f1} sumariza a evolução numérica.
+
+\begin{table}[htpb]
+\centering
+\caption{Histórico iterativo do Método da Posição Falsa para determinação da taxa do Plano A ($f_1(x)$).}
+\label{tab:posicao_falsa_juros_f1}
+\small
+\begin{tabular}{@{}cccccc@{}}
+\toprule
+\textbf{Iteração ($k$)} & $\mathbf{a_k}$ & $\mathbf{b_k}$ & $\mathbf{c_k}$ & $\mathbf{f_1(c_k)}$ & \textbf{Erro} ($\epsilon_k$) \\ \midrule
+0  & 1.050000 & 1.300000 & 1.054818 & -0.14841294 & 0.00456782 \\
+1  & 1.054818 & 1.300000 & 1.059768 & -0.15374184 & 0.00467089 \\
+2  & 1.059768 & 1.300000 & 1.064788 & -0.15720963 & 0.00471514 \\
+10 & 1.096455 & 1.300000 & 1.099881 & -0.11263716 & 0.00311432 \\
+30 & 1.121422 & 1.300000 & 1.121562 & -0.00468963 & 0.00012442 \\
+55 & 1.122240 & 1.300000 & 1.122241 & -0.00004489 & 0.00000118 \\
+56 & 1.122241 & 1.300000 & 1.122242 & -0.00003725 & 0.00000098 \\ \bottomrule
+\end{tabular}
+\end{table}
+
+A partir da observação dos resultados, torna-se evidente um caso patológico clássico associado ao Método da Posição Falsa. Por mais que a técnica utilize a interpolação linear para acelerar a busca, a topologia de um polinômio de grau 10 apresenta uma convexidade extrema no domínio avaliado. Dessa forma, a curva mantém-se estritamente abaixo da reta secante por uma longa extensão, forçando o extremo superior ($b_k = 1.30$) a permanecer estagnado durante todas as 56 iterações necessárias para que o critério de parada fosse atingido. Consequentemente, as aproximações $c_k$ avançam em incrementos minúsculos a partir da esquerda, caracterizando uma convergência dolorosamente sublinear.
+
+De modo análogo, o \textbf{Plano B} ($P = 12$, $PM = 21.50$, $k_B \approx 6.5116$) eleva o modelo a um polinômio de grau 13. A acentuação da não linearidade exacerbou o fenômeno de estagnação relatado. Os dados processados revelaram que o algoritmo demandou expressivas 95 iterações no mesmo domínio $[1.05, 1.30]$ para conformar o erro relativo à margem exigida ($< 10^{-6}$).
+
+\textbf{Validação da Solução:}
+
+Apesar do esforço iterativo severo ditado pelas características da função, a integridade matemática da raiz isolada manteve-se inabalada. Para o Plano A, a execução encerrou-se em $c_{56} \approx 1.122242$, reportando um resíduo da função $f_1(c_{56}) \approx -3.72 \times 10^{-5}$. Esse ponto mapeia diretamente para a taxa de juros do primeiro financiamento:
+\begin{equation}
+    J_A = x_A - 1 \approx 0.122242 \quad \implies \quad 12.22\% \text{ ao período.}
+\end{equation}
+
+Simultaneamente, para o Plano B, a convergência reportou a raiz $c_{95} \approx 1.109368$, com resíduo algorítmico avaliado em $f_2(c_{95}) \approx -1.18 \times 10^{-4}$. Extraindo a respectiva taxa de juros:
+\begin{equation}
+    J_B = x_B - 1 \approx 0.109368 \quad \implies \quad 10.93\% \text{ ao período.}
+\end{equation}
+
+A consistência dos resíduos em relação à tolerância valida as soluções encontradas. Portanto, sob a perspectiva analítica e econômica, a determinação numérica comprova inequivocamente que o \textbf{Plano B} é o mais vantajoso para o consumidor, haja vista apresentar a menor taxa de juros intrínseca à operação ($10.93\% < 12.22\%$).
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}
+        \begin{axis}[
+            width=14cm, height=7cm,
+            title={\bfseries Estagnação Iterativa e Convergência Sublinear em Polinômios Financeiros},
+            xlabel={Iteração (\(k\))},
+            ylabel={Erro Relativo \(\epsilon_k\) (Escala Logarítmica)},
+            ymode=log,
+            grid=both,
+            grid style={line width=.1pt, draw=gray!20},
+            major grid style={line width=.2pt,draw=gray!50},
+            legend pos=north east,
+            tick label style={font=\footnotesize},
+            label style={font=\small},
+        ]
+        
+        % Plot Plano A (f1)
+        \addplot[
+            color=cyan, mark=*, mark options={fill=white, scale=0.8}, thick 
+        ] table[col sep=comma, x=iter, y=erro] {../dados/saida/questao_3_8/questao_3_8_hist_f1_posicaofalsa.csv};
+        \addlegendentry{Plano A (Grau 10)}
+
+        % Plot Plano B (f2)
+        \addplot[
+            color=red, mark=square, mark options={fill=white, scale=0.8}, thick 
+        ] table [col sep=comma, x=iter, y=erro] {../dados/saida/questao_3_8/questao_3_8_hist_f2_posicaofalsa.csv};
+        \addlegendentry{Plano B (Grau 13)}
+
+        \end{axis}
+    \end{tikzpicture}
+    \caption{Lentidão inerente ao Método da Posição Falsa na avaliação dos planos. A suavidade da curva de decaimento do erro denota a penalização imposta pela alta convexidade das funções, exigindo quase 100 iterações para o Plano B.}
+    \label{fig:convergencia_posicao_falsa_juros}
+\end{figure}
+
+Observa-se, por intermédio da Figura \ref{fig:convergencia_posicao_falsa_juros}, que as taxas de decaimento do erro acompanham assíntotas quase horizontais em suas parcelas medianas, confirmando visualmente a perda de eficiência da interpolação secante. Este problema expõe uma limitação crítica da \textit{Regula Falsi}: em funções contendo derivadas segundas elevadas e constantes no intervalo de busca, o método garante a convergência, mas à custa de um processamento numérico exaustivo.
+
+
+\subsection{Dificuldades Enfrentadas}
+\label{subsec:dificuldades_posicao_falsa}
+
+Durante a transição analítica do Método da Bissecção para o Método da Posição Falsa, o principal obstáculo enfrentado residiu no comportamento assintótico intrínseco a este último. 
+
+A priori, a tentativa de reaproveitar a fórmula de erro baseada na amplitude geométrica do intervalo ($\Delta_k = b_k - a_k$) resultou em laços iterativos infinitos e consequente exaustão de \textit{timeout} computacional. Este fenômeno ocorre pois, dependendo das características de convexidade de $f(x)$, uma das extremidades do intervalo permanece imutável por todas as iterações (estagnação de extremo), impedindo que a distância entre $a$ e $b$ diminua sucessivamente até a tolerância requerida.
+
+Para contornar essa falácia de projeto, a lógica interna demandou um refatoramento focado na persistência do estado da variável de convergência. A introdução de um acesso ao histórico (\texttt{historico[-1]['c']}) permitiu recuperar o valor de $c_{k-1}$ a um baixo custo computacional. Tal reestruturação viabilizou o cálculo preciso do desvio relativo entre estimativas sucessivas (Equação \ref{eq:erro_posicao_falsa}). Adicionalmente, verificou-se o surgimento de singularidades quando $c_k \to 0$, o que foi prontamente mitigado com blocos condicionais de escape no cálculo fracionário. Essas adequações garantiram que a arquitetura do código permanecesse ortogonal às patologias puramente matemáticas do algoritmo.

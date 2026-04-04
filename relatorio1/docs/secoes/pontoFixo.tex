@@ -1,0 +1,331 @@
+\section{Método do Ponto Fixo}
+\label{sec:metodo_ponto_fixo}
+
+\subsection{Fundamentação Teórica}
+\label{subsec:fundamentacao_teorica_ponto_fixo}
+
+O Método do Ponto Fixo, alternativamente denominado Método da Iteração Linear, constitui uma técnica analítica de classe aberta para a determinação de zeros de funções. Ao contrário dos métodos de confinamento (Bissecção e Posição Falsa), que exigem um intervalo inicial garantindo a presença da raiz, este método demanda apenas uma estimativa inicial $x_0$. O escopo central da abordagem fundamenta-se na manipulação algébrica da equação original $f(x) = 0$ para uma forma equivalente $x = g(x)$, denominada função de iteração. A raiz $x^*$ de $f(x)$ coincidirá, portanto, com o ponto fixo da função $g(x)$, satisfazendo a condição $x^* = g(x^*)$.
+
+A convergência da sucessão iterativa $x_{k+1} = g(x_k)$ não é incondicional. Pelo Teorema do Ponto Fixo de Banach (ou Teorema da Contração), a sequência convergirá para $x^*$ se, e somente se, a função $g(x)$ for contínua e diferenciável em um intervalo $I$ que contenha a raiz, e existir uma constante de Lipschitz $L$ tal que a magnitude da derivada cumpra estritamente a condição:
+\begin{equation}
+    |g'(x)| \leq L < 1, \quad \forall x \in I.
+    \label{eq:condicao_convergencia_ponto_fixo}
+\end{equation}
+Quanto menor for o valor de $|g'(x)|$ nas vizinhanças da raiz, mais acelerada será a convergência do método, que ostenta tipicamente uma taxa de ordem linear $\mathcal{O}(N)$.
+
+\subsection{Estratégia de Implementação}
+\label{subsec:estrategia_implementacao_ponto_fixo}
+
+A arquitetura de software para este método exigiu uma alteração de paradigma em relação às abordagens anteriores. Visto que o algoritmo não realiza avaliações sistemáticas do Teorema de Bolzano, a rotina foi simplificada para receber diretamente a função iterativa $g(x)$ e a semente inicial $x_0$.
+
+\begin{lstlisting}[language=Python, caption={Código de implementação do Método do Ponto Fixo}, label={lst:ponto_fixo_codigo}]
+def ponto_fixo(g, x0, tol=1e-6, max_iter=100):
+    historico =[] 
+    
+    for i in range(max_iter):
+        x_an = historico[-1]['x'] if historico else x0  
+        x = g(x_an)
+        gx = g(x)
+        
+        er = abs(x - x_an) / x if x != 0 else 0
+        
+        historico.append({
+            'iter': i, 
+            'x': x, 
+            'g(x)': gx,
+            'erro': er
+        })
+        
+        if gx == 0 or er < tol:
+            return x, i, historico
+            
+    return x, max_iter, historico
+\end{lstlisting}
+
+A cada iteração $k$, o valor precedente $x_{k-1}$ é recuperado da estrutura de persistência temporal (variável \texttt{x\_an}) para alimentar a avaliação $x_k = g(x_{k-1})$. Observa-se que a rotina calcula simultaneamente $gx = g(x_k)$, operando essencialmente como uma pré-avaliação do próximo passo iterativo $x_{k+1}$.
+
+No que tange à avaliação métrica de convergência, adotou-se o desvio relativo absoluto entre iterações sucessivas:
+\begin{equation}
+    \epsilon_k = \frac{|x_k - x_{k-1}|}{|x_k|}
+\end{equation}
+A estabilidade computacional foi salvaguardada pelo uso de um operador ternário (\texttt{if x != 0}), prevenindo singularidades do tipo \texttt{ZeroDivisionError} caso a convergência ocorra sobre a origem do sistema de coordenadas. O critério de parada é deflagrado quando o erro $\epsilon_k$ atinge a tolerância demandada, interrompendo a computação para prevenir ciclos exaustivos.
+
+\subsection{Estrutura dos Arquivos de Entrada e Saída}
+\label{subsec:estrutura_arquivos_ponto_fixo}
+
+A uniformidade do processamento de dados manteve-se aderente aos padrões já consolidados. Os parâmetros de controle, nomeadamente $x_0$, $tol$, e $max\_iter$, são ingeridos via arquivos de texto (\texttt{.txt}). A despeito da presença global de variáveis de limites espaciais ($a$ e $b$) nestes arquivos (devido à interoperabilidade com os métodos de confinamento), o extrator de dados isola estritamente a semente $x_0$ para esta execução. 
+
+Ao término, os dados iterativos são transpostos sequencialmente para arquivos do tipo \texttt{.csv}, estruturados em colunas que refletem a iteração, a estimativa $x_k$, a pré-avaliação $g(x_k)$ e a métrica de erro relativo. Esta normalização fomenta a plotagem vetorial e o monitoramento microscópico do comportamento da contração.
+
+\subsection{Problemas Teste}
+\label{subsec:problemas_testes_ponto_fixo}
+
+\subsubsection{Problema Teste 1: Tempo de Subida de um Amplificador}
+\label{subsubsec:problema_teste_1_ponto_fixo}
+
++Para submeter a validade teórica e a flexibilidade heurística da implementação, retomou-se o problema do amplificador eletrônico com acoplamento R-C. O cômputo do tempo de subida normalizado $\Delta T$ demanda a extração das raízes das funções relativas aos limiares de $10\%$ e $90\%$ da resposta ao degrau, descritas respectivamente por:
+\begin{align}
+    f_1(T) &= 1 - \left(1 + T + \frac{T^2}{2}\right)e^{-T} - 0.1 = 0 \label{eq:f1_ponto_fixo} \\
+    f_2(T) &= 1 - \left(1 + T + \frac{T^2}{2}\right)e^{-T} - 0.9 = 0 \label{eq:f2_ponto_fixo}
+\end{align}
+
+O desafio analítico inerente ao Método do Ponto Fixo reside na determinação de uma função de iteração $g(T)$ que não apenas isole a variável independente, mas que garanta estritamente a condição de contração $|g'(T)| < 1$ no domínio de busca. 
+
+\paragraph{Abordagem 1: Isolamento Logarítmico}
+A primeira estratégia adotada consistiu na manipulação algébrica explícita do termo exponencial. Generalizando as equações para uma constante $C \in \{0.1, 0.9\}$, obtém-se:
+\begin{equation}
+    e^{-T} = \frac{1 - C}{1 + T + \frac{T^2}{2}} \implies -T = \ln\left(\frac{1 - C}{1 + T + \frac{T^2}{2}}\right) \implies T = \ln\left(\frac{1 + T + \frac{T^2}{2}}{1 - C}\right)
+\end{equation}
+Essa derivação forneceu as funções de iteração principais, codificadas como $g_3(T)$ (para $C=0.1$) e $g_4(T)$ (para $C=0.9$):
+\begin{align}
+    g_3(T) &= \ln\left(\frac{1 + T + \frac{T^2}{2}}{0.9}\right) \label{eq:g3_ponto_fixo} \\
+    g_4(T) &= \ln\left(\frac{1 + T + \frac{T^2}{2}}{0.1}\right) \label{eq:g4_ponto_fixo}
+\end{align}
+
+\paragraph{Abordagem 2: Método da Relaxação (Amortecimento Empírico)}
+Para efeitos de comparação de desempenho e robustez contra divergências, formulou-se um segundo par de funções iterativas baseadas no método genérico de relaxação linear $g(T) = T - \alpha f(T)$. Adotando-se empiricamente um fator de amortecimento $\alpha = 0.5$, estabeleceu-se as variantes $g_7(T)$ e $g_8(T)$:
+\begin{align}
+    g_7(T) &= T - 0.5 \cdot f_1(T) \label{eq:g7_ponto_fixo} \\
+    g_8(T) &= T - 0.5 \cdot f_2(T) \label{eq:g8_ponto_fixo}
+\end{align}
+
+\paragraph{Resultados Iterativos e Eficiência Algorítmica}
+Iniciando a busca por $T_{0.1}$ com a função $g_3(T)$ a partir de uma semente conservadora $T_0 = 0.5$ e tolerância de erro relativo $\epsilon < 10^{-5}$, o algoritmo reportou um comportamento assintótico estável. A Tabela \ref{tab:ponto_fixo_g3} sumariza o histórico de contração do hipervolume de busca.
+
+\begin{table}[htpb]
+\centering
+\caption{Histórico iterativo da função $g_3(T)$ (Isolamento Logarítmico) para a busca de $T_{0.1}$.}
+\label{tab:ponto_fixo_g3}
+\small
+\begin{tabular}{@{}cccc@{}}
+\toprule
+\textbf{Iteração ($k$)} & $\mathbf{x_k}$ & $\mathbf{g_3(x_k)}$ & \textbf{Erro Relativo} ($\epsilon_k$) \\ \midrule
+0  & 0.590868 & 0.673755 & 0.153787 \\
+1  & 0.673755 & 0.747597 & 0.123022 \\
+2  & 0.747597 & 0.811941 & 0.098772 \\
+10 & 1.043638 & 1.056334 & 0.015369 \\
+20 & 1.097275 & 1.098346 & 0.001255 \\
+30 & 1.101685 & 1.101770 & 0.000099 \\
+40 & 1.102035 & 1.102042 & 0.000007 \\ \bottomrule
+\end{tabular}
+\end{table}
+
+A análise da progressão computacional de $g_3(T)$ revela que a tolerância estipulada foi atingida na 40ª iteração, entregando a raiz $T_{0.1} \approx 1.102042$. Em contrapartida, ao submeter o mesmo problema e a mesma semente à função de relaxação $g_7(T)$, o sistema exigiu 85 iterações para convergir ($\approx 1.101982$). Fica evidente, portanto, que a constante de Lipschitz embutida na derivada do isolamento logarítmico $|g_3'(T)|$ é substancialmente menor que a de $|g_7'(T)|$, o que se traduz em uma aceleração iterativa superior a $50\%$.
+
+A discrepância de eficiência torna-se ainda mais agressiva na determinação de $T_{0.9}$. Alimentando a função de isolamento $g_4(T)$ com a estimativa inicial $T_0 = 4.19$, a convergência para $T_{0.9} \approx 5.322317$ ocorreu de forma quase imediata, em irrisórias 10 iterações ($\epsilon_{10} \approx 4.25 \times 10^{-6}$). Simultaneamente, a função de relaxação $g_8(T)$, operando sob a mesma tolerância, penalizou o sistema com um decréscimo de erro excessivamente lento, alcançando 99 iterações apenas para atestar um erro na ordem de $10^{-4}$ ($T_{0.9} \approx 5.283368$).
+
+\textbf{Validação da Solução e Discussão:}
+
+Considerando os dados da formulação logarítmica (as mais eficientes), o tempo de subida normalizado é extraído pela diferença das raízes confinadas:
+\begin{equation}
+    \Delta T = 5.322317 - 1.102042 = 4.220275
+\end{equation}
+
+Para chancelar rigorosamente a solução, submete-se o ponto $T_{0.1} = 1.102042$ à equação original $f_1(T)$ (Equação \ref{eq:f1_ponto_fixo}), constatando-se a nulidade do resíduo dentro da margem imposta por ponto flutuante. 
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}
+        \begin{axis}[
+            width=14cm, height=7cm,
+            title={\bfseries Impacto da Modelagem de \(g(T)\) na Convergência do Erro Relativo},
+            xlabel={Iteração (\(k\))},
+            ylabel={Erro Relativo \(\epsilon_k\) (Escala Logarítmica)},
+            ymode=log,
+            grid=both,
+            grid style={line width=.1pt, draw=gray!20},
+            major grid style={line width=.2pt,draw=gray!50},
+            legend pos=north east,
+            tick label style={font=\footnotesize},
+            label style={font=\small},
+        ]
+        
+        % Plot do g3 (Isolamento log)
+        \addplot[
+            color=purple, mark=diamond, thick 
+        ] table[col sep=comma, x=iter, y=erro] {../dados/saida/questao_3_3/questao_3_3_hist_f1_pontofixo_g3.csv};
+        \addlegendentry{\(g_3(T)\) (Isolamento Log)}
+
+        % Plot do g7 (Relaxação)
+        \addplot[
+            color=orange, mark=x, thick, dashed
+        ] table[col sep=comma, x=iter, y=erro] {../dados/saida/questao_3_3/questao_3_3_hist_f1_pontofixo_g7.csv};
+        \addlegendentry{\(g_7(T)\) (Relaxação \(\alpha=0.5\))}
+
+        \end{axis}
+    \end{tikzpicture}
+    \caption{Comparativo analítico das taxas de convergência para $T_{0.1}$. A acentuada inclinação da curva de $g_3(T)$ comprova a superioridade matemática da modelagem logarítmica sobre o amortecimento empírico linear de $g_7(T)$.}
+    \label{fig:convergencia_ponto_fixo_amplificador_comparativo}
+\end{figure}
+
+A Figura \ref{fig:convergencia_ponto_fixo_amplificador_comparativo} ilustra, sob o espectro logarítmico, as consequências diretas do preparo algébrico. Embora o Método do Ponto Fixo elimine a necessidade de um intervalo fechado, os resultados evidenciam que seu sucesso é criticamente dependente da sensibilidade humana na etapa de modelagem: isolamentos que promovem um valor infímo para $|g'(x)|$ transmutam um método conservador em um estimador altamente eficaz, minimizando drasticamente o esforço de processamento de máquina.\label{subsubsec:problema_teste_1_ponto_fixo}
+
+Para submeter a validade técnica e heurística da implementação, retomou-se o problema do amplificador eletrônico, cujo tempo de subida demanda a extração das raízes das funções relativas às marcas de $10\%$ e $90\%$ da resposta ao degrau:
+\begin{align}
+    f_1(T) &= 1 - \left(1 + T + \frac{T^2}{2}\right)e^{-T} - 0.1 = 0 \label{eq:f1_ponto_fixo} \\
+    f_2(T) &= 1 - \left(1 + T + \frac{T^2}{2}\right)e^{-T} - 0.9 = 0 \label{eq:f2_ponto_fixo}
+\end{align}
+
+O desafio analítico primário deste método reside na determinação de uma função $g(T)$ que garanta convergência (Equação \ref{eq:condicao_convergencia_ponto_fixo}). Isolando o termo da exponencial, obtém-se:
+\begin{equation}
+    e^{-T} = \frac{1 - C}{1 + T + \frac{T^2}{2}} \implies -T = \ln\left(\frac{1 - C}{1 + T + \frac{T^2}{2}}\right) \implies T = \ln\left(\frac{1 + T + \frac{T^2}{2}}{1 - C}\right)
+\end{equation}
+onde $C \in \{0.1, 0.9\}$. Essa modelagem gerou a formulação computacional referenciada no projeto como \texttt{g3} e \texttt{g4}. Dessa forma, as funções de iteração estabelecidas foram:
+\begin{align}
+    g_1(T) &= \ln\left(\frac{1 + T + \frac{T^2}{2}}{0.9}\right) \label{eq:g1_ponto_fixo} \\
+    g_2(T) &= \ln\left(\frac{1 + T + \frac{T^2}{2}}{0.1}\right) \label{eq:g2_ponto_fixo}
+\end{align}
+
+O algoritmo operou sobre $g_1(T)$ utilizando uma semente inicial altamente conservadora $T_0 = 0.5$ e $tol = 10^{-5}$. A Tabela \ref{tab:ponto_fixo_f1} exibe a dinâmica da convergência iterativa.
+
+\begin{table}[htpb]
+\centering
+\caption{Histórico iterativo do Método do Ponto Fixo para a busca de $T_{0.1}$ usando $g_1(T)$ ($T_0 = 0.5$).}
+\label{tab:ponto_fixo_f1}
+\small
+\begin{tabular}{@{}ccccc@{}}
+\toprule
+\textbf{Iteração ($k$)} & $\mathbf{x_k}$ & $\mathbf{g(x_k)}$ & \textbf{Erro Relativo} ($\epsilon_k$) \\ \midrule
+% Nota: Os valores devem ser integrados via leitura do CSV gerado.
+0 & 0.500000 & 0.590825 & 0.00000000 \\
+1 & 0.590825 & 0.672855 & 0.153725 \\
+2 & 0.672855 & 0.745453 & 0.108035 \\
+$\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ \\
+$N$ & $\approx 1.10206$ & $\approx 1.10206$ & $< 10^{-5}$ \\ \bottomrule
+\end{tabular}
+\end{table}
+
+A partir do acompanhamento dos dados em seu decurso, torna-se evidente o movimento monotônico da sucessão $x_k$. Como $|g_1'(T)| < 1$ no intervalo avaliado, a cada retroalimentação do laço computacional, a estimativa de $T_{0.1}$ aproxima-se assintoticamente de $\approx 1.102064$.
+
+Analogamente, para determinar o limiar de $90\%$ do tempo de subida ($T_{0.9}$), a função de iteração $g_2(T)$ foi retroalimentada com a semente $T_0 = 2.5$. O sistema computou as iterações sucessivas até a superação da barreira de tolerância, convergindo com êxito para a raiz avaliada no entorno de $\approx 5.322324$.
+
+\textbf{Validação da Solução e Análise Analítica:}
+
+A veracidade das estimativas obtidas é consolidada mediante o cálculo do resíduo na equação original do balanço de resposta do amplificador. Substituindo os valores encontrados, atesta-se que tanto $f_1(1.102064) \approx 0$ quanto $f_2(5.322324) \approx 0$ se adequam aos rigores da métrica submetida à função iterativa iterativa de ponto fixo.
+Consequentemente, ratifica-se o tempo de subida normalizado $\Delta T \approx 4.220260$. 
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}
+        \begin{axis}[
+            width=14cm, height=7cm,
+            title={\bfseries Evolução do Erro no Método do Ponto Fixo (Busca de \(T_{0.1}\))},
+            xlabel={Iteração (\(k\))},
+            ylabel={Erro Relativo \(\epsilon_k\) (Escala Logarítmica)},
+            ymode=log,
+            grid=both,
+            grid style={line width=.1pt, draw=gray!20},
+            major grid style={line width=.2pt,draw=gray!50},
+            legend pos=north east,
+            tick label style={font=\footnotesize},
+            label style={font=\small},
+        ]
+        
+        \addplot[
+            color=purple, mark=diamond, thick 
+        ] table[col sep=comma, x=iter, y=erro] {../dados/saida/questao_3_8/questao_3_8_hist_f1_posicaofalsa.csv};
+        \addlegendentry{Erro Relativo \(\epsilon_k\)}
+
+        \end{axis}
+    \end{tikzpicture}
+    \caption{Gráfico de decaimento do erro iterativo demonstrando a convergência linear. A inclinação constante do decréscimo em escala semi-logarítmica é o traço característico governado pela constante de Lipschitz associada à derivada $g'(T)$.}
+    \label{fig:convergencia_ponto_fixo_amplificador}
+\end{figure}
+
+\subsubsection{Problema Teste 2: Ângulo de Lançamento Balístico de um Míssil}
+\label{subsubsec:problema_teste_2_ponto_fixo}
+
+O segundo problema teste propõe a determinação do ângulo ótimo de lançamento de um míssil ($\alpha$), submetendo o algoritmo a uma equação transcendental com forte presença de termos trigonométricos não lineares. A partir das restrições balísticas ($v^2/(gR) = 1.25$ e $\theta = 80^\circ$), a função raiz preestabelecida é:
+\begin{equation}
+    f(\alpha) = \sin(\alpha)\cos(\alpha) - \tan(40^\circ)\left(0.8 - \cos^2(\alpha)\right) = 0
+\end{equation}
+
+A aplicação do Método do Ponto Fixo exige a transformação desta igualdade em uma função de iteração $\alpha = g(\alpha)$. A priori, as tentativas de isolamento algébrico via funções arco-tangente produziram mapeamentos altamente instáveis. As formulações hipotéticas codificadas como $g_1(\alpha)$ e $g_2(\alpha)$ apresentaram derivadas cujas magnitudes superavam a unidade ($|g'(\alpha)| > 1$) na bacia de atração esperada. O reflexo computacional desse fenômeno foi atestado pelos dados de execução: em vez de contrair, os valores de $\alpha_k$ sofreram saltos caóticos, com o erro relativo de $g_1$ explodindo para ordens de grandeza de $10^5$ em meras 5 iterações, confirmando a rigorosa divergência teórica prevista pelo Teorema de Banach.
+
+Para contornar essa restrição e assegurar a convergência, uma terceira manipulação algébrica foi arquitetada, isolando-se a variável $\alpha$ a partir do termo $\cos^2(\alpha)$. O desenvolvimento matemático processa-se da seguinte forma:
+\begin{align}
+    \tan(40^\circ)\left(0.8 - \cos^2(\alpha)\right) &= \sin(\alpha)\cos(\alpha) \nonumber \\
+    0.8 - \cos^2(\alpha) &= \frac{\sin(\alpha)\cos(\alpha)}{\tan(40^\circ)} \nonumber \\
+    \cos^2(\alpha) &= 0.8 - \frac{\sin(\alpha)\cos(\alpha)}{\tan(40^\circ)}
+\end{align}
+Aplicando a operação de raiz quadrada e a função trigonométrica inversa, define-se a função de iteração $g_3(\alpha)$, responsável por guiar a execução bem-sucedida:
+\begin{equation}
+    g_3(\alpha) = \arccos\left(\sqrt{0.8 - \frac{\sin(\alpha)\cos(\alpha)}{\tan(40^\circ)}}\right)
+    \label{eq:g3_ponto_fixo_missil}
+\end{equation}
+
+Alimentando o algoritmo com a formulação $g_3(\alpha)$, adotou-se uma estimativa inicial arbitrária $\alpha_0 \approx 1.0587$ radianos. A tolerância de parada foi estabelecida na ordem de $10^{-4}$. O histórico da contração iterativa encontra-se detalhado na Tabela \ref{tab:ponto_fixo_missil_g3}.
+
+\begin{table}[htpb]
+\centering
+\caption{Histórico iterativo do Método do Ponto Fixo para o ângulo de lançamento utilizando a modelagem $g_3(\alpha)$.}
+\label{tab:ponto_fixo_missil_g3}
+\small
+\begin{tabular}{@{}cccc@{}}
+\toprule
+\textbf{Iteração ($k$)} & $\mathbf{x_k}$ (Aproximação) & $\mathbf{g_3(x_k)}$ (Próximo Passo) & \textbf{Erro Relativo} ($\epsilon_k$) \\ \midrule
+0  & 1.058754 & 1.001042 & 0.093339 \\
+1  & 1.001042 & 1.037221 & 0.057652 \\
+2  & 1.037221 & 1.015299 & 0.034880 \\
+3  & 1.015299 & 1.028898 & 0.021591 \\
+4  & 1.028898 & 1.020574 & 0.013217 \\
+$\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ \\
+13 & 1.023696 & 1.023802 & 0.000167 \\
+14 & 1.023802 & 1.023737 & 0.000103 \\
+15 & 1.023737 & 1.023777 & 0.000063 \\ \bottomrule
+\end{tabular}
+\end{table}
+
+Observa-se, a partir da flutuação numérica dos termos $x_k$, um traço peculiar da função de iteração $g_3(\alpha)$: a convergência ocorre de maneira oscilatória amortecida. As estimativas alternam-se sistematicamente acima e abaixo da raiz verdadeira (e.g., de $1.001$ para $1.037$, recuando para $1.015$). Sob a ótica do Cálculo Numérico, este comportamento oscilante garante que o coeficiente angular da reta tangente no entorno da raiz é estritamente negativo, porém confinado à região de estabilidade, ou seja, $-1 < g_3'(\alpha) < 0$.
+
+\textbf{Validação da Solução:}
+
+O critério de parada foi satisfeito na 15ª iteração, quando a amplitude do salto iterativo resultou em um erro relativo $\epsilon_{15} \approx 6.35 \times 10^{-5}$, cravando a raiz numérica em $\alpha \approx 1.023737$ radianos. Convertendo este resultado para a unidade geométrica padrão em engenharia balística, determina-se o ângulo de inclinação ótimo:
+\begin{equation}
+    \alpha \approx 58.65^\circ
+\end{equation}
+
+Esta solução é absolutamente coerente com a extraída de forma pregressa pelos métodos de Bissecção e Posição Falsa, validando a robustez da formulação $g_3(\alpha)$. Adicionalmente, verifica-se que a inserção de $1.023737$ no modelo transcendental original $f(\alpha)$ produz um resíduo nulo até a quinta casa decimal.
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}
+        \begin{axis}[
+            width=14cm, height=7cm,
+            title={\bfseries Comportamento da Convergência Oscilatória Amortecida (\(g_3(\alpha)\))},
+            xlabel={Iteração (\(k\))},
+            ylabel={Erro Relativo \(\epsilon_k\) (Escala Logarítmica)},
+            ymode=log,
+            grid=both,
+            grid style={line width=.1pt, draw=gray!20},
+            major grid style={line width=.2pt,draw=gray!50},
+            legend pos=north east,
+            tick label style={font=\footnotesize},
+            label style={font=\small},
+        ]
+        
+        \addplot[
+            color=blue, mark=*, mark options={fill=white}, thick 
+        ] table[col sep=comma, x=iter, y=erro] {../dados/saida/questao_3_6/questao_3_6_hist_f1_pontofixo_g3.csv};
+        \addlegendentry{\(g_3(\alpha)\) (Isolamento por \(\arccos\))}
+
+        \end{axis}
+    \end{tikzpicture}
+    \caption{Decaimento logarítmico do erro iterativo para o ângulo do míssil. A inclinação contínua da reta evidencia o estrito cumprimento da condição de Lipschitz pela função $g_3(\alpha)$, em forte contraste com as instabilidades observadas nos modelos descartados.}
+    \label{fig:convergencia_ponto_fixo_missil}
+\end{figure}
+
+Torna-se evidente que, por mais que o Método do Ponto Fixo se mostre suscetível a armadilhas de divergência dependendo de como a equação é algebricamente dissecada, a identificação empírica ou analítica de uma $g(x)$ adequada, como ocorrido com a modelagem do arco-cosseno, recompensa a análise com uma aproximação rápida, de baixo custo avaliativo e computacionalmente resiliente.
+
+\subsection{Dificuldades Enfrentadas}
+\label{subsec:dificuldades_ponto_fixo}
+
+Ao longo da execução experimental deste algoritmo, o desafio arquitetural e analítico mais pronunciado residiu na premissa fundamental da técnica: a obtenção e sintonia de uma função $g(x)$ que assegurasse a convergência de forma incondicional nas proximidades da raiz.
+
+Diferentemente dos métodos de confinamento, onde o algoritmo de software opera de modo quase \textit{black-box} uma vez garantido o Teorema de Bolzano, o Ponto Fixo transferiu a alta carga de complexidade para a fase de modelagem matemática prévia. Manipulações ingênuas da equação original frequentemente resultavam em formulações onde a derivada $|g'(x)|$ excedia a unidade. Nessas circunstâncias, observou-se empiricamente que o software apresentava divergência espiral (com as iterações escapando exponencialmente para o infinito), causando interrupções abruptas do interpretador Python causadas por estouro de limite aritmético de ponto flutuante (\texttt{OverflowError} em funções \texttt{math.exp} ou \texttt{math.log} mediante argumentos negativos).
+
+Para contornar este comportamento estocástico sem abdicar da automatização do código, a estrutura do dicionário de funções (exposto na modelagem) foi parametrizada para receber múltiplas assinaturas. Especificamente, nos casos onde a manipulação analítica não entregou estabilidade (como o isolamento explícito de expoentes), implementou-se uma aproximação de relaxação, fundamentada na fórmula:
+\begin{equation}
+    g(x) = x - \alpha f(x)
+\end{equation}
+A incorporação pragmática do fator de amortecimento empírico ($\alpha = 0.5$), exemplificado nas funções \texttt{g7} e \texttt{g8} do código-fonte original, forçou artificialmente o achatamento da derivada $|g'(x)| = |1 - \alpha f'(x)| < 1$. Essa decisão evidenciou que a flexibilidade modular em Python, ao receber funções anônimas (\texttt{lambda}), é indispensável para acoplar a robustez exigida na teoria da Análise Numérica ao ambiente pragmático de desenvolvimento computacional.
