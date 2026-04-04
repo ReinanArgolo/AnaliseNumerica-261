@@ -1,0 +1,188 @@
+\section{Método da Secante}
+\label{sec:metodo_secante}
+
+\subsection{Fundamentação Teórica}
+\label{subsec:fundamentacao_teorica_secante}
+
+O Método da Secante surge na Análise Numérica como uma evolução pragmática do Método de Newton-Raphson. Por mais que a abordagem newtoniana possua uma convergência de ordem quadrática, sua dependência do cálculo explícito ou aproximado da derivada $f'(x)$ pode configurar um gargalo computacional ou analítico severo. O Método da Secante contorna esta exigência aproximando a derivada local pela taxa de variação média entre as duas estimativas imediatamente anteriores da raiz, fundamentando-se geometricamente em retas secantes em vez de retas tangentes.
+
+Substituindo a derivada $f'(x_k)$ na formulação de Newton pela aproximação de diferenças finitas retroativas $\frac{f(x_k) - f(x_{k-1})}{x_k - x_{k-1}}$, deduz-se a relação de recorrência:
+\begin{equation}
+    x_{k+1} = x_k - f(x_k) \frac{x_k - x_{k-1}}{f(x_k) - f(x_{k-1})}
+    \label{eq:formulacao_secante}
+\end{equation}
+
+Esta técnica classifica-se como um método aberto de múltiplos passos, exigindo duas estimativas iniciais ($x_0$ e $x_1$) para deflagrar o laço iterativo, embora não obrigue que a raiz esteja confinada entre elas (diferentemente da Posição Falsa). A ordem de convergência deste método é superlinear, sendo caracterizada matematicamente pela Razão Áurea $p \approx 1.618$, configurando um compromisso altamente eficiente: perde-se a convergência estritamente quadrática ($\mathcal{O}(N^2)$) de Newton, mas ganha-se a economia de evitar a avaliação da derivada a cada passo.
+
+\subsection{Estratégia de Implementação}
+\label{subsec:estrategia_implementacao_secante}
+
+A arquitetura do código foi estruturada em Python, priorizando a ortogonalidade e o rastreamento do histórico iterativo, mantendo a interoperabilidade com a taxonomia de dicionários já consagrada nos métodos anteriores.
+
+\begin{lstlisting}[language=Python, caption={Código de implementação do Método da Secante}, label={lst:secante_codigo}]
+def secante(funcao, x0, x1, tol=1e-6, max_iter=100):
+    historico =[]
+    
+    for i in range(1, max_iter + 1):
+        fx0 = funcao(x0)
+        fx1 = funcao(x1)
+        
+        denominador = fx1 - fx0
+        if denominador == 0:
+            print("Denominador nulo no Metodo da Secante. Interrompendo.")
+            break
+            
+        x2 = x1 - fx1 * (x1 - x0) / denominador
+        f_x2 = funcao(x2)
+        
+        er = abs(x2 - x1) / abs(x2) if x2 != 0 else abs(x2 - x1)
+        
+        historico.append({
+            'iter': i, 'x': x2, 'f(x)': f_x2, 'erro': er
+        })
+        
+        if f_x2 == 0 or er < tol:
+            return x2, i, historico
+            
+        # Atualizacao da memoria de passos
+        x0 = x1
+        x1 = x2
+        
+    return x2, max_iter, historico
+\end{lstlisting}
+
+A transição entre iterações exige o deslocamento da memória operacional: a estimativa mais recente ($x_2$) assume o papel de $x_1$, e a antiga $x_1$ retrocede para $x_0$. Para mitigar singularidades, implementou-se um condicional de interrupção caso $f(x_1) - f(x_0) = 0$, evento que ocorre se a secante tornar-se perfeitamente horizontal. O critério de parada monitora o erro relativo estrito entre $x_2$ e $x_1$, validando a convergência assintótica com robustez.
+
+\subsection{Estrutura dos Arquivos de Entrada e Saída}
+\label{subsec:estrutura_arquivos_secante}
+
+Para preservar o paralelismo analítico do projeto, os hiperparâmetros foram ingeridos a partir de arquivos de texto (\texttt{.txt}). Considerando que a Secante demanda duas sementes ($x_0, x_1$), o extrator de dados inicializa o método aproveitando os limites espaciais habitualmente fornecidos ($a$ e $b$) ou deslocamentos adjacentes à estimativa padrão. As exportações fluem para diretórios estruturados sob a extensão \texttt{.csv}, abarcando iteração, aproximação atual, resíduo avaliado e o erro, viabilizando o escrutínio imediato da contração superlinear via integração LaTeX.
+
+\subsection{Problemas Teste}
+\label{subsec:problemas_testes_secante}
+
+\subsubsection{Problema Teste 1: Tempo de Subida de um Amplificador}
+\label{subsubsec:problema_teste_1_secante}
+
+A validação inicial incide sobre a resposta transiente do amplificador R-C. O isolamento dos marcos de subida de $10\%$ ($T_{0.1}$) e $90\%$ ($T_{0.9}$) é regido, respectivamente, pelas funções:
+\begin{align}
+    f_1(T) &= 1 - \left(1 + T + \frac{T^2}{2}\right)e^{-T} - 0.1 = 0 \label{eq:f1_secante} \\
+    f_2(T) &= 1 - \left(1 + T + \frac{T^2}{2}\right)e^{-T} - 0.9 = 0 \label{eq:f2_secante}
+\end{align}
+
+O algoritmo processou $f_1(T)$ sob a exigência de $\epsilon < 10^{-5}$. A Tabela \ref{tab:secante_f1} expõe a trajetória da variável de convergência.
+
+\begin{table}[htpb]
+\centering
+\caption{Histórico iterativo do Método da Secante para a busca de $T_{0.1}$.}
+\label{tab:secante_f1}
+\small
+\begin{tabular}{@{}ccccc@{}}
+\toprule
+\textbf{Iteração ($k$)} & $\mathbf{x_k}$ (Aproximação) & $\mathbf{f_1(x_k)}$ (Resíduo) & \textbf{Erro Relativo} ($\epsilon_k$) \\ \midrule
+1 & 1.0810568 & -0.00420140 & 0.85004153 \\
+2 & 1.0980257 & -0.00081355 & 0.01545402 \\
+3 & 1.1021006 & \phantom{-}0.00000711 & 0.00369737 \\
+4 & 1.1020652 & -0.00000001 & 0.00003206 \\
+5 & 1.1020653 & -0.00000000 & $5.28 \times 10^{-8}$ \\ \bottomrule
+\end{tabular}
+\end{table}
+
+Constata-se que a aceleração superlinear manifesta-se de forma vigorosa após a segunda iteração. O erro relativo declina de $10^{-2}$ para $10^{-8}$ em meros três passos. O isolamento de $T_{0.1} \approx 1.102065$ foi alcançado em 5 iterações, empatando rigorosamente com o desempenho de Newton-Raphson, evidenciando que, em curvas sem patologias severas, a aproximação discreta da derivada pela Secante atua com idêntica maestria.
+
+Aplicando-se a técnica para a fronteira superior $f_2(T)$, o método cravou $T_{0.9} \approx 5.322320$ na 7ª iteração (erro $\approx 4.15 \times 10^{-6}$). Em decorrência, o tempo de subida computa-se em $\Delta T \approx 4.220255$, validando definitivamente a fenomenologia física do amplificador sob análise.
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}
+        \begin{axis}[
+            width=14cm, height=6.5cm,
+            title={\bfseries Dinâmica Superlinear de Convergência (Método da Secante)},
+            xlabel={Iteração (\(k\))},
+            ylabel={Métricas (Escala Logarítmica)},
+            ymode=log,
+            grid=both,
+            grid style={line width=.1pt, draw=gray!20},
+            major grid style={line width=.2pt,draw=gray!50},
+            legend pos=south west,
+            tick label style={font=\footnotesize},
+            label style={font=\small},
+        ]
+        
+        \addplot[
+            color=orange!90!black, mark=diamond*, mark options={fill=white, scale=1.5}, thick 
+        ] table[col sep=comma, x=iter, y=erro] {../dados/saida/questao_3_3/questao_3_3_hist_f1_secante.csv};
+        \addlegendentry{Erro Relativo \(\epsilon_k\)}
+
+        \end{axis}
+    \end{tikzpicture}
+    \caption{Curva de erro demonstrando a taxa de convergência associada à Razão Áurea ($\approx 1.618$). Nota-se o decaimento brutal nas iterações 4 e 5, evidenciando o domínio da bacia de atração.}
+    \label{fig:convergencia_secante_amplificador}
+\end{figure}
+
+\subsubsection{Problema Teste 2: Ângulo de Lançamento Balístico de um Míssil}
+\label{subsubsec:problema_teste_2_secante}
+
+A resiliência trigonométrica do método foi testada na avaliação da inclinação $\alpha$ do míssil, regulada por:
+\begin{equation}
+    f(\alpha) = \sin(\alpha)\cos(\alpha) - \tan(40^\circ)\left(0.8 - \cos^2(\alpha)\right) = 0
+\end{equation}
+
+A extração de dados da Tabela \ref{tab:secante_missil} denota um processamento computacional impecável e assombrosamente breve.
+
+\begin{table}[htpb]
+\centering
+\caption{Histórico iterativo para o cálculo de $\alpha$ pelo Método da Secante.}
+\label{tab:secante_missil}
+\small
+\begin{tabular}{@{}ccccc@{}}
+\toprule
+\textbf{Iteração ($k$)} & $\mathbf{x_k}$ (radianos) & $\mathbf{f(x_k)}$ (Resíduo) & \textbf{Erro Relativo} ($\epsilon_k$) \\ \midrule
+1 & 1.0116393 & \phantom{-}0.01452542 & 0.03514906 \\
+2 & 1.0236460 & \phantom{-}0.00013980 & 0.01172932 \\
+3 & 1.0237627 & -0.00000072           & 0.00011397 \\
+4 & 1.0237621 & \phantom{-}0.00000000 & $5.88 \times 10^{-7}$ \\ \bottomrule
+\end{tabular}
+\end{table}
+
+Atingindo $\epsilon_4 \approx 5.88 \times 10^{-7}$ na 4ª iteração, a raiz cravada em $\approx 1.023762$ radianos ($\approx 58.66^\circ$) ressalta que, sob restrições algébricas contínuas e derivadas não nulas, a sobreposição das secantes atua de forma tão direcional e cirúrgica quanto a própria tangente real, eximindo o avaliador da onerosidade de manipular derivadas.
+
+\subsubsection{Problema Teste 3: Análise Crítica - Falhas Físicas em Planos de Financiamento}
+\label{subsubsec:problema_teste_3_secante}
+
+O cenário de financiamento (Problema 3.8), governado por polinômios de alto grau ($f(x) = kx^{P+1} - (k+1)x^P + 1 = 0$), revelou uma faceta crítica da Análise Numérica e ilustra, de modo cabal, o perigo de operar métodos abertos indiscriminadamente. 
+
+A equação de juros proposta possui duas características matemáticas imutáveis: uma raiz positiva que descreve o juro da operação ($x > 1 \implies J > 0$), e uma raiz trivial em $x=1$, correspondendo a uma taxa de juros $J = 0\%$, que anula o polinômio perfeitamente, mas carece de qualquer significado financeiro (um plano de financiamento real não possui taxa nula).
+
+A Tabela \ref{tab:secante_juros} revela a trajetória executada pela Secante ao processar o Plano A (grau 10).
+
+\begin{table}[htpb]
+\centering
+\caption{Convergência anômala (raiz trivial) do Método da Secante para o Plano A.}
+\label{tab:secante_juros}
+\small
+\begin{tabular}{@{}cccc@{}}
+\toprule
+\textbf{Iteração ($k$)} & $\mathbf{x_k}$ (Aproximação) & $\mathbf{f_1(x_k)}$ (Resíduo) & \textbf{Erro Relativo} ($\epsilon_k$) \\ \midrule
+1 & 1.0548182 & -0.14841294 & 0.23243984 \\
+2 & 1.0597682 & -0.15374184 & 0.00467089 \\
+3 & 0.9169560 & \phantom{-}0.34065336 & 0.15574599 \\
+4 & 1.0153580 & -0.05395907 & 0.09691358 \\
+5 & 1.0019026 & -0.00702939 & 0.01342987 \\
+$\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ \\
+8 & 1.0000000 & -0.00000000 & $6.81 \times 10^{-7}$ \\ \bottomrule
+\end{tabular}
+\end{table}
+
+A análise de dados explicita um diagnóstico severo. Nas primeiras iterações (1 e 2), a alta convexidade da curva fez com que a reta secante traçada interceptasse o eixo $x$ muito à esquerda, ejetando a estimativa $x_3$ para a região inferior à unidade ($0.916$). Ao cruzar o limiar de $x=1$, o algoritmo foi capturado irrevogavelmente pela bacia de atração da raiz trivial. Nas iterações subsequentes (4 a 8), o método convergiu espetacularmente, de maneira superlinear, para a solução matematicamente correta ($x = 1.000000$), com resíduo nulo ($\approx 10^{-10}$).
+
+No entanto, fisicamente e no contexto da engenharia econômica, esta execução representa uma falha total. A taxa computada foi $J = x - 1 = 0\%$, o que não resolve o problema do consumidor de determinar a taxa real ($12.22\%$). Idêntico fenômeno ocorreu no processamento do Plano B, convergindo igualmente para $x=1$. Este evento ratifica a premissa de que a Secante, desprovida de confinamento estrito, exige controle rigoroso de suas estimativas iniciais para não ser ludibriada pela topologia global do polinômio.
+
+\subsection{Dificuldades Enfrentadas}
+\label{subsec:dificuldades_secante}
+
+A concepção e a avaliação do Método da Secante expuseram de forma enfática a vulnerabilidade inerente aos métodos iterativos abertos: a suscetibilidade às condições de contorno e à armadilha das raízes triviais.
+
+A primeira dificuldade metodológica emergiu na etapa algorítmica. O método confia estritamente na distância fracionária $(f(x_1) - f(x_0))$ no denominador. Em regiões onde a função apresenta platôs ou inflexões assintóticas suaves, a secante torna-se aproximadamente horizontal. Quando as flutuações de ponto flutuante esgotam a capacidade representativa da linguagem Python, o interpretador aciona falhas por sub-fluxo numérico (\textit{underflow}) e divisão por zero. A reestruturação condicional do código impediu interrupções abruptas do \textit{script}, devolvendo controle à camada analítica.
+
+Contudo, a adversidade mais instrutiva transpareceu na resolução dos problemas de financiamento (Graus 10 e 13). Ao contrário da Bissecção — que confinou a busca ao semi-eixo $x > 1$ mantendo o Teorema de Bolzano — a livre extrapolação geométrica da Secante arremessou a variável de aproximação para a bacia da raiz espúria ($x=1$), culminando na convergência matemática para uma resposta que fere o domínio físico do problema ($J=0\%$). O enfrentamento desse cenário demonstrou que, por mais poderoso e veloz que o algoritmo seja (não necessitando de derivadas como Newton e sendo mais veloz que Bisseção e Ponto Fixo), a sua aplicação não pode ser considerada uma "caixa preta". Para sistemas multirraízes complexos, a Secante exige invariavelmente uma instrumentação analítica humana a priori — seja limitando seus saltos em código ou acoplando-a a um método isolador primário — para assegurar que a velocidade superlinear convirja para a raiz fenomenológica correta.

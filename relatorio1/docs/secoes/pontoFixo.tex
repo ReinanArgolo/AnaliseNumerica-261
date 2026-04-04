@@ -317,15 +317,103 @@ Esta solução é absolutamente coerente com a extraída de forma pregressa pelo
 
 Torna-se evidente que, por mais que o Método do Ponto Fixo se mostre suscetível a armadilhas de divergência dependendo de como a equação é algebricamente dissecada, a identificação empírica ou analítica de uma $g(x)$ adequada, como ocorrido com a modelagem do arco-cosseno, recompensa a análise com uma aproximação rápida, de baixo custo avaliativo e computacionalmente resiliente.
 
+\subsubsection{Problema Teste 3: Análise de Taxas de Juros em Planos de Financiamento}
+\label{subsubsec:problema_teste_3_ponto_fixo}
+
+A modelagem de sistemas de amortização financeira, conforme exposto no Problema 3.8, frequentemente recai sobre a determinação das raízes de polinômios de alto grau. O problema avalia dois planos de financiamento para um capital $VF = 140.00$, cujas taxas de juros implícitas ($J$) são governadas pela equação polinomial $f(x) = kx^{P+1} - (k+1)x^P + 1 = 0$, sendo $x = 1+J$ e $k = \frac{VF}{PM}$.
+
+Para o \textbf{Plano A} ($P=9$, $PM=26.50 \implies k_A \approx 5.2830$), a função caracteriza um polinômio de grau 10. Para o \textbf{Plano B} ($P=12$, $PM=21.50 \implies k_B \approx 6.5116$), o grau eleva-se para 13.
+
+Sob a ótica do Método do Ponto Fixo, o isolamento algébrico tradicional de $x$ em polinômios dessa magnitude (por exemplo, extraindo a enésima raiz) resulta quase invariavelmente em funções de iteração $g(x)$ cujas derivadas expelem a sequência iterativa do raio de convergência ($|g'(x)| > 1$). Para contornar tal limitação estrutural, adotou-se o método da relaxação linear, formulando as funções iterativas como:
+\begin{equation}
+    g(x) = x - \lambda f(x)
+\end{equation}
+
+A escolha do parâmetro empírico de amortecimento $\lambda$ é crítica. A teoria garante que a convergência local ocorrerá se $0 < \lambda < \frac{2}{f'(x^*)}$. Devido à acentuada inclinação da curva em polinômios de graus 10 e 13 nas proximidades da raiz, $f'(x^*)$ assume valores consideravelmente altos. Dessa forma, $\lambda$ deve ser arbitrado como um valor estritamente pequeno. Para o Plano A, ajustou-se $\lambda_A = 0.05$, originando a função $g_1(x)$. Para o Plano B, cuja inclinação local é ainda mais severa, exigiu-se um amortecimento mais agressivo $\lambda_B = 0.02$, originando $g_2(x)$:
+\begin{align}
+    g_1(x) &= x - 0.05 \cdot f_1(x) \label{eq:g1_juros_ponto_fixo} \\
+    g_2(x) &= x - 0.02 \cdot f_2(x) \label{eq:g2_juros_ponto_fixo}
+\end{align}
+
+Inicializando o algoritmo com estimativas sementes $x_0 = 1.12$ (Plano A) e $x_0 = 1.11$ (Plano B), observou-se uma resposta computacional notável. A Tabela \ref{tab:ponto_fixo_juros_g1} documenta a evolução da variável de controle para a taxa do Plano A.
+
+\begin{table}[htpb]
+\centering
+\caption{Histórico iterativo da função de relaxação $g_1(x)$ ($\lambda=0.05$) para a taxa do Plano A.}
+\label{tab:ponto_fixo_juros_g1}
+\small
+\begin{tabular}{@{}cccc@{}}
+\toprule
+\textbf{Iteração ($k$)} & $\mathbf{x_k}$ (Aproximação) & $\mathbf{g_1(x_k)}$ (Próximo Passo) & \textbf{Erro Relativo} ($\epsilon_k$) \\ \midrule
+0  & 1.120752 & 1.121258 & 0.000671 \\
+1  & 1.121258 & 1.121595 & 0.000451 \\
+2  & 1.121595 & 1.121818 & 0.000300 \\
+5  & 1.122062 & 1.122126 & 0.000086 \\
+10 & 1.122225 & 1.122233 & 0.000010 \\
+14 & 1.122244 & 1.122245 & 0.000001 \\
+16 & 1.122246 & 1.122247 & $8.32 \times 10^{-7}$ \\ \bottomrule
+\end{tabular}
+\end{table}
+
+A partir da análise dos dados atestados, torna-se evidente a extrema eficácia da parametrização $\lambda$. A convergência para o Plano A ocorreu em meras 16 iterações ($\epsilon_{16} \approx 8.32 \times 10^{-7}$), enquanto o Plano B atingiu o critério de parada em 19 iterações. Este resultado apresenta um contraste abissal em comparação ao Método da Posição Falsa documentado na seção anterior, o qual, refém da extrema convexidade da curva, estagnou e demandou 56 e 95 iterações, respectivamente. O Método do Ponto Fixo sob relaxação, livre de fronteiras fixas, transitou rapidamente em direção à raiz.
+
+\textbf{Validação da Solução:}
+
+Extraindo-se as aproximações finais obtidas, as taxas de juros correspondentes são computadas diretamente por $J = x^* - 1$:
+\begin{align}
+    \text{Plano A: } & x_A \approx 1.122247 \implies J_A \approx 12.22\% \text{ ao período.} \\
+    \text{Plano B: } & x_B \approx 1.109380 \implies J_B \approx 10.93\% \text{ ao período.}
+\end{align}
+
+Ambos os resultados fornecem resíduos rigorosamente próximos de zero para suas respectivas funções originais. Consequentemente, infere-se com certeza analítica que o \textbf{Plano B} permanece a alternativa mais atraente do ponto de vista econômico, uma vez que submete o consumidor a um custo financeiro inferior ($10.93\% < 12.22\%$).
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}
+        \begin{axis}[
+            width=14cm, height=7cm,
+            title={\bfseries Dinâmica de Convergência das Taxas de Juros via Relaxação Linear},
+            xlabel={Iteração (\(k\))},
+            ylabel={Erro Relativo \(\epsilon_k\) (Escala Logarítmica)},
+            ymode=log,
+            grid=both,
+            grid style={line width=.1pt, draw=gray!20},
+            major grid style={line width=.2pt,draw=gray!50},
+            legend pos=north east,
+            tick label style={font=\footnotesize},
+            label style={font=\small},
+        ]
+        
+        % Plot do Plano A (g1)
+        \addplot[
+            color=cyan, mark=triangle, mark options={fill=white, scale=1.1}, thick 
+        ] table[col sep=comma, x=iter, y=erro] {../dados/saida/questao_3_8/questao_3_8_hist_f1_pontofixo_g1.csv};
+        \addlegendentry{Plano A (\(\lambda = 0.05\))}
+
+        % Plot do Plano B (g2)
+        \addplot[
+            color=red, mark=square, mark options={fill=white, scale=0.9}, thick 
+        ] table[col sep=comma, x=iter, y=erro] {../dados/saida/questao_3_8/questao_3_8_hist_f2_pontofixo_g2.csv};
+        \addlegendentry{Plano B (\(\lambda = 0.02\))}
+
+        \end{axis}
+    \end{tikzpicture}
+    \caption{Comportamento da convergência para a determinação de $J_A$ e $J_B$. O decréscimo contínuo e altamente inclinado em escala logarítmica atesta o sucesso da técnica de amortecimento na estabilização de derivadas elevadas em polinômios de alto grau.}
+    \label{fig:convergencia_ponto_fixo_juros}
+\end{figure}
+
+Pela análise do gráfico submetido (Figura \ref{fig:convergencia_ponto_fixo_juros}), observa-se que as curvas de erro relativo ostentam inclinações lineares e paralelas. Este paralelismo gráfico comprova que o ajuste fino dos parâmetros de relaxação ($\lambda_A$ e $\lambda_B$) nivelou as constantes de Lipschitz ($L \approx |1 - \lambda f'(x^*)|$) de ambos os problemas a uma mesma ordem de magnitude de contração, confirmando a robustez e a superioridade de um arcabouço matemático pré-condicionado frente a métodos de busca às cegas.
+
+
 \subsection{Dificuldades Enfrentadas}
 \label{subsec:dificuldades_ponto_fixo}
 
-Ao longo da execução experimental deste algoritmo, o desafio arquitetural e analítico mais pronunciado residiu na premissa fundamental da técnica: a obtenção e sintonia de uma função $g(x)$ que assegurasse a convergência de forma incondicional nas proximidades da raiz.
+Ao longo da execução experimental do Método do Ponto Fixo, o obstáculo arquitetural e analítico mais pronunciado residiu na premissa fundamental da técnica: a obtenção e sintonia de uma função de iteração $g(x)$ que assegurasse incondicionalmente a convergência nas vizinhanças da raiz. 
 
-Diferentemente dos métodos de confinamento, onde o algoritmo de software opera de modo quase \textit{black-box} uma vez garantido o Teorema de Bolzano, o Ponto Fixo transferiu a alta carga de complexidade para a fase de modelagem matemática prévia. Manipulações ingênuas da equação original frequentemente resultavam em formulações onde a derivada $|g'(x)|$ excedia a unidade. Nessas circunstâncias, observou-se empiricamente que o software apresentava divergência espiral (com as iterações escapando exponencialmente para o infinito), causando interrupções abruptas do interpretador Python causadas por estouro de limite aritmético de ponto flutuante (\texttt{OverflowError} em funções \texttt{math.exp} ou \texttt{math.log} mediante argumentos negativos).
+Diferentemente dos métodos de confinamento (Bissecção e Posição Falsa) — onde a estrutura de software opera de modo quase \textit{black-box} uma vez garantido o Teorema de Bolzano —, a iteração linear transferiu uma expressiva carga de complexidade para a fase de modelagem matemática prévia. Constatou-se que manipulações algébricas ingênuas da equação original frequentemente resultavam em formulações onde a constante de Lipschitz excedia a unidade ($|g'(x)| > 1$). Nessas circunstâncias, o comportamento numérico deflagrava divergências caóticas, com a sequência iterativa escapando exponencialmente da bacia de atração. Do ponto de vista computacional, essa fuga do domínio de convergência provocava interrupções abruptas no interpretador Python, manifestando-se como erros de domínio matemático (\texttt{ValueError} em raízes e arco-cossenos) ou estouro de limite aritmético (\texttt{OverflowError} em exponenciais e logaritmos).
 
-Para contornar este comportamento estocástico sem abdicar da automatização do código, a estrutura do dicionário de funções (exposto na modelagem) foi parametrizada para receber múltiplas assinaturas. Especificamente, nos casos onde a manipulação analítica não entregou estabilidade (como o isolamento explícito de expoentes), implementou-se uma aproximação de relaxação, fundamentada na fórmula:
-\begin{equation}
-    g(x) = x - \alpha f(x)
-\end{equation}
-A incorporação pragmática do fator de amortecimento empírico ($\alpha = 0.5$), exemplificado nas funções \texttt{g7} e \texttt{g8} do código-fonte original, forçou artificialmente o achatamento da derivada $|g'(x)| = |1 - \alpha f'(x)| < 1$. Essa decisão evidenciou que a flexibilidade modular em Python, ao receber funções anônimas (\texttt{lambda}), é indispensável para acoplar a robustez exigida na teoria da Análise Numérica ao ambiente pragmático de desenvolvimento computacional.
+No contexto do problema balístico do míssil (Sistemas Trigonométricos), essa dificuldade manifestou-se de forma crítica. As tentativas iniciais de isolamento do ângulo $\alpha$ via funções arco-tangente produziram derivadas excessivamente íngremes, inviabilizando o método. A resolução exigiu uma manipulação algébrica cirúrgica, reestruturando a equação para o formato de arco-cosseno (\textit{vide} Equação \ref{eq:g3_ponto_fixo_missil}). Essa adaptação não apenas conteve a derivada no intervalo de estabilidade ($-1 < g'(\alpha) < 0$), como induziu uma convergência oscilatória amortecida perfeitamente mapeável pelo algoritmo.
+
+A posteriori, durante a avaliação dos planos de financiamento financeiro, uma nova camada de dificuldade emergiu frente a polinômios de graus elevados (10 e 13). O isolamento analítico de $x$ tornou-se inviável, forçando a adoção do método da relaxação linear $g(x) = x - \lambda f(x)$. No entanto, a alta convexidade e os elevados gradientes locais $f'(x^*)$ dessas funções exigiram um sintonia fina e rigorosa do hiperparâmetro empírico $\lambda$. Utilizar um fator de amortecimento genérico causava divergência imediata; fez-se necessário calibrar $\lambda = 0.05$ para o Plano A e $\lambda = 0.02$ para o Plano B, achatando artificialmente a derivada de iteração para satisfazer a condição $0 < \lambda < \frac{2}{f'(x^*)}$.
+
+Para contornar essa extrema sensibilidade teórica sem sacrificar a automação do código, a arquitetura do software foi reestruturada. A camada de modelagem passou a exportar dicionários contendo múltiplas assinaturas anônimas (\textit{lambdas}) para a mesma função objetivo, permitindo a injeção de dependência dinâmica no laço iterativo. Essa decisão de engenharia de software evidenciou que a ortogonalidade e a flexibilidade modular em Python são indispensáveis para transpor o rigor da Análise Numérica teórica para um ambiente pragmático de desenvolvimento, viabilizando testes rápidos de diferentes condicionamentos algébricos até a obtenção da estabilidade ideal.

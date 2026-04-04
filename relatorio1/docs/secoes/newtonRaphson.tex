@@ -1,0 +1,302 @@
+\section{Método de Newton-Raphson}
+\label{sec:metodo_newton_raphson}
+
+\subsection{Fundamentação Teórica}
+\label{subsec:fundamentacao_teorica_newton_raphson}
+
+O Método de Newton-Raphson, classicamente reconhecido como o Método das Tangentes, destaca-se como uma das técnicas numéricas abertas mais proeminentes e eficientes para a determinação de raízes reais de funções deriváveis. Diferentemente dos métodos de confinamento, a abordagem newtoniana exige apenas uma estimativa inicial $x_0$ e baseia-se na linearização local da função $f(x)$ através de sua expansão em Série de Taylor de primeira ordem em torno de $x_k$:
+\begin{equation}
+    f(x) \approx f(x_k) + f'(x_k)(x - x_k)
+\end{equation}
+
+Impondo a condição de que a interseção da reta tangente com o eixo das abscissas corresponde à aproximação subsequente da raiz ($f(x) = 0$ para $x = x_{k+1}$), isola-se a variável iterativa para formular o algoritmo essencial:
+\begin{equation}
+    x_{k+1} = x_k - \frac{f(x_k)}{f'(x_k)}
+    \label{eq:formulacao_newton_raphson}
+\end{equation}
+
+A principal virtude matemática deste método reside em sua taxa de convergência quadrática ($\mathcal{O}(N^2)$), denotando que, em vizinhanças próximas à raiz, o número de algarismos significativos corretos aproximadamente dobra a cada iteração, caracterizando um amortecimento de erro da forma $\epsilon_{k+1} \propto \epsilon_k^2$. No entanto, esta performance ímpar não é incondicional. A convergência exige que a função seja de classe $C^2$ no domínio de interesse, que a semente inicial $x_0$ esteja na bacia de atração da raiz, e, crucialmente, que a primeira derivada não se anule ($f'(x_k) \neq 0$), sob pena de indefinição matemática.
+
+\subsection{Estratégia de Implementação}
+\label{subsec:estrategia_implementacao_newton_raphson}
+
+A transposição algorítmica deste método exigiu decisões de projeto arquitetural visando equilibrar rigor matemático e generalidade de software. A rotina foi implementada em Python, mantendo o encapsulamento do estado em dicionários históricos.
+
+\begin{lstlisting}[language=Python, caption={Código de implementação do Método de Newton-Raphson}, label={lst:newton_raphson_codigo}]
+def newton_raphson(funcao, x0, tol=1e-6, max_iter=100):
+    historico =[]
+    
+    for i in range(1, max_iter + 1):
+        fx0 = funcao(x0)
+        dx0 = utils.derivada_aproximada(funcao, x0)
+
+        if dx0 == 0:
+            print("Derivada nula no metodo de Newton-Raphson. Interrompendo.")
+            break
+
+        xk = x0 - (fx0 / dx0)
+
+        err = abs(xk - x0) / abs(xk) if xk != 0 else abs(xk - x0)
+
+        historico.append({
+            'iter': i,
+            'x': xk,
+            'f(x)': fx0,
+            'f\'(x)': dx0,
+            'erro': err
+        })
+
+        if fx0 == 0 or err < tol:
+            return xk, i, historico
+            
+        x0 = xk
+    
+    return xk, max_iter, historico
+\end{lstlisting}
+
+Uma particularidade estrutural desta implementação é o emprego da rotina \texttt{utils.derivada\_aproximada(funcao, x0)}. Em vez de forçar o usuário a injetar analiticamente a derivada $f'(x)$ da função objetivo — o que comprometeria a automação do código perante sistemas complexos —, optou-se pela utilização de uma aproximação numérica via diferenças finitas. Esta decisão transforma a implementação estrita de Newton-Raphson em um método quase-Newton discreto, ampliando a flexibilidade do módulo, ainda que submeta a precisão da derivada à escolha de um tamanho de passo ($h$) adequado no módulo auxiliar.
+
+A proteção da estabilidade computacional foi estabelecida através de um bloco condicional (\texttt{if dx0 == 0:}), que intercepta sumariamente iterações cuja tangente se torna perfeitamente horizontal, prevenindo colapsos por \texttt{ZeroDivisionError}. Adicionalmente, implementou-se o recálculo interativo da variável de estado (\texttt{x0 = xk}) ao fim de cada ciclo, garantindo a progressão espacial. O critério de parada baseou-se primariamente no declínio do erro relativo ($\epsilon_k < tol$), transmutando-se para o erro absoluto em cenários assintóticos próximos à origem (\texttt{xk == 0}).
+
+\subsection{Estrutura dos Arquivos de Entrada e Saída}
+\label{subsec:estrutura_arquivos_newton_raphson}
+
+A manipulação de dados operou sob a mesma taxonomia desenvolvida nas análises pregressas. A variável de inicialização $x_0$ e os critérios de tolerância foram extraídos de arquivos planos de configuração (\texttt{.txt}). A exportação do \textit{trace} iterativo transcorreu via arquivos \texttt{.csv}, incorporando, além das variáveis padronizadas (iteração, $x_k$, resíduo, erro), uma coluna dedicada ao registro evolutivo do gradiente local $f'(x_k)$. Este detalhamento tabular viabiliza análises de sensibilidade profundas sobre o comportamento de achatamento da derivada no entorno da convergência.
+
+\subsection{Problemas Teste}
+\label{subsec:problemas_testes_newton_raphson}
+
+Para aferir a premissa de convergência quadrática acelerada e as restrições impostas pela aproximação da derivada, a implementação foi submetida ao mesmo conjunto de equações transcendentais estudadas anteriormente.
+
+% -----------------------------------------------------------------------------
+% NOTA: As análises granulares (Tabelas e Gráficos) devem ser povoadas 
+% com a saída dos testes assim que os parâmetros CSV forem providos.
+% -----------------------------------------------------------------------------
+
+\subsubsection{Problema Teste 1: Tempo de Subida de um Amplificador}
+\label{subsubsec:problema_teste_1_newton_raphson}
+
+A aferição do Método de Newton-Raphson foi inicialmente conduzida através do clássico problema do amplificador eletrônico com acoplamento R-C. O objetivo físico reside em computar o tempo de subida normalizado $\Delta T = T_{0.9} - T_{0.1}$, extraindo-se os limiares de $10\%$ e $90\%$ da resposta ao degrau unitário através das raízes das funções:
+\begin{align}
+    f_1(T) &= 1 - \left(1 + T + \frac{T^2}{2}\right)e^{-T} - 0.1 = 0 \label{eq:f1_newton} \\
+    f_2(T) &= 1 - \left(1 + T + \frac{T^2}{2}\right)e^{-T} - 0.9 = 0 \label{eq:f2_newton}
+\end{align}
+
+Alimentando o algoritmo com a estimativa inicial $T_0 = 0.5$ para a busca de $T_{0.1}$ e uma tolerância algorítmica de $\epsilon < 10^{-5}$, o procedimento iterativo governado pela linearização das tangentes obteve os resultados sumarizados na Tabela \ref{tab:newton_raphson_f1}. Salienta-se que a derivada $f_1'(x)$ reportada foi auferida computacionalmente pelo módulo de aproximação por diferenças finitas centrais.
+
+\begin{table}[htpb]
+\centering
+\caption{Histórico iterativo do Método de Newton-Raphson para a busca de $T_{0.1}$ na função $f_1(T)$.}
+\label{tab:newton_raphson_f1}
+\small
+\begin{tabular}{@{}cccccc@{}}
+\toprule
+\textbf{Iteração ($k$)} & $\mathbf{x_k}$ & $\mathbf{f_1(x_k)}$ (Resíduo) & $\mathbf{f_1'(x_k)}$ (Gradiente) & \textbf{Erro Relativo} ($\epsilon_k$) \\ \midrule
+1 & 1.6291899 & -0.08561232 & 0.07581746 & 0.69309900 \\
+2 & 1.1518838 & \phantom{-}0.12421174 & 0.26023501 & 0.41436992 \\
+3 & 1.1029990 & \phantom{-}0.01024959 & 0.20966801 & 0.04431996 \\
+4 & 1.1020656 & \phantom{-}0.00018841 & 0.20188108 & 0.00084687 \\
+5 & 1.1020653 & \phantom{-}0.00000007 & 0.20172777 & 0.00000032 \\ \bottomrule
+\end{tabular}
+\end{table}
+
+A partir de uma análise minuciosa da Tabela \ref{tab:newton_raphson_f1}, torna-se evidente a natureza agressiva da correção newtoniana. Na primeira iteração, a suavidade da curva em $x_0 = 0.5$ (onde o gradiente é relativamente baixo) ejetou a estimativa consideravelmente para frente ($x_1 \approx 1.629$), ilustrando a altíssima sensibilidade geométrica do método face à semente inicial. No entanto, uma vez que o termo iterativo adentrou a estrita bacia de atração da raiz ($k \geq 3$), observa-se o deflagrar do regime de convergência assintótica quadrática. 
+
+O decaimento da magnitude do erro relativo ($\epsilon_k$) e do resíduo atesta perfeitamente a premissa teórica $\epsilon_{k+1} \propto \epsilon_k^2$. Da terceira para a quarta iteração, o erro saltou da ordem de $10^{-2}$ para $10^{-4}$; na iteração subsequente, implodiu diretamente para a ordem de $10^{-7}$. Consequentemente, o limite de tolerância foi satisfeito em irrisórias 5 iterações, isolando a raiz em $T_{0.1} \approx 1.102065$, um desempenho exponencialmente superior às 16 iterações exigidas pela Bissecção estrita para o mesmo grau de acurácia.
+
+Empreendendo procedimento análogo para o limiar de $90\%$ ($f_2(T)$), a execução pautada pela semente $T_0 = 2.5$ exigiu 6 iterações. Os dados atestam um comportamento iterativo idêntico: ao adentrar as vizinhanças da solução, o resíduo colapsou de $-1.03 \times 10^{-5}$ ($k=5$) para impressionantes $-4.50 \times 10^{-10}$ ($k=6$), fixando a raiz em $T_{0.9} \approx 5.322320$.
+
+Por conseguinte, computa-se o tempo de subida normalizado valendo-se das aproximações finais:
+\begin{equation}
+    \Delta T = 5.322320 - 1.102065 = 4.220255
+\end{equation}
+
+\textbf{Validação da Solução e Comportamento Dinâmico:}
+
+Os ínfimos resíduos obtidos ($f_1 \approx 7 \times 10^{-8}$ e $f_2 \approx -4 \times 10^{-10}$) validam inequivocamente a altíssima confiabilidade e precisão do algoritmo construído. A inclusão de diferenças finitas no cálculo tangencial em nada corrompeu a exatidão termodinâmica da solução final em face da precisão algarítmica exigida, chancelando a versatilidade do \textit{solver}.
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}
+        \begin{axis}[
+            width=14cm, height=7cm,
+            title={\bfseries Assinatura de Convergência Quadrática no Método de Newton-Raphson},
+            xlabel={Iteração (\(k\))},
+            ylabel={Métricas (Escala Logarítmica)},
+            ymode=log,
+            grid=both,
+            grid style={line width=.1pt, draw=gray!20},
+            major grid style={line width=.2pt,draw=gray!50},
+            legend pos=south west,
+            tick label style={font=\footnotesize},
+            label style={font=\small},
+        ]
+        
+        \addplot[
+            color=green!60!black, mark=pentagon*, mark options={fill=white, scale=1.2}, thick 
+        ] table[col sep=comma, x=iter, y=erro] {../dados/saida/questao_3_3/questao_3_3_hist_f1_newton_raphson.csv};
+        \addlegendentry{Erro Relativo \(\epsilon_k\)}
+
+        \addplot[
+            color=blue, mark=*, mark options={fill=white}, thick 
+        ] table[col sep=comma, x=iter, y expr=abs(\thisrow{f(x)})] {../dados/saida/questao_3_3/questao_3_3_hist_f1_newton_raphson.csv};
+        \addlegendentry{Magnitude Residual \(|f_1(x_k)|\)}
+
+        \end{axis}
+    \end{tikzpicture}
+    \caption{Gráfico representativo do amortecimento logarítmico para $f_1(T)$. Nota-se que, distintamente dos métodos lineares (cujas retas de erro possuem declividade constante), a curva aqui sofre uma inflexão convexa para baixo, revelando a aceleração de segunda ordem onde os algarismos significativos multiplicam-se a cada passo.}
+    \label{fig:convergencia_newton_amplificador}
+\end{figure}
+
+Observa-se ainda, por meio da Figura \ref{fig:convergencia_newton_amplificador}, a assinatura clássica dos métodos de alta ordem em eixos semi-logarítmicos: a "concavidade para baixo" da curva de erro. Isso corrobora analiticamente que a taxa de convergência da rotina implementada não é meramente proporcional, mas sim acelerada de forma quadrática quando em proximidade do ponto fixo da tangente.
+
+\subsubsection{Problema Teste 2: Ângulo de Lançamento Balístico de um Míssil}
+\label{subsubsec:problema_teste_2_newton_raphson}
+
+A superioridade topológica do Método de Newton-Raphson manifesta-se de forma contundente ao lidarmos com equações transcendentais ricas em composições trigonométricas. O segundo problema de validação requer a determinação do ângulo ótimo de lançamento de um míssil ($\alpha$), modelado pela restrição cinemática equivalente a zero:
+\begin{equation}
+    f(\alpha) = \sin(\alpha)\cos(\alpha) - \operatorname{tg}(40^\circ)\left(0.8 - \cos^2(\alpha)\right) = 0
+\end{equation}
+
+Em contraste agudo com o Método do Ponto Fixo — que demandou malabarismos algébricos (isolamento por arco-cosseno) para não sucumbir à divergência —, a formulação de Newton consome a função em seu estado original. Assumindo-se o conhecimento prévio de que a solução repousa no primeiro quadrante balístico, o estimador foi inicializado com a semente $x_0 = 55^\circ$ (aproximadamente $0.9599$ radianos). A Tabela \ref{tab:newton_raphson_missil} espelha a progressão numérica processada até a satisfação do critério de tolerância algorítmica.
+
+\begin{table}[htpb]
+\centering
+\caption{Histórico iterativo do Método de Newton-Raphson para o cálculo do ângulo $\alpha$.}
+\label{tab:newton_raphson_missil}
+\small
+\begin{tabular}{@{}ccccc@{}}
+\toprule
+\textbf{Iteração ($k$)} & $\mathbf{x_k}$ (radianos) & $\mathbf{f(x_k)}$ (Resíduo) & $\mathbf{f'(x_k)}$ (Gradiente) & \textbf{Erro Relativo} ($\epsilon_k$) \\ \midrule
+1 & 1.0259377 & \phantom{-}0.07462193 & -1.13052240 & 0.06433782 \\
+2 & 1.0237641 & -0.00262263           & -1.20659956 & 0.00212312 \\
+3 & 1.0237621 & -0.00000237           & -1.20442241 & 0.00000192 \\ \bottomrule
+\end{tabular}
+\end{table}
+
+A partir do escrutínio dos dados tabelados, atesta-se um comportamento de convergência fenomenal, exigindo meras 3 iterações para isolar a raiz com precisão da ordem de $10^{-6}$. A razão para tamanha eficiência reside no comportamento do gradiente da função no entorno da raiz. Observa-se que o módulo de derivação numérica extraiu gradientes $f'(x_k)$ oscilando estavelmente na faixa de $-1.20$. Como a derivada local mantém-se expressivamente afastada de zero, o denominador da parcela de correção newtoniana (Equação \ref{eq:formulacao_newton_raphson}) atua de forma robusta, impedindo sobressaltos e direcionando o vetor de busca direta e firmemente para o cruzamento com o eixo das abscissas.
+
+A contração quadrática é mais uma vez comprovada de forma prática. Da primeira para a segunda iteração, o resíduo absolutizado cai de $\approx 7 \times 10^{-2}$ para $\approx 2 \times 10^{-3}$; no passo seguinte, eleva-se ao quadrado colapsando para $\approx 2 \times 10^{-6}$.
+
+\textbf{Validação da Solução:}
+
+A execução encerrou-se em $x_3 \approx 1.023762$ radianos, reportando um erro relativo de $\epsilon_3 \approx 1.92 \times 10^{-6}$. Convertendo o referencial para graus, o algoritmo numérico prescreve que a elevação balística ideal é de:
+\begin{equation}
+    \alpha \approx 58.66^\circ
+\end{equation}
+
+A avaliação de validação $f(x_3) \approx -2.37 \times 10^{-6}$ confirma a precisão do ponto encontrado. Infere-se, desse modo, que, na ausência de pontos de sela tangenciais, o método é substancialmente mais veloz que a \textit{Regula Falsi} (que estagnou extremos no mesmo problema) e matematicamente mais resiliente que o Ponto Fixo.
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}
+        \begin{axis}[
+            width=14cm, height=6.5cm,
+            title={\bfseries Decaimento Acelerado do Erro e Resíduo no Modelo Balístico},
+            xlabel={Iteração (\(k\))},
+            ylabel={Magnitude (Escala Logarítmica)},
+            ymode=log,
+            grid=both,
+            grid style={line width=.1pt, draw=gray!20},
+            major grid style={line width=.2pt,draw=gray!50},
+            legend pos=north east,
+            tick label style={font=\footnotesize},
+            label style={font=\small},
+        ]
+        
+        \addplot[
+            color=blue, mark=square, mark options={fill=white, scale=1.1}, thick 
+        ] table[col sep=comma, x=iter, y=erro] {../dados/saida/questao_3_6/questao_3_6_hist_f1_newton_raphson.csv};
+        \addlegendentry{Erro Relativo \(\epsilon_k\)}
+
+        \addplot[
+            color=magenta, mark=*, mark options={fill=white}, thick 
+        ] table[col sep=comma, x=iter, y expr=abs(\thisrow{f(x)})] {../dados/saida/questao_3_6/questao_3_6_hist_f1_newton_raphson.csv};
+        \addlegendentry{\(|f(\alpha_k)|\)}
+
+        \end{axis}
+    \end{tikzpicture}
+    \caption{Gráfico de convergência atestando a extrema eficiência iterativa de Newton-Raphson na avaliação trigonométrica. O alcance do patamar de $10^{-6}$ em apenas 3 passos reflete a assertividade da aproximação linear na vizinhança correta da raiz.}
+    \label{fig:convergencia_newton_missil}
+\end{figure}
+
+\subsubsection{Problema Teste 3: Análise de Taxas de Juros em Planos de Financiamento}
+\label{subsubsec:problema_teste_3_newton_raphson}
+
+A modelagem matemática de sistemas de amortização financeira representa o teste de estresse termodinâmico perfeito para algoritmos numéricos, devido ao grau elevado dos polinômios envolvidos. Retoma-se o escopo de avaliação de dois planos de financiamento para um capital de $VF = 140.00$, cujas taxas de juros ($J$) encontram-se embutidas na raiz $x = 1+J$ da equação $f(x) = kx^{P+1} - (k+1)x^P + 1 = 0$.
+
+Conforme documentado nas seções anteriores, o \textbf{Plano A} ($P=9$, grau 10) e o \textbf{Plano B} ($P=12$, grau 13) impuseram severas restrições aos métodos concorrentes. A alta convexidade induziu estagnação na Posição Falsa (até 95 iterações), enquanto as derivadas íngremes forçaram o emprego empírico de amortecimento (relaxação) no Ponto Fixo. Sob o paradigma de Newton-Raphson, contudo, essa mesma inclinação acentuada da curva ($f'(x_k) \gg 1$) atua como o motor de aceleração do algoritmo, ancorando o denominador da fração de correção iterativa e guiando o vetor de busca com precisão cirúrgica.
+
+Iniciando as avaliações com sementes $x_0 = 1.12$ para o Plano A e $x_0 = 1.11$ para o Plano B, a rotina interceptou as raízes de forma fulminante. A Tabela \ref{tab:newton_raphson_juros_f1} explicita o curtíssimo histórico iterativo para o Plano A.
+
+\begin{table}[htpb]
+\centering
+\caption{Histórico iterativo do Método de Newton-Raphson para o polinômio de grau 10 (Plano A).}
+\label{tab:newton_raphson_juros_f1}
+\small
+\begin{tabular}{@{}cccccc@{}}
+\toprule
+\textbf{Iteração ($k$)} & $\mathbf{x_k}$ (Aproximação) & $\mathbf{f_1(x_k)}$ (Resíduo) & $\mathbf{f_1'(x_k)}$ (Gradiente) & \textbf{Erro Relativo} ($\epsilon_k$) \\ \midrule
+1 & 1.1223175 & -0.01505146 & 6.49444977 & $2.06 \times 10^{-3}$ \\
+2 & 1.1222483 & \phantom{-}0.00047830 & 6.91096132 & $6.16 \times 10^{-5}$ \\
+3 & 1.1222483 & \phantom{-}0.00000049 & 6.89835287 & $6.45 \times 10^{-8}$ \\ \bottomrule
+\end{tabular}
+\end{table}
+
+A análise tabular evidencia que, já na primeira iteração, a magnitude do gradiente ($f_1' \approx 6.49$) evitou perturbações massivas, conduzindo a estimativa estritamente para o interior da bacia de atração. A partir desse ponto, o colapso do erro relativo revela a verdadeira essência da convergência quadrática: a imprecisão reduziu-se de $10^{-3}$ para $10^{-5}$, alcançando $10^{-8}$ na terceira etapa, satisfazendo amplamente o critério de tolerância com um custo computacional inexpressivo.
+
+Em paralelo, a matriz de execução do \textbf{Plano B} ($f_2(x)$) reforçou esta constatação. Apesar da elevação do grau do polinômio implicar um gradiente ainda mais agressivo ($f_2' \approx 11.8$), a correção newtoniana absorveu a não linearidade de forma orgânica. A raiz foi cravada identicamente em 3 iterações, com um erro relativo terminal esmagador de $\epsilon_3 \approx 1.48 \times 10^{-9}$ e um resíduo da ordem de $10^{-8}$.
+
+\textbf{Validação Econômica da Solução:}
+
+Extraindo e convertendo as variáveis convergidas do domínio puramente matemático para o contexto financeiro real ($J = x^* - 1$), obtém-se:
+\begin{align}
+    \text{Plano A: } & x_A \approx 1.122248 \implies J_A \approx 12.22\% \text{ ao período.} \\
+    \text{Plano B: } & x_B \approx 1.109378 \implies J_B \approx 10.93\% \text{ ao período.}
+\end{align}
+
+Ratifica-se, sem margem a ambiguidades numéricas, que o \textbf{Plano B} configura-se como a melhor escolha para o consumidor.
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}
+        \begin{axis}[
+            width=14cm, height=6.5cm,
+            title={\bfseries Supressão de Não Linearidades em Polinômios de Alto Grau via Newton-Raphson},
+            xlabel={Iteração (\(k\))},
+            ylabel={Erro Relativo \(\epsilon_k\) (Escala Logarítmica)},
+            ymode=log,
+            grid=both,
+            grid style={line width=.1pt, draw=gray!20},
+            major grid style={line width=.2pt,draw=gray!50},
+            legend pos=north east,
+            tick label style={font=\footnotesize},
+            label style={font=\small},
+        ]
+        
+        \addplot[
+            color=cyan!80!black, mark=triangle*, mark options={fill=white, scale=1.3}, thick 
+        ] table[col sep=comma, x=iter, y=erro] {../dados/saida/questao_3_8/questao_3_8_hist_f1_newton_raphson.csv};
+        \addlegendentry{Plano A (Grau 10)}
+
+        \addplot[
+            color=red!80!black, mark=square*, mark options={fill=white, scale=1.1}, thick 
+        ] table[col sep=comma, x=iter, y=erro] {../dados/saida/questao_3_8/questao_3_8_hist_f2_newton_raphson.csv};
+        \addlegendentry{Plano B (Grau 13)}
+
+        \end{axis}
+    \end{tikzpicture}
+    \caption{Gráfico comparativo da convergência para ambos os planos de financiamento. A trajetória essencialmente vertical em escala semi-logarítmica, extinguindo o erro em 3 iterações, destoa substancialmente do arrasto sublinear outrora documentado pelo Método da Posição Falsa, sagrando Newton-Raphson como a ferramenta primária para este perfil topológico.}
+    \label{fig:convergencia_newton_juros}
+\end{figure}
+
+Pela inferência visual exposta na Figura \ref{fig:convergencia_newton_juros}, torna-se inequívoco que a divisão instantânea pelo valor do gradiente em tempo de execução ($\frac{f(x)}{f'(x)}$) blinda o método contra o arrasto algorítmico enfrentado em técnicas de interpolação estrita. Newton-Raphson provou-se formidável na manipulação de expressões de alta derivada, convertendo o que antes era um obstáculo matemático (causador de oscilações ou lentidão) no próprio combustível para sua convergência de segunda ordem.
+
+\subsection{Dificuldades Enfrentadas}
+\label{subsec:dificuldades_newton_raphson}
+
+Durante a consolidação técnica do módulo de Newton-Raphson, um contraponto crítico relativo à generalização algorítmica exigiu escrutínio analítico e ajustes. 
+
+A restrição primordial enfrentada adveio da escolha arquitetural pela abstenção de expressões analíticas da derivada. Por mais que a função \texttt{utils.derivada\_aproximada} expanda drasticamente a utilidade da classe — tornando-a um \textit{solver} quase universal sem a dependência da regra da cadeia executada manualmente pelo usuário —, esta abstração induziu a um conflito de precisão de máquina. Constatou-se que a determinação da derivada numérica através de diferenças finitas centrais acoplou um erro de truncamento de ordem $\mathcal{O}(h^2)$ diretamente no coração da Equação \ref{eq:formulacao_newton_raphson}. Quando a iteração se aproxima da raiz real, a diferença no numerador de $f(x+h) - f(x-h)$ deflagra cancelamento catastrófico de ponto flutuante, produzindo gradientes localmente ruidosos que, inadvertidamente, degradaram a convergência estritamente quadrática da teoria analítica para uma taxa superlinear observada na prática. 
+
+Adicionalmente, verificou-se a extrema sensibilidade geométrica do método em relação à semente inicial $x_0$. Em cenários com inflexões locais ou derivadas tendendo transitoriamente a valores irrisórios ($f'(x_k) \to 0$), o termo da razão $(f(x_k)/f'(x_k))$ produziu perturbações massivas, ejetando a estimativa $x_{k+1}$ para fora do domínio de representação ou distanciando-a de forma irreversível da bacia de atração da raiz. Embora o código esteja instrumentado para estancar colapsos frente a derivadas exatamente nulas (\texttt{dx0 == 0}), a instrumentação atual não impede o transbordamento iterativo decorrente de gradientes infinitesimalmente pequenos, reafirmando o caráter poderoso, porém instável, da técnica das tangentes quando mal inicializada.
