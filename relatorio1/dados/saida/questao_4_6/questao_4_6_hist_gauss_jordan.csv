@@ -1,0 +1,11 @@
+iter,fase,k,linha_pivo,linha_alvo,pivo,multiplicador,acao
+0,normalizacao,0,0,0,14.0,0.07142857142857142,normalizar_linha
+1,eliminacao,0,0,1,1.0,4.0,anular_elemento
+2,eliminacao,0,0,2,1.0,4.0,anular_elemento
+3,normalizacao,1,1,1,5.857142857142858,0.17073170731707316,normalizar_linha
+4,eliminacao,1,1,0,1.0,0.2857142857142857,anular_elemento
+5,eliminacao,1,1,2,1.0,5.857142857142858,anular_elemento
+6,normalizacao,2,2,2,-1.0,-1.0,normalizar_linha
+7,eliminacao,2,2,0,1.0,-0.5853658536585364,anular_elemento
+8,eliminacao,2,2,1,1.0,3.0487804878048776,anular_elemento
+9,solucao,,,,,,solucao_obtida

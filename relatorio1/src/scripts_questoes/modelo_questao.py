@@ -123,11 +123,9 @@ def rodar_algoritmos():
             nome_arquivo_seguro = nome_metodo.lower().replace(" ", "").replace("-", "_").replace("ç", "c").replace("ã", "a").replace("(", "_").replace(")", "")
             utils.salvar_csv(os.path.join(saidas_dir, f"{nome_script}_hist_{nome_arquivo_seguro}.csv"), historico)
 
-    # Salvando CSV Tabela Geral Consolidadora das Questões
     caminho_comparativo = os.path.join(saidas_dir, f"{nome_script}.csv")
     utils.salvar_csv(caminho_comparativo, resultados)
 
-    # Relatório Final em Console
     print("\n= RESULTADOS FINAIS:")
     for res in resultados:
         print(f" -> {res['Metodo']:<30} | Raiz = {res['Raiz']:<12.6f} | Iteraçoes = {res['Iteracoes']}")
