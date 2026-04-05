@@ -1,0 +1,2 @@
+# Preencha os parametros para o script e o rode novamente.
+tol:1e-12
