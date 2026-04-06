@@ -1,60 +1,4 @@
-def _copiar_sistema(A, b):
-	"""Cria copias numericas do sistema para evitar mutacao externa."""
-	matriz = [[float(valor) for valor in linha] for linha in A]
-	vetor = [float(valor) for valor in b]
-	return matriz, vetor
-
-
-def _validar_sistema(A, b):
-	if not A or not b:
-		raise ValueError("A matriz A e o vetor b nao podem ser vazios.")
-
-	n = len(A)
-	if len(b) != n:
-		raise ValueError("Dimensoes invalidas: len(b) deve ser igual ao numero de linhas de A.")
-
-	for linha in A:
-		if len(linha) != n:
-			raise ValueError("A matriz A deve ser quadrada (n x n).")
-
-
-def _substituicao_regressiva(U, y, tol=1e-12, iteracao_inicial=0):
-	"""
-	Resolve Ux = y para U triangular superior.
-	
-	Retorno:
-	- x: vetor solucao
-	- historico: lista detalhada das operacoes realizadas
-	"""
-	n = len(U)
-	x = [0.0 for _ in range(n)]
-	historico = []
-	iteracao = iteracao_inicial
-
-	for i in range(n - 1, -1, -1):
-		soma = 0.0
-		for j in range(i + 1, n):
-			soma += U[i][j] * x[j]
-
-		if abs(U[i][i]) < tol:
-			raise ValueError(f"Sistema singular ou quase singular na linha {i}.")
-
-		x[i] = (y[i] - soma) / U[i][i]
-		
-		historico.append({
-			"iter": iteracao,
-			"fase": "substituicao_regressiva",
-			"k": i,
-			"linha_pivo": None,
-			"linha_alvo": i,
-			"pivo": U[i][i],
-			"multiplicador": None,
-			"acao": "calcular_x[i]"
-		})
-		iteracao += 1
-
-	return x, historico
-
+from .utils import copiar_sistema, validar_sistema, substituicao_regressiva, decomposicao_LU, substituicao_progressiva
 
 def eliminacao_gauss(A, b, pivotamento_parcial=True, tol_pivo=1e-12):
 	"""
@@ -65,8 +9,8 @@ def eliminacao_gauss(A, b, pivotamento_parcial=True, tol_pivo=1e-12):
 	- etapas: numero de etapas principais de eliminacao
 	- historico: lista de dicionarios com operacoes realizadas
 	"""
-	_validar_sistema(A, b)
-	U, y = _copiar_sistema(A, b)
+	validar_sistema(A, b)
+	U, y = copiar_sistema(A, b)
 	n = len(U)
 	historico = []
 	iteracao = 0
@@ -112,7 +56,7 @@ def eliminacao_gauss(A, b, pivotamento_parcial=True, tol_pivo=1e-12):
 			})
 			iteracao += 1
 
-	x, hist_retr = _substituicao_regressiva(U, y, tol=tol_pivo, iteracao_inicial=iteracao)
+	x, hist_retr = substituicao_regressiva(U, y, tol=tol_pivo, iteracao_inicial=iteracao)
 	historico.extend(hist_retr)
 	iteracao += len(hist_retr)
 	
@@ -129,87 +73,6 @@ def eliminacao_gauss(A, b, pivotamento_parcial=True, tol_pivo=1e-12):
 
 	return x, n - 1, historico
 
-def _decomposicao_LU(A, tol_pivo=1e-12, iteracao_inicial=0):
-	"""
-	Decompõe A em L e U usando eliminacao de Gauss sem pivotamento.
-	
-	Retorno:
-	- L: matriz triangular inferior
-	- U: matriz triangular superior
-	- historico: lista detalhada das operacoes realizadas
-	"""
-	n = len(A)
-	L = [[0.0 if i != j else 1.0 for j in range(n)] for i in range(n)]
-	U = [[float(valor) for valor in linha] for linha in A]
-	historico = []
-	iteracao = iteracao_inicial
-
-	for k in range(n - 1):
-		pivo = U[k][k]
-		if abs(pivo) < tol_pivo:
-			raise ValueError(f"Pivo nulo/quase nulo na etapa k={k}.")
-
-		for i in range(k + 1, n):
-			multiplicador = U[i][k] / pivo
-			L[i][k] = multiplicador
-
-			historico.append({
-				"iter": iteracao,
-				"fase": "fatoracao_LU",
-				"k": k,
-				"linha_pivo": k,
-				"linha_alvo": i,
-				"pivo": pivo,
-				"multiplicador": multiplicador,
-				"acao": "armazenar_multiplicador_L_e_anular_U"
-			})
-
-			for j in range(k, n):
-				U[i][j] = U[i][j] - multiplicador * U[k][j]
-			
-			iteracao += 1
-
-	return L, U, historico
-
-def substituicao_progressiva(L, b, tol=1e-12, iteracao_inicial=0):
-	"""
-	Resolve Ly = b para L triangular inferior.
-	
-	Retorno:
-	- y: vetor solucao
-	- historico: lista detalhada das operacoes realizadas
-	"""
-	n = len(L)
-	y = [0.0 for _ in range(n)]
-	historico = []
-	iteracao = iteracao_inicial
-
-	for i in range(n):
-		soma = 0.0
-		for j in range(i):
-			soma += L[i][j] * y[j]
-
-		if abs(L[i][i]) < tol:
-			raise ValueError(f"Sistema singular ou quase singular na linha {i}.")
-
-		y[i] = (b[i] - soma) / L[i][i]
-		
-		historico.append({
-			"iter": iteracao,
-			"fase": "substituicao_progressiva",
-			"k": i,
-			"linha_pivo": None,
-			"linha_alvo": i,
-			"pivo": L[i][i],
-			"multiplicador": None,
-			"acao": "calcular_y[i]"
-		})
-		iteracao += 1
-
-	return y, historico
-
-
-
 def fatoracao_LU(A, b, tol_pivo=1e-12):
 	"""
 	Resolve Ax = b por fatoracao LU.
@@ -224,7 +87,7 @@ def fatoracao_LU(A, b, tol_pivo=1e-12):
 	- etapas: numero de etapas principais (n-1 para decomposicao + n para substituicoes)
 	- historico: lista de dicionarios com todas operacoes realizadas
 	"""
-	_validar_sistema(A, b)
+	validar_sistema(A, b)
 	
 	historico = []
 	iteracao = 0
@@ -242,7 +105,7 @@ def fatoracao_LU(A, b, tol_pivo=1e-12):
 	iteracao += 1
 	
 	# Etapa 1: Decomposicao LU
-	L, U, hist_fatoracao = _decomposicao_LU(A, tol_pivo=tol_pivo, iteracao_inicial=iteracao)
+	L, U, hist_fatoracao = decomposicao_LU(A, tol_pivo=tol_pivo, iteracao_inicial=iteracao)
 	historico.extend(hist_fatoracao)
 	iteracao += len(hist_fatoracao)
 	
@@ -271,12 +134,12 @@ def fatoracao_LU(A, b, tol_pivo=1e-12):
 		"linha_alvo": None,
 		"pivo": None,
 		"multiplicador": None,
-		"acao": "inicio_substituicao_regressiva"
+		"acao": "iniciosubstituicao_regressiva"
 	})
 	iteracao += 1
 	
 	# Etapa 3: Substituicao regressiva (Ux = y)
-	x, hist_regressiva = _substituicao_regressiva(U, y, tol=tol_pivo, iteracao_inicial=iteracao)
+	x, hist_regressiva = substituicao_regressiva(U, y, tol=tol_pivo, iteracao_inicial=iteracao)
 	historico.extend(hist_regressiva)
 	iteracao += len(hist_regressiva)
 	
@@ -307,7 +170,7 @@ def gauss_seidel(A, b, tol=1e-5, max_iter=100, x0=None):
 	- iteracoes: numero de iteracoes realizadas
 	- historico: lista de dicionarios com detalhes de cada iteracao
 	"""
-	_validar_sistema(A, b)
+	validar_sistema(A, b)
 	
 	n = len(A)
 	if x0 is None:
@@ -356,8 +219,8 @@ def gauss_jordan(A, b, pivotamento_parcial=True, tol_pivo=1e-12):
 	- etapas: numero de etapas principais
 	- historico: lista de dicionarios com operacoes realizadas
 	"""
-	_validar_sistema(A, b)
-	U, y = _copiar_sistema(A, b)
+	validar_sistema(A, b)
+	U, y = copiar_sistema(A, b)
 	n = len(U)
 	historico = []
 	iteracao = 0
@@ -517,3 +380,35 @@ def condicionamento(A):
 	return norma_A * norma_inv_A
 
 
+
+def gauss_jacobi(A, b, tol=1e-5, max_iter=100, x0=None):
+    """
+    Resolve um sistema linear Ax = b utilizando o método iterativo de Gauss-Jacobi.
+    """
+    n = len(b)
+    x = x0[:] if x0 else [0.0] * n
+    x_new = [0.0] * n
+    iteracoes = []
+    
+    for k in range(max_iter):
+        for i in range(n):
+            soma = sum(A[i][j] * x[j] for j in range(n) if j != i)
+            x_new[i] = (b[i] - soma) / A[i][i]
+            
+        erro_abs = max(abs(x_new[i] - x[i]) for i in range(n))
+        max_x = max(abs(v) for v in x_new)
+        erro_rel = erro_abs / max_x if max_x != 0 else erro_abs
+        
+        iteracoes.append({
+            'iter': k + 1,
+            'x': x_new[:],
+            'erro_abs': erro_abs,
+            'erro_rel': erro_rel
+        })
+        
+        if erro_rel < tol or erro_abs < tol:
+            return x_new, k + 1, iteracoes
+            
+        x = x_new[:]
+        
+    return x_new, max_iter, iteracoes

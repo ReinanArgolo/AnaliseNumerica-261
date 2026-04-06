@@ -54,7 +54,7 @@ def modelar_funcoes():
         # Plano B: f2(x) = k_b*x^(p_b+1) - (k_b+1)*x^p_b + 1
         'f2': lambda x: k_b * (x ** (p_b + 1)) - (k_b + 1) * (x ** p_b) + 1,
 
-        # Iteracoes de ponto fixo (formas de relaxacao): x_{n+1} = x_n - lambda*f(x_n)
+        # Iteracoes de ponto fixo
         'g1': lambda x: x - 0.05 * (k_a * (x ** (p_a + 1)) - (k_a + 1) * (x ** p_a) + 1),
         'g2': lambda x: x - 0.02 * (k_b * (x ** (p_b + 1)) - (k_b + 1) * (x ** p_b) + 1),
     }
@@ -71,53 +71,14 @@ def modelar_funcoes():
 # ==============================================================================
 # SECAO 2: MOTOR DOS TESTES
 # ==============================================================================
-def inicializar_ambiente(nome_script):
-    """Garante a estrutura de pastas e arquivo config estatico parametrico."""
-    base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
-    entradas_dir = os.path.join(base_dir, 'dados', 'entradas')
-    saidas_dir = os.path.join(base_dir, 'dados', 'saida', nome_script)
 
-    os.makedirs(entradas_dir, exist_ok=True)
-    os.makedirs(saidas_dir, exist_ok=True)
-
-    arquivo_entrada = os.path.join(entradas_dir, f"{nome_script}.txt")
-
-    if not os.path.exists(arquivo_entrada):
-        print(f"[{nome_script}] Arquivo de configuracao '{nome_script}.txt' nao encontrado.")
-        print(f"-> Criando template em 'dados/entradas/{nome_script}.txt'...")
-        with open(arquivo_entrada, 'w') as file:
-            file.write("# Parametros globais (fallback)\n")
-            file.write("a:1.08\n")
-            file.write("b:1.20\n")
-            file.write("x0:1.11\n")
-            file.write("tol:1e-6\n")
-            file.write("max_iter:100\n")
-            file.write("\n")
-            file.write("# Parametros especificos por funcao\n")
-            file.write("f1_a:1.10\n")
-            file.write("f1_b:1.20\n")
-            file.write("f1_x0:1.12\n")
-            file.write("f2_a:1.08\n")
-            file.write("f2_b:1.15\n")
-            file.write("f2_x0:1.11\n")
-        return None, saidas_dir
-
-    parametros = {}
-    with open(arquivo_entrada, 'r') as file:
-        for linha in file:
-            linha = linha.strip()
-            if linha and not linha.startswith('#'):
-                chave, valor = linha.split(':')
-                parametros[chave.strip()] = float(valor.strip())
-
-    return parametros, saidas_dir
 
 
 def rodar_algoritmos():
     """Orquestra a execucao dos metodos e salva os resultados em CSV."""
 
     nome_script = os.path.splitext(os.path.basename(__file__))[0]
-    parametros, saidas_dir = inicializar_ambiente(nome_script)
+    parametros, saidas_dir = utils.configurar_ambiente(nome_script)
 
     if not parametros:
         print("-> Preencha o arquivo de entrada criado e execute novamente.")

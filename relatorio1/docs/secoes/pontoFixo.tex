@@ -158,12 +158,12 @@ Para chancelar rigorosamente a solução, submete-se o ponto $T_{0.1} = 1.102042
     \label{fig:convergencia_ponto_fixo_amplificador_comparativo}
 \end{figure}
 
-A Figura \ref{fig:convergencia_ponto_fixo_amplificador_comparativo} ilustra, sob o espectro logarítmico, as consequências diretas do preparo algébrico. Embora o Método do Ponto Fixo elimine a necessidade de um intervalo fechado, os resultados evidenciam que seu sucesso é criticamente dependente da sensibilidade humana na etapa de modelagem: isolamentos que promovem um valor infímo para $|g'(x)|$ transmutam um método conservador em um estimador altamente eficaz, minimizando drasticamente o esforço de processamento de máquina.\label{subsubsec:problema_teste_1_ponto_fixo}
+A Figura \ref{fig:convergencia_ponto_fixo_amplificador_comparativo} ilustra, sob o espectro logarítmico, as consequências diretas do preparo algébrico. Embora o Método do Ponto Fixo elimine a necessidade de um intervalo fechado, os resultados evidenciam que seu sucesso é criticamente dependente da sensibilidade humana na etapa de modelagem: isolamentos que promovem um valor infímo para $|g'(x)|$ transmutam um método conservador em um estimador altamente eficaz, minimizando drasticamente o esforço de processamento de máquina.\label{subsubsec:problema_teste_1_ponto_fixo_alt}
 
 Para submeter a validade técnica e heurística da implementação, retomou-se o problema do amplificador eletrônico, cujo tempo de subida demanda a extração das raízes das funções relativas às marcas de $10\%$ e $90\%$ da resposta ao degrau:
 \begin{align}
-    f_1(T) &= 1 - \left(1 + T + \frac{T^2}{2}\right)e^{-T} - 0.1 = 0 \label{eq:f1_ponto_fixo} \\
-    f_2(T) &= 1 - \left(1 + T + \frac{T^2}{2}\right)e^{-T} - 0.9 = 0 \label{eq:f2_ponto_fixo}
+    f_1(T) &= 1 - \left(1 + T + \frac{T^2}{2}\right)e^{-T} - 0.1 = 0 \label{eq:f1_ponto_fixo_alt} \\
+    f_2(T) &= 1 - \left(1 + T + \frac{T^2}{2}\right)e^{-T} - 0.9 = 0 \label{eq:f2_ponto_fixo_alt}
 \end{align}
 
 O desafio analítico primário deste método reside na determinação de uma função $g(T)$ que garanta convergência (Equação \ref{eq:condicao_convergencia_ponto_fixo}). Isolando o termo da exponencial, obtém-se:

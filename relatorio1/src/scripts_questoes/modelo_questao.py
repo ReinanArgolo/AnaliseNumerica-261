@@ -33,40 +33,7 @@ def modelar_funcoes():
 # ==============================================================================
 # SEÇÃO 2: MOTOR DOS TESTES 
 # ==============================================================================
-def inicializar_ambiente(nome_script):
-    """Garante a estrutura de pastas e arquivo config estático paramétrico."""
-    base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
-    entradas_dir = os.path.join(base_dir, 'dados', 'entradas')
-    saidas_dir = os.path.join(base_dir, 'dados', 'saida', nome_script)
-    
-    os.makedirs(entradas_dir, exist_ok=True)
-    os.makedirs(saidas_dir, exist_ok=True)
-    
-    arquivo_entrada = os.path.join(entradas_dir, f"{nome_script}.txt")
-    
-    # Se input.txt não constar, cria o molde da questão para o usuário preencher
-    if not os.path.exists(arquivo_entrada):
-        print(f"[{nome_script}] Arquivo de configuração '{nome_script}.txt' não encontrado.")
-        print(f"-> Criando template em 'dados/entradas/{nome_script}.txt'...")
-        with open(arquivo_entrada, 'w') as file:
-            file.write("# Preencha os parametros para o script e o rode novamente.\n")
-            file.write("a:0.0\n")
-            file.write("b:1.0\n")
-            file.write("x0:0.5\n")
-            file.write("tol:1e-4\n")
-            file.write("max_iter:100\n")
-        return None, saidas_dir
 
-    # Parsing simples do aquivo .TXT para dicionários do python
-    parametros = {}
-    with open(arquivo_entrada, 'r') as file:
-        for linha in file:
-            linha = linha.strip()
-            if linha and not linha.startswith('#'):
-                chave, valor = linha.split(':')
-                parametros[chave.strip()] = float(valor.strip())
-                
-    return parametros, saidas_dir
 
 def rodar_algoritmos():
     """Função orquestradora: Recebe as funções matemáticas, alimenta as variáveis 
@@ -74,7 +41,7 @@ def rodar_algoritmos():
     
     # Baseado no nome do arquivo (.py), injeta variáveis estáticas do TXT e retorna a pasta de saída
     nome_script = os.path.splitext(os.path.basename(__file__))[0]
-    parametros, saidas_dir = inicializar_ambiente(nome_script)
+    parametros, saidas_dir = utils.configurar_ambiente(nome_script, ["# Preencha os parametros para o script e o rode novamente.\n", "a:0.0\n", "b:1.0\n", "x0:0.5\n", "tol:1e-4\n", "max_iter:100\n"])
     
     if not parametros:
         print(f"-> Por favor, vá na entrada criada, preencha os dados da questão e execute o script novamente!")

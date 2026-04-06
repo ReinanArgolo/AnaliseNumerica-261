@@ -29,27 +29,7 @@ def modelar_sistema():
 # ==============================================================================
 # SEÇÃO 2: MOTOR DOS TESTES 
 # ==============================================================================
-def inicializar_ambiente(nome_script):
-    """Garante a estrutura de pastas e arquivo config estático paramétrico."""
-    base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
-    entradas_dir = os.path.join(base_dir, 'dados', 'entradas')
-    saidas_dir = os.path.join(base_dir, 'dados', 'saida', nome_script)
-    os.makedirs(entradas_dir, exist_ok=True)
-    os.makedirs(saidas_dir, exist_ok=True)
-    arquivo_entrada = os.path.join(entradas_dir, f"{nome_script}.txt")
-    if not os.path.exists(arquivo_entrada):
-        with open(arquivo_entrada, 'w') as file:
-            file.write("# Preencha os parametros para o script e o rode novamente.\n")
-            file.write("tol:1e-12\n")
-        return None, saidas_dir
-    parametros = {}
-    with open(arquivo_entrada, 'r') as file:
-        for linha in file:
-            linha = linha.strip()
-            if linha and not linha.startswith('#') and ':' in linha:
-                chave, valor = linha.split(':')
-                parametros[chave.strip()] = float(valor.strip())
-    return parametros, saidas_dir
+
 
 def multiplicar_matriz_vetor(A, x):
     n = len(A)
@@ -64,7 +44,7 @@ def multiplicar_matriz_vetor(A, x):
 
 def rodar_algoritmos():
     nome_script = os.path.splitext(os.path.basename(__file__))[0]
-    parametros, saidas_dir = inicializar_ambiente(nome_script)
+    parametros, saidas_dir = utils.configurar_ambiente(nome_script, ["# Preencha os parametros para o script e o rode novamente.\n", "tol:1e-12\n"])
     if parametros is None:
         print(f"-> Por favor, vá na entrada criada, preencha os dados da questão e execute o script novamente!")
         return

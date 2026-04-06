@@ -1,0 +1,6 @@
+Metodo,Iteracoes,i1,i2,i3
+Eliminacao de Gauss,7,2.0,1.0,1.0
+Fatoracao LU,13,2.0,1.0,1.0
+Gauss-Jordan,10,2.0,1.0,1.0
+Gauss-Jacobi,8,1.9747065300000002,0.9783245100000001,0.98237649
+Gauss-Seidel,6,1.99491217268,0.996995242152,0.9982312450740001
