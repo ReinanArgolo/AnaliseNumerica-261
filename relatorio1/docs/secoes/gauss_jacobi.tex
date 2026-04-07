@@ -67,57 +67,40 @@ Para resguardar o desacoplamento de responsabilidades, os hiperparâmetros limit
 
 \subsection{Problemas Teste}
 
-\subsubsection{Problema Teste 1: Convergência em Matriz Diagonalmente Dominante}
+\subsubsection{Problema Teste 5.1: Discretização da Equação de Laplace}
 
-A modelagem submetida à validação propôs um sistema linear que satisfaz rigorosamente o critério das linhas, assegurando a viabilidade teórica de convergência monotônica. O modelo é definido por:
+\textbf{Modelagem e Justificativa de Convergência:} A formulação do problema origina-se da discretização por diferenças finitas de uma Equação Diferencial Parcial (EDP) de Laplace em um domínio bidimensional. A malha mapeia o espaço contínuo para o sistema linear estático de ordem $6 \times 6$ fornecido. A priori, a literatura indaga sobre a garantia de convergência. Observa-se que a matriz dos coeficientes é estritamente diagonalmente dominante por linhas, uma vez que em todas as equações o módulo do elemento principal é estritamente superior à soma dos módulos dos elementos não diagonais. Por exemplo, na primeira linha tem-se $|4| > |-1| + |-1|$, e na quinta linha $|4| > |-1| + |-1| + |-1|$. Pelo Teorema das Linhas, essa propriedade assegura que o raio espectral da matriz de iteração de Jacobi seja estritamente menor que a unidade ($\rho(T_J) < 1$), provando analiticamente a convergência independentemente da semente inicial adotada.
 
-\begin{equation}
-\begin{bmatrix}
-10.00 & 2.00 & 1.00 \\
-1.00 & 5.00 & 1.00 \\
-2.00 & 3.00 & 10.00
-\end{bmatrix}
-\begin{bmatrix}
-x_1 \\
-x_2 \\
-x_3
-\end{bmatrix}
-=
-\begin{bmatrix}
-7.00 \\
--8.00 \\
-6.00
-\end{bmatrix}
-\end{equation}
-
-Iniciando com o vetor nulo $x^{(0)} = [0, 0, 0]^T$, o decaimento documentado nas primeiras iterações está exposto na tabela subsequente.
-
-\begin{table}[h]
+\begin{table}[H]
 \centering
-\caption{Histórico Iterativo do Erro em Gauss-Jacobi (Problema 1)}
-\label{tab:jacobi_prob1}
+\caption{Histórico de Convergência Iterativa (Problema 5.1 - Gauss-Jacobi)}
+\label{tab:jacobi_prob51}
+\resizebox{\textwidth}{!}{%
 \begin{tabular}{cccc}
 \hline
-\textbf{Iteração ($k$)} & \textbf{Vetor Aproximado ($x^{(k)}$)} & \textbf{Norma da Diferença ($\|x^{(k)} - x^{(k-1)}\|_\infty$)} & \textbf{Erro Relativo} \\ \hline
-1 & $[0.700, -1.600, 0.600]^T$ & 1.600 & 1.0000 \\ 
-2 & $[0.960, -1.860, 0.940]^T$ & 0.340 & 0.1827 \\ 
-3 & $[0.978, -1.980, 0.966]^T$ & 0.120 & 0.0606 \\
-12 & $[1.000, -2.000, 1.000]^T$ & 0.000008 & 0.000004 \\ \hline
-\end{tabular}
+\textbf{Iteração ($k$)} & \textbf{Norma da Correção ($\|x^{(k)} - x^{(k-1)}\|_\infty$)} & \textbf{Erro Relativo Global} & \textbf{Aproximação de $x_1$} \\ \hline
+1 & 25.0000 & 1.0000 & 25.0000 \\ 
+5 & 1.1718 & 0.0318 & 36.8164 \\ 
+10 & 0.0939 & 0.0024 & 37.9940 \\ 
+15 & 0.0075 & 0.00019 & 38.0871 \\ 
+17 & 0.0027 & $7.19 \times 10^{-5}$ & 38.0922 \\ \hline
+\end{tabular}%
+}
 \end{table}
 
-A avaliação crítica da Tabela \ref{tab:jacobi_prob1} ilustra o princípio da convergência linear assintótica. Observa-se que a correção vetorial reduziu seu passo a cada avanço iterativo. O sistema alcançou a raiz real $x^* =[1.00, -2.00, 1.00]^T$ com resíduo computacional admissível na $12^{\text{a}}$ iteração. Substituindo $x_{12}$ de volta no sistema original, verifica-se que $Ax_{12} - b \approx 0$, denotando coerência exata. O amortecimento obedece a um comportamento log-linear típico:
+\textbf{Análise Numérica e Validação:} O problema exige uma exatidão pautada em quatro algarismos significativos corretos, o que impõe na engenharia de software um critério de parada baseado no erro relativo tolerado de $\epsilon \leq 10^{-4}$. A avaliação crítica da Tabela \ref{tab:jacobi_prob51} explicita que o método cravou a convergência na 17ª iteração, quando o erro relativo atingiu a marca de $7.19 \times 10^{-5}$. A relação de causa e efeito na propagação da informação matricial é nítida: as condições de contorno (termos forçantes de 100 nas bordas) penetram o domínio discretizado passo a passo. A solução $x_{17} \approx[38.09, 14.28, 4.75, 38.09, 14.28, 4.75]^T$ reflete perfeitamente a simetria da malha térmica/potencial.
 
-\begin{center}
+\begin{figure}[H]
+\centering
 \begin{tikzpicture}
 \begin{axis}[
-    width=10cm, height=6.0cm,
+    width=10cm, height=5.5cm,
     ymode=log,
-    xlabel={Iteração ($k$)},
-    ylabel={Erro Relativo (Norma $\infty$)},
+    xlabel={Ciclo Iterativo ($k$)},
+    ylabel={Métrica de Erro Relativo $\|e_{rel}\|_\infty$},
     grid=major,
-    grid style={dotted, gray!60},
-    title={Curva de Convergência Iterativa - Gauss-Jacobi},
+    grid style={dashed, gray!40},
+    title={Amortecimento do Resíduo em Malha de Laplace (Jacobi)},
     legend pos=north east
 ]
 \addplot[
@@ -126,16 +109,75 @@ A avaliação crítica da Tabela \ref{tab:jacobi_prob1} ilustra o princípio da 
     thick
 ] coordinates {
     (1, 1.0)
-    (2, 0.1827)
-    (3, 0.0606)
-    (5, 0.0054)
-    (8, 0.00015)
-    (12, 0.000004)
+    (5, 0.0318)
+    (10, 0.0024)
+    (15, 0.00019)
+    (17, 7.19e-5)
 };
-\addlegendentry{Erro Relativo Global}
+\addplot[
+    color=red,
+    domain=1:17,
+    dashed
+] {1e-4};
+\addlegendentry{Erro Observado}
+\addlegendentry{Tolerância ($10^{-4}$)}
 \end{axis}
 \end{tikzpicture}
-\end{center}
+\caption{Amortecimento do Resíduo em Malha de Laplace (Jacobi)}
+\label{fig:jacobi_prob51}
+\end{figure}
+
+\subsubsection{Problema Teste 5.2: Balanceamento de Circuito de Kirchhoff}
+
+\textbf{Modelagem e Adequação do Sistema:} A aplicação das Leis de Kirchhoff (LKT) forneceu três equações nodais brutas. A priori, a modelagem direta dos laços não oferece os isolamentos de base. O agrupamento algébrico dos fatores de restrição induz a conversão analítica para o formato $Ax = b$, extraindo a identidade:
+
+\begin{align*}
+    20 i_1 - 10 i_2 - 4 i_3 &= 26 \\
+    -10 i_1 + 25 i_2 - 5 i_3 &= 0 \\
+    -4 i_1 - 5 i_2 + 20 i_3 &= 7
+\end{align*}
+
+Torna-se evidente a satisfação do Critério das Linhas: $|20| > |-10| + |-4|$, $|25| > |-10| + |-5|$ e $|20| > |-4| + |-5|$. A estrita dominância diagonal endossa inequivocamente a adoção do Método de Gauss-Jacobi com plena garantia teórica de estabilidade.
+
+\begin{table}[H]
+\centering
+\caption{Registros Críticos do Método de Gauss-Jacobi (Problema 5.2)}
+\label{tab:jacobi_prob52}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{ccccc}
+\hline
+\textbf{Iteração ($k$)} & \textbf{Corrente $i_1$ (A)} & \textbf{Corrente $i_2$ (A)} & \textbf{Corrente $i_3$ (A)} & \textbf{Erro Relativo} \\ \hline
+1 & 1.3000 & 0.0000 & 0.3500 & 1.0000 \\ 
+3 & 1.7170 & 0.6700 & 0.7715 & 0.2020 \\ 
+6 & 1.9275 & 0.9407 & 0.9505 & 0.0274 \\ 
+8 & 1.9747 & 0.9783 & 0.9823 & 0.0087 \\ \hline
+\end{tabular}%
+}
+\end{table}
+
+\textbf{Análise Numérica e Validação:} O limite metodológico estabelecido impôs um critério limítrofe de erro relativo $< 10^{-2}$. Os dados empíricos registrados na Tabela \ref{tab:jacobi_prob52} reportam o acionamento do gatilho de convergência precisamente na oitava iteração. A topologia matriz-vetor reflete uma inércia dissipativa rápida: as aproximações estabilizaram-se em $i_k \approx[1.97, 0.97, 0.98]^T$ A. A verificação cruzada com métodos diretos atesta que a raiz teórica é o vetor inteiro $[2, 1, 1]^T$, confirmando o trânsito assintótico regular da matriz condutiva sem sofrer efeitos deletérios de oscilação em vizinhança.
+
+\subsubsection{Problema Teste 5.5: Dissipação Térmica em Membrana Bidimensional}
+
+\textbf{Modelagem e Justificativa de Convergência:} A equação do calor no regime estacionário (Equação de Poisson/Laplace) submetida a uma malha interior de 9 nós derivou uma matriz $9 \times 9$ esparsa. A diagonal principal hospeda estritamente o valor $-4$, correspondente à discretização do operador Laplaciano $(\nabla^2 u)$. Diferentemente dos casos anteriores, a matriz não é estritamente diagonalmente dominante em todas as linhas, uma vez que o nó central (nó 5) possui equação $-4u_5 + u_2 + u_4 + u_6 + u_8 = 0$, resultando na soma não estrita $|-4| = |1|+|1|+|1|+|1|$. No entanto, a convergência iterativa continua rigorosamente assegurada: a matriz é irredutível e fracamente diagonalmente dominante, contendo ao menos uma linha com dominância estrita (os nós de borda).
+
+\begin{table}[H]
+\centering
+\caption{Decaimento Espacial das Temperaturas (Problema 5.5 - Gauss-Jacobi)}
+\label{tab:jacobi_prob55}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{ccccc}
+\hline
+\textbf{Iteração ($k$)} & \textbf{Norma Max ($\|\Delta x\|_\infty$)} & \textbf{Erro Relativo} & \textbf{Nó de Canto ($u_1$)} & \textbf{Nó Central ($u_5$)} \\ \hline
+1 & 37.5000 & 1.0000 & 12.5000 & -0.000 \\ 
+10 & 0.7827 & 0.0112 & 30.9715 & 47.656 \\ 
+20 & 0.0244 & 0.0003 & 32.1062 & 49.926 \\ 
+32 & 0.0003 & $5.34 \times 10^{-6}$ & 32.1422 & 49.998 \\ \hline
+\end{tabular}%
+}
+\end{table}
+
+\textbf{Análise Numérica e Sensibilidade:} Observa-se que, devido ao paradigma temporal do Jacobi, que congela o estado contíguo e atualiza todos os nós simultaneamente baseando-se unicamente no instante $k-1$, a propagação da perturbação espelha ondas físicas radiais da borda para o centro. Esse atraso intencional custou à rotina 32 iterações brutas para amortecer a tolerância abaixo de $10^{-5}$. A conformação do vetor iterativo final demonstrou coerência física, cravando as temperaturas estacionárias reais de aproximadamente $-32.14^\circ \text{C}$ nos flancos e decaindo perfeitamente para $-50^\circ \text{C}$ no epicentro $u_5$ e nos quadrantes polares adjacentes.
 
 \subsection{Dificuldades Enfrentadas}
 

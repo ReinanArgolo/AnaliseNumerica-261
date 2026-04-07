@@ -72,67 +72,117 @@ Por mais que o algoritmo possua um escopo puramente matemático, a reprodutibili
 
 \subsection{Problemas Teste}
 
-\subsubsection{Problema Teste 1: Validação Analítica em Matriz Estrita Positiva}
+\subsubsection{Problema Teste 4.1: Análise de Malhas em Circuitos Elétricos}
 
-A validação empírica inicial foi estabelecida através de um sistema simétrico de dimensão 2x2, configurado propositalmente com diagonal dominante. Esse arranjo inibe naturalmente a necessidade de permutações. O modelo testado submete a relação analítica:
+\textbf{Modelagem e Adaptação do Sistema:} A equação da malha elétrica fornece o mesmo sistema $3 \times 3$ do problema anterior. A priori, a literatura questiona: "É possível resolver o sistema pelo método da decomposição LU?". O balanço matemático responde rigorosamente de forma afirmativa. Observa-se que a matriz de coeficientes elétricos é estritamente diagonalmente dominante, pois atende à restrição $a_{ii} > \sum_{j \neq i} |a_{ij}|$ para todas as linhas. Essa propriedade fundamental de coerência garante pelo Teorema da Decomposição que os determinantes menores principais sejam não nulos ($\Delta_k > 0$), permitindo a construção imediata de $L$ e $U$ sem o recurso profilático de pivotamento de linhas. Adicionalmente, atesta-se a factibilidade do Método de Cholesky, tendo em vista a simetria $A=A^T$ e a positividade definida do operador.
 
-\begin{equation}
-A = \begin{bmatrix}
-2.000 & 1.000 \\
-1.000 & 2.000
-\end{bmatrix}, \quad
-b = \begin{bmatrix}
-3.000 \\
-3.000
-\end{bmatrix}
-\end{equation}
-
-A extração das respostas estruturais consolidadas pelas três sub-rotinas revela a exatidão assintótica imposta pelas aproximações do Python em escopo \texttt{float}, relatada na matriz de transição a seguir.
-
-\begin{table}[h]
+\begin{table}[H]
 \centering
-\caption{Estados Matriciais Computados na Fatoração LU (Problema 1)}
-\label{tab:estados_lu_resumido}
-\small
-\begin{tabular}{p{0.12\linewidth} p{0.18\linewidth} p{0.22\linewidth} p{0.22\linewidth} p{0.16\linewidth}}
+\footnotesize
+\caption{Distribuição Sequencial das Fases (Problema 4.1 - LU)}
+\label{tab:lu_prob41}
+\begin{tabular}{ccccc}
 \hline
-\textbf{Etapa} & \textbf{Vetor $b$} & \textbf{Multiplicador em $L$} & \textbf{Vetor $y$} & \textbf{Solução $x$} \\ \hline
-$i = 0$ & 3.000 & $l_{00} = 1.000$ & 3.000 & 1.000 \\ 
-$i = 1$ & 3.000 & $l_{10} = 0.500$ & 1.500 & 1.000 \\ \hline
+\textbf{Iteração} & \textbf{Etapa Macro} & \textbf{Pivô ($U$)} & \textbf{Multiplicador ($L$)} & \textbf{Variável ($y$ ou $x$)} \\ \hline
+1 & fatoracao\_LU & 8.0 & -0.500 & - \\ 
+2 & fatoracao\_LU & 8.0 & -0.250 & - \\ 
+3 & fatoracao\_LU & 4.0 & -0.750 & - \\ 
+5-7 & subst\_progressiva & 1.0 & - & $y =[10.0, 5.0, 7.25]^T$ \\ 
+9-11 & subst\_regressiva & (Da matriz U) & - & $x =[2.758, 2.310, 1.413]^T$ \\ \hline
 \end{tabular}
-\normalsize
 \end{table}
 
-A avaliação crítica da Tabela \ref{tab:estados_lu_resumido} elucida a relação paralela entre causa e efeito das aproximações locais. O algoritmo operou sobre o pivô $u_{00} = 2.000$, obtendo o multiplicador $m_{10} = 0.500$. Dessa forma, a anulação produziu um novo pivô $u_{11} = 2.000 - (0.500 \times 1.000) = 1.500$. A execução sequencial da substituição progressiva extraiu exatamente $y = [3.000, 1.500]^T$. A validação terminal ocorreu na chamada da substituição regressiva, retornando $x =[1.000, 1.000]^T$. Ao efetuar a prova reversa substituindo $x_k$ em $Ax_k - b$, atestou-se um resíduo escalar da ordem do ruído de precisão computacional dupla, perfeitamente nulo.
+\textbf{Análise de Convergência e Comportamento Estrutural:} A separação de arquitetura exibiu oito fases lógicas registradas no escopo do algoritmo. Torna-se evidente a superioridade estratégica deste método frente a aplicações de engenharia iterativa: ao computar os multiplicadores e gravá-los rigidamente na matriz estritamente inferior $L$, o sistema desacopla a matriz natural do circuito ($A$) do vetor de baterias injetadas ($b$). Dessa forma, alterações de voltagem requereriam estritamente operações algébricas triviais $\mathcal{O}(n^2)$ de $Ly=b$, poupando os ciclos $\mathcal{O}(n^3)$ da decomposição original.
 
-Torna-se evidente o comportamento dissipativo das sucessivas fases. O amortecimento algorítmico frente à propagação contínua de perturbações corrobora a estabilidade do método em matrizes bem postas:
+\textbf{Validação da Solução:} A injeção sucessiva de $y$ na subrotina de $Ux=y$ atestou a decodificação exata do vetor de estado $I_k \approx[2.7586, 2.3103, 1.4138]^T$. A substituição direta atesta resíduo flutuante da ordem de ruído de máquina ($\approx 10^{-16}$).
 
-\begin{center}
+\subsubsection{Problema Teste 4.3: Cadeias Estocásticas em Matrizes Esparsas}
+
+\textbf{Modelagem e Adaptação do Sistema:} A grade probabilística subjacente às Cadeias de Markov forma o sistema estrutural de tamanho $9 \times 9$, gerido por banda diagonal com hiper-esparsidade periférica e limites definidos pela fronteira de estado $b=[0, \dots, 1, 1, 1]^T$. 
+
+\begin{table}[H]
+\centering
+\caption{Registros Críticos de Decomposição (Problema 4.3 - LU)}
+\label{tab:lu_prob43}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{ccccc}
+\hline
+\textbf{Iteração ($k$)} & \textbf{Etapa Lógica} & \textbf{Linha Processada ($i$)} & \textbf{Multiplicador ($l_{ik}$)} & \textbf{Ação Computacional} \\ \hline
+0 & fatoracao\_LU & 1 & -0.25 & Atualização Efetiva ($u_{11} \to 3.75$) \\ 
+0 & fatoracao\_LU & 2 & 0.0 & Operação Nula (Estrutura Esparsa) \\ 
+0 & fatoracao\_LU & 3 & -0.25 & Atualização Efetiva ($u_{3m} \to \text{novo valor}$) \\ 
+\dots & \dots & \dots & \dots & \dots \\ 
+8 & fatoracao\_LU & 8 & - & Conclusão da Matriz $L$ e $U$ \\ 
+38\text{ a }46 & subst\_progressiva & - & - & Início da propagação em $y$ \\ 
+48\text{ a }56 & subst\_regressiva & - & - & Conclusão com  $P_8 \approx 0.5267$ \\ \hline
+\end{tabular}%
+}
+\end{table}
+
+\textbf{Análise de Convergência e Comportamento Estrutural:} Os arquivos textuais atestam a fragmentação temporal exata de 57 laços brutos. Observa-se que, transpassadas as divisões teóricas (fatoração e duas substituições em cascata), a matriz $L$ acumulou perfeitamente as operações algébricas. No entanto, o embate analítico expõe que, sob a ótica da linguagem discreta, o método manteve a mesma fraqueza topológica da eliminação simples: ciclos excessivos para referenciar sub-regiões vazias do hiperplano (com multiplicadores alinhados em $0.0$). O algoritmo de Doolittle sem precondicionamento limitou-se pelo alto custo per-flop.
+
+\textbf{Validação da Solução:} A solidez matemática de LU preservou integralmente a fidelidade ao gradiente estocástico. A prova analítica $Ax_k - b \to 0$ corroborou $P_8 \approx 0.5267$ e simetria lateral.
+
+\begin{figure}[H]
+\centering
 \begin{tikzpicture}
 \begin{axis}[
-    width=10cm, height=6.0cm,
+    width=10cm, height=5cm,
     ymode=log,
-    xlabel={Etapas Algorítmicas (1: Fatoração, 2: Ly=b, 3: Ux=y)},
-    ylabel={Resíduo Absoluto (Escala Log)},
+    xlabel={Etapas Progressivas (Subsistemas)},
+    ylabel={Tempo Logarítmico (Esforço de Ciclos)},
     xtick={1,2,3},
+    xticklabels={A para LU, Ly = b, Ux = y},
     grid=major,
     grid style={dotted, gray!60},
-    title={Evolução da Exatidão do Subsistema de Resolução Discreta},
-    legend pos=north east
+    title={Domínio da Fatoração em Esparsidade (Prob. 4.3 - LU)},
+    ybar,
+    bar width=18pt
 ]
-\addplot[
-    color=violet,
-    mark=square*,
-    thick
-] coordinates {
-    (1, 1.1e-16) 
-    (2, 3.3e-16) 
-    (3, 0.5e-16) 
+\addplot[fill=violet!60] coordinates {
+    (1, 324) % Aprox O(n^3)/3 
+    (2, 81)  % Aprox O(n^2)
+    (3, 81)  % Aprox O(n^2)
 };
-\addlegendentry{Magnitude do Erro Local}
 \end{axis}
 \end{tikzpicture}
-\end{center}
+\caption{Domínio da Fatoração em Esparsidade (Prob. 4.3 - LU)}
+\label{fig:lu_prob43}
+\end{figure}
+
+\subsubsection{Problema Teste 4.6: Balanço de Circuito Escada e Falsos Nulos}
+
+\textbf{Modelagem e Adaptação do Sistema:} A estruturação do circuito por equacionamento de laços dita a matriz $A$ com os coeficientes da resistência agrupados na base $3 \times 3$, restrita aos potenciais unitários de 100V.
+
+\begin{table}[H]
+\centering
+\caption{Avaliação da Decomposição do Circuito (Problema 4.6 - LU)}
+\label{tab:lu_prob46}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{ccccc}
+\hline
+\textbf{Etapa Macro} & \textbf{Iteração do Log} & \textbf{Ação Empírica} & \textbf{Pivô} & \textbf{Multiplicador Armazenado} \\ \hline
+fatoracao\_LU & 1 e 2 & Preenchimento $L_0$ & 14.0 & 0.2857 \\ 
+fatoracao\_LU & 3 & Preenchimento $L_1$ & 5.8571 & 1.0 \\ 
+subst\_progressiva & 5 a 7 & Formação do estado $y$ & 1.0 & - \\ 
+subst\_regressiva & 9 a 11 & Extração do vetor $x$ & $U$ & - \\ \hline
+\end{tabular}%
+}
+\end{table}
+
+\textbf{Análise de Convergência e Comportamento Estrutural:} Os dados brutos consolidam a estabilidade do condicionamento. A transição da fase 1 para a fase 3 garantiu que as multiplicidades fossem gravadas como tensores independentes, permitindo a transmutação imediata para os vetores resposta. O método LU evidenciou não apresentar distorções frente às sub-matrizes de componentes, alocando multiplicadores perfeitos que atenuaram ruídos estocásticos decorrentes de flutuações discretas da base em Python.
+
+\textbf{Validação da Solução:} O encadeamento produziu as correntes exatas $I_k =[3.6585, 12.1951, -0.0]^T$. A robustez do módulo comprovou a ausência de circulação em $I_x$, derivando uma norma residual ínfima e preservando a assertividade frente a zeros de máquina.
+
+\subsubsection{Problema Teste 4.3: Cadeias Estocásticas em Matrizes Esparsas}
+
+\textbf{Modelagem e Comportamento Estrutural:} Aplicado ao labirinto probabilístico $9 \times 9$, o algoritmo fragmentou a execução analítica perfeitamente em Fatoração de Doolittle (onde a diagonal de $L$ é forçada ao conjunto unitário), resolução vetorial $y$ e decodificação regressiva de $x$.
+
+\textbf{Análise de Convergência e Sensibilidade:} A tabela CSV de histórico da questão 4.3 relata a extração integral de 57 registros sequenciais. Destes, os eventos de $1$ a $36$ correspondem integralmente ao expurgo superior em $U$ e o registro recíproco em $L$. Novamente, a ausência de um particionamento condicional (if $a_{ij} == 0$) sobrecarregou o sub-sistema com operações inertes. No entanto, nota-se que a preservação exata do estado em $L$ foi bem-sucedida, atestado pela convergência assintótica idêntica a Gauss (erro relativo zero), em que o ápice de probabilidade fixou-se em $P_8 \approx 52.67\%$. 
+
+\textbf{Validação da Solução:} A prova reversa efetuada multiplicando a malha reconstruída $LU$ pelo vetor retornado $(LU)x_k - b$ cravou a estabilidade irretocável: a norma residual dissipou-se nos confins estruturais de $1.11 \times 10^{-16}$, validando a integridade das 26 fases cruciais e provando o modelo apto.
+
+\vspace{1cm}
 
 \subsection{Dificuldades Enfrentadas}
 

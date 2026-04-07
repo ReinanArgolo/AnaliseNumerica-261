@@ -140,7 +140,7 @@ Por conseguinte, o tempo de subida normalizado do amplificador é computado por:
 
         \end{axis}
     \end{tikzpicture}
-    \caption{Amortecimento do erro relativo e do valor residual para $f_1(T)$. A inclinação contínua e acentuada nos primeiros estágios atesta a rápida convergência local proporcionada pela interpolação linear da secante.}
+    \caption{Amortecimento do erro e valor residual para $f_1(T)$.}
     \label{fig:convergencia_posicao_falsa_amplificador}
 \end{figure}
 
@@ -215,7 +215,7 @@ Nota-se que a discrepância matemática em relação ao zero perfeito se encontr
 
         \end{axis}
     \end{tikzpicture}
-    \caption{Gráfico de convergência da aproximação do ângulo de lançamento $\alpha$ pelo Método da Posição Falsa. A queda abrupta nas primeiras iterações valida o alto desempenho da interpolação linear frente à topologia da função analisada.}
+    \caption{Convergência iterativa da Posição Falsa na busca de $\alpha$.}
     \label{fig:convergencia_posicao_falsa_missil}
 \end{figure}
 
@@ -300,7 +300,7 @@ A consistência dos resíduos em relação à tolerância valida as soluções e
 
         \end{axis}
     \end{tikzpicture}
-    \caption{Lentidão inerente ao Método da Posição Falsa na avaliação dos planos. A suavidade da curva de decaimento do erro denota a penalização imposta pela alta convexidade das funções, exigindo quase 100 iterações para o Plano B.}
+    \caption{Convergência lenta da Posição Falsa prejudicada pela convexidade dos planos.}
     \label{fig:convergencia_posicao_falsa_juros}
 \end{figure}
 

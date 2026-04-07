@@ -17,6 +17,7 @@
 \usepackage{indentfirst}
 \usepackage{setspace} % Para espaçamento entre linhas
 \usepackage{titlesec} % Para configurar o espaçamento dos títulos ABNT
+\usepackage{fancyhdr}
 
 % Configuração das margens (Padrão ABNT)
 \geometry{
@@ -110,7 +111,28 @@
     belowcaptionskip=5pt
 }
 
+% Rodape com capitulo e secao atuais
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\chaptermark}[1]{\markboth{Capitulo \thechapter\ - #1}{}}
+\renewcommand{\sectionmark}[1]{\markright{Secao \thesection\ - #1}}
+\fancyfoot[L]{\footnotesize\begin{tabular}[t]{@{}l@{}}\nouppercase{\leftmark}\\\nouppercase{\rightmark}\end{tabular}}
+\fancyfoot[R]{\thepage}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0.4pt}
+\setlength{\footskip}{28pt}
+
+% Aplica o mesmo estilo nas paginas "plain" (inicio de capitulo)
+\fancypagestyle{plain}{
+    \fancyhf{}
+    \fancyfoot[L]{\footnotesize\begin{tabular}[t]{@{}l@{}}\nouppercase{\leftmark}\\\nouppercase{\rightmark}\end{tabular}}
+    \fancyfoot[R]{\thepage}
+    \renewcommand{\headrulewidth}{0pt}
+    \renewcommand{\footrulewidth}{0.4pt}
+}
+
 \begin{document}
+\sloppy
 
 % --- CAPA ---
 \begin{titlepage}
@@ -208,17 +230,12 @@ Este cap\'itulo ser\'a dedicado \`a implementa\c{c}\~ao e \`a an\'alise de m\'et
 
 \input{secoes/gauss_seidel.tex}
 \newpage
-
-\input{secoes/gauss_jordan.tex}
-\newpage
 \input{secoes/analise_condicionamento.tex}
-\section{Resultados e Discuss\~ao}
-
-(Descrever os m\'etodos implementados, os resultados num\'ericos e a an\'alise comparativa.)
-
+\newpage
+\input{secoes/comparacaoSistemas.tex}
 \newpage
 \chapter{Considera\c{c}\~oes Finais}
-(Escreva suas considerações finais aqui)
+\input{secoes/consideracoes_finais.tex}
 
 \newpage
 % Referências Bibliográficas (Espaçamento simples - Padrão ABNT)

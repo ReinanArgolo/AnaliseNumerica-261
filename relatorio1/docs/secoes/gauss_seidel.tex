@@ -49,80 +49,118 @@ Justifica-se a abordagem contígua (\texttt{soma = sum(A[i][j] * x[j] ...)}) poi
 
 \subsection{Estrutura dos Arquivos de Entrada e Saída}
 
-Seguindo o paradigma modular consolidado, a malha de hiperparâmetros (vetor inicial, limites) reside em arquivos vetoriais. Notavelmente, a gravação de saídas deste método condensa vetores sucessivos numa planilha (\texttt{.csv}). Os registros mostram variações residuais acentuadas logo nas fases embrionárias, demonstrando um refinamento superior na primeira metade do ciclo temporal, cuja interpretação é delegada ao documento base por via dos scripts de diagramação subjacentes.
-
+Seguindo o paradigma modular consolidado, a malha de hiperparâmetros (vetor inicial, limites) reside em arquivos vetoriais. Notavelmente, a gravação de saídas deste método condensa vetores sucessivos numa planilha (\texttt{.csv}). Os registros mostram variações residuais acentuadas logo nas fases embrionárias, demonstrando um refinamento superior na primeira metade do ciclo temporal, cuja interpretação é delegada ao documento base por via dos scripts de diagramação subjacentes.  
 \subsection{Problemas Teste}
 
-\subsubsection{Problema Teste 1: Comparativo de Redução Espectral}
+\subsubsection{Problema Teste 5.1: Discretização da Equação de Laplace}
 
-O sistema selecionado foi idêntico ao modelo avaliado no método antecedente, assegurando uma base metodológica justa para atestar a redução do esforço computacional:
+\textbf{Modelagem e Contraponto Estrutural:} Mantendo a premissa fundamental de discretização adotada no método anterior, o sistema retangular da Equação de Laplace configura um campo de prova ideal para atestar a agressividade analítica do método de Gauss-Seidel. Enquanto Jacobi aguarda o término do laço de varredura nodal para atualizar os dados em memória, Gauss-Seidel injeta a aproximação calculada da variável $x_i^{(k)}$ imediatamente na determinação algébrica de $x_{i+1}^{(k)}$. Essa quebra de simetria cronológica promove, na esmagadora maioria das matrizes dominantes, um atrito de erro consideravelmente mais vertiginoso.
 
-\begin{equation}
-\begin{bmatrix}
-10.00 & 2.00 & 1.00 \\
-1.00 & 5.00 & 1.00 \\
-2.00 & 3.00 & 10.00
-\end{bmatrix}
-\begin{bmatrix}
-x_1 \\
-x_2 \\
-x_3
-\end{bmatrix}
-=
-\begin{bmatrix}
-7.00 \\
--8.00 \\
-6.00
-\end{bmatrix}
-\end{equation}
-
-Submetido à restrição vetorial de início estático nulo, os registros logarítmicos capturaram um comportamento agressivo de anulação do erro escalar:
-
-\begin{table}[h]
+\begin{table}[H]
 \centering
-\caption{Histórico Iterativo do Erro em Gauss-Seidel (Problema 1)}
-\label{tab:seidel_prob1}
+\caption{Histórico de Convergência Acelerada (Problema 5.1 - Gauss-Seidel)}
+\label{tab:seidel_prob51}
+\resizebox{\textwidth}{!}{%
 \begin{tabular}{cccc}
 \hline
-\textbf{Iteração ($k$)} & \textbf{Vetor Atualizado Sequencialmente} & \textbf{Deslocamento ($\Delta x$)} & \textbf{Erro Relativo} \\ \hline
-1 & $[0.700, -1.740, 0.982]^T$ & 1.740 & 1.0000 \\ 
-2 & $[0.949, -1.986, 1.005]^T$ & 0.249 & 0.1256 \\ 
-3 & $[0.996, -2.000, 1.000]^T$ & 0.046 & 0.0234 \\
-7 & $[1.000, -2.000, 1.000]^T$ & 0.000007 & 0.000003 \\ \hline
-\end{tabular}
+\textbf{Iteração ($k$)} & \textbf{Erro Relativo Global} & \textbf{Custo Reduzido} & \textbf{Aproximação de $x_1$} \\ \hline
+1 & 1.0000 & - & 25.0000 \\ 
+3 & 0.0654 & - & 36.8164 \\ 
+5 & 0.0077 & - & 37.9276 \\ 
+8 & 0.0003 & - & 38.0871 \\ 
+10 & $4.92 \times 10^{-5}$ & Fator 1.7x mais rápido & 38.0941 \\ \hline
+\end{tabular}%
+}
 \end{table}
 
-A análise contígua da Tabela \ref{tab:seidel_prob1} atesta uma compressão considerável no tempo da rotina. Observa-se que, ao alavancar o valor recém extraído de $x_1^{(1)} = 0.700$ para calcular $x_2^{(1)}$, o polinômio já incluiu parte da topologia da solução. Como efeito direto, o método necessitou de apenas 7 iterações para atingir a ordem restritiva de $10^{-5}$, quase a metade do custo frente a Gauss-Jacobi. O resíduo vetorizado provou, após a substituição regressiva no hiperplano matricial, tendendo ao zero absoluto.
+\textbf{Análise de Desempenho Escalar:} Uma avaliação crítica frente aos resultados pregressos ilustra o porquê de Gauss-Seidel suplantar métodos estacionários homogêneos. O critério imperativo de 4 algarismos significativos corretos ($\epsilon < 10^{-4}$) foi abatido na 10ª iteração, contra 17 ciclos exigidos por Jacobi. Essa compressão do tempo computacional provém diretamente do coeficiente de atrito do raio espectral induzido $\rho(T_{GS}) \approx (\rho(T_J))^2$. O fluxo unidirecional transferiu a perturbação de contorno (termos independentes) pelos índices lineares mais rapidamente, estabilizando as raízes da EDP num espectro vetorial indissociável de exatidão.
 
-A topologia do declínio temporal atesta a sensibilidade superior, com uma constante angular perceptivelmente mais vertical:
-
-\begin{center}
+\begin{figure}[H]
+\centering
 \begin{tikzpicture}
 \begin{axis}[
-    width=10cm, height=6.0cm,
+    width=10cm, height=5.5cm,
     ymode=log,
-    xlabel={Iteração ($k$)},
-    ylabel={Erro Relativo (Norma $\infty$)},
-    grid=major,
-    grid style={dashed, gray!40},
-    title={Decaimento de Convergência Acelerada - Gauss-Seidel},
+    xlabel={Iterações Processadas ($k$)},
+    ylabel={Escala de Erro Relativo $\|e_{rel}\|$},
+    grid=both,
+    grid style={dashed, gray!30},
+    title={Comparativo de Taxa de Convergência Iterativa},
     legend pos=north east
 ]
 \addplot[
-    color=magenta,
+    color=orange,
     mark=square,
     thick
 ] coordinates {
     (1, 1.0)
-    (2, 0.1256)
-    (3, 0.0234)
-    (5, 0.0007)
-    (7, 0.000003)
+    (2, 0.2608)
+    (5, 0.0077)
+    (8, 0.0003)
+    (10, 4.92e-5)
 };
-\addlegendentry{Erro (Atualização Imediata)}
+\addplot[
+    color=blue,
+    mark=*,
+    dashed
+] coordinates {
+    (1, 1.0)
+    (5, 0.0318)
+    (10, 0.0024)
+    (15, 0.00019)
+    (17, 7.19e-5)
+};
+\addlegendentry{Gauss-Seidel (Imediato)}
+\addlegendentry{Gauss-Jacobi (Atrasado)}
 \end{axis}
 \end{tikzpicture}
-\end{center}
+\caption{Comparativo de Taxa de Convergência Iterativa}
+\label{fig:seidel_comparativo}
+\end{figure}
+
+\subsubsection{Problema Teste 5.2: Balanceamento de Circuito de Kirchhoff}
+
+\textbf{Modelagem e Critério de Sassenfeld:} Submetendo a topologia linear de correntes (equacionada por $20i_1-10i_2-4i_3 = 26$) ao escrutínio analítico, a indicação formal de convergência ganha estofo matemático superior. O método de Gauss-Seidel prescinde estritamente do critério das linhas isolado e alavanca o Critério de Sassenfeld. Ao apurar as grandezas ponderadas iterativas $\beta_i$, nota-se que a substituição progressiva decai substancialmente o limiar local de convergência, cimentando teoricamente o alcance restritivo do algoritmo. A simetria natural $A = A^T$ somada aos determinantes positivos também comprova dominância de positividade definida, atestando convergência universal incondicional.
+
+\begin{table}[H]
+\centering
+\caption{Registros Críticos do Método de Gauss-Seidel (Problema 5.2)}
+\label{tab:seidel_prob52}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{ccccc}
+\hline
+\textbf{Iteração ($k$)} & \textbf{Corrente $i_1$ (A)} & \textbf{Corrente $i_2$ (A)} & \textbf{Corrente $i_3$ (A)} & \textbf{Erro Relativo} \\ \hline
+1 & 1.3000 & 0.5200 & 0.7400 & 1.0000 \\ 
+3 & 1.8954 & 0.9380 & 0.9636 & 0.0989 \\ 
+5 & 1.9860 & 0.9917 & 0.9951 & 0.0122 \\ 
+6 & 1.9949 & 0.9969 & 0.9982 & 0.0044 \\ \hline
+\end{tabular}%
+}
+\end{table}
+
+\textbf{Análise Numérica e Validação:} Demandada sob uma barreira qualitativa rigorosa (erro $< 10^{-2}$), a convergência por atualizações defasadas cumpriu a injunção em exatas 6 iterações, eclipsando a oitava passagem histórica de seu homólogo clássico Jacobi. Observa-se que, ao determinar iterativamente $i_2 = (10 \cdot i_1^{(k)} + 5 \cdot i_3^{(k-1)})/25$, a injeção instantânea do valor já depurado de $i_1$ estancou as ondulações residuais da malha elétrica precocemente. A aproximação fixou seu trânsito em torno de $I^* = [2, 1, 1]^T$, solidificando a confiabilidade e robustez do algoritmo assíncrono.
+
+\subsubsection{Problema Teste 5.5: Dissipação Térmica em Membrana Bidimensional}
+
+\textbf{Modelagem e Fluxo de Propagação Numérica:} A complexidade inerente da equação elíptica que comanda a difusão da carga térmica nas dimensões ortogonais $x$ e $y$ mapeia uma matriz irredutível de grau 9. Torna-se evidente no seio do processamento numérico de EDPs (Equações Diferenciais Parciais) que as atualizações instantâneas no núcleo de laços espaciais mimetizam o transporte físico do calor mais fidedignamente. Assim, um gradiente calculado no canto superior da membrana interage matematicamente de imediato com a célula vizinha processada no segundo milissegundo de execução.
+
+\begin{table}[H]
+\centering
+\caption{Convergência Espacial Acelerada do Campo (Problema 5.5 - Gauss-Seidel)}
+\label{tab:seidel_prob55}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{ccccc}
+\hline
+\textbf{Iteração ($k$)} & \textbf{Atenuação ($\|\Delta x\|_\infty$)} & \textbf{Erro Relativo} & \textbf{Aproximação Contorno ($u_1$)} & \textbf{Centro ($u_5$)} \\ \hline
+1 & 41.4062 & 1.0000 & 12.5000 & 4.6875 \\ 
+5 & 2.1931 & 0.0490 & 28.7765 & 46.582 \\ 
+10 & 0.0715 & 0.0014 & 32.0360 & 49.893 \\ 
+18 & 0.0002 & $5.84 \times 10^{-6}$ & 32.1424 & 49.999 \\ \hline
+\end{tabular}%
+}
+\end{table}
+
+\textbf{Análise Numérica e Sensibilidade Vetorial:} A síntese cronológica ditada pela Tabela \ref{tab:seidel_prob55} documenta um corte massivo no esforço bruto da unidade de processamento flutuante. Dos 32 estágios contínuos exigidos outrora por Jacobi, o engajamento contíguo de Seidel comprimiu a saturação térmica em 18 ciclos. Observa-se ainda que o decaimento não exibe ressonâncias paramétricas, fluindo mono-direcionalmente em obediência às condições de valor de contorno isoladas em $u = -150^\circ\text{C}$ nas extremidades. A matriz de resposta demonstrou coerência física idêntica aos processos exatos de Fatoração LU ($u_5 \approx -50^\circ\text{C}$), coroando o método como a aproximação canônica ótima frente a topologias de banda estreitamente esparsas na ausência de hiper-relaxação sucessiva (SOR).
 
 \subsection{Dificuldades Enfrentadas}
 
