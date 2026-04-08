@@ -76,7 +76,6 @@ def rodar_algoritmos():
     metodos = {
         "Eliminação de Gauss": lambda A=A, b=b: sistemas_lineares.eliminacao_gauss(A, b, pivotamento_parcial=True, tol_pivo=tol),
         "Fatoração LU": lambda A=A, b=b: sistemas_lineares.fatoracao_LU(A, b, tol_pivo=tol),
-        "Gauss-Jordan": lambda A=A, b=b: sistemas_lineares.gauss_jordan(A, b, pivotamento_parcial=True, tol_pivo=tol)
     }
 
     for nome_metodo, chamada in metodos.items():
