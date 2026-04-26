@@ -29,7 +29,7 @@ Sendo um algoritmo direto, o método possui complexidade assintótica exata. A o
 
 A arquitetura do código foi projetada utilizando puramente a linguagem Python, abdicando de bibliotecas externas para garantir o controle absoluto sobre as operações elementares e a rastreabilidade do estado algorítmico. O foco da implementação recai na manutenção do histórico operacional.
 
-\begin{lstlisting}[language=Python, caption={Implementação base do Método de Eliminação de Gauss com Pivotamento e Rastreabilidade}, label={lst:gauss}]
+\begin{lstlisting}[language=Python, caption={Implementação do Método de Eliminação de Gauss com Pivotamento}, label={lst:gauss}]
 def eliminacao_gauss(A, b, pivotamento_parcial=True, tol_pivo=1e-12):
    
     U, y = copiar_sistema(A, b)
@@ -119,7 +119,7 @@ Torna-se evidente que para testar o método com diferentes condicionamentos, a s
 \centering
 \begin{tikzpicture}
 \begin{axis}[
-    width=10cm, height=5.5cm,
+    width=12cm, height=5.5cm,
     xlabel={Etapa de Anulação (Iterações Iniciais)},
     ylabel={Magnitude Escalar do Multiplicador $|m_{ik}|$},
     ymin=0, ymax=1.0,

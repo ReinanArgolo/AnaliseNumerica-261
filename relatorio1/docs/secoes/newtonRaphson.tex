@@ -261,17 +261,17 @@ Ratifica-se, sem margem a ambiguidades numéricas, que o \textbf{Plano B} config
     \centering
     \begin{tikzpicture}
         \begin{axis}[
-            width=14cm, height=6.5cm,
+            width=14cm, height=7.5cm,
             title={\bfseries Supressão de Não Linearidades em Polinômios de Alto Grau via Newton-Raphson},
             xlabel={Iteração (\(k\))},
             ylabel={Erro Relativo \(\epsilon_k\) (Escala Logarítmica)},
             ymode=log,
-            grid=both,
-            grid style={line width=.1pt, draw=gray!20},
-            major grid style={line width=.2pt,draw=gray!50},
+            grid=major, % reduz quantidade de linhas
+            major grid style={line width=.15pt, draw=gray!35},
             legend pos=north east,
             tick label style={font=\footnotesize},
             label style={font=\small},
+            xtick={1,2,3}
         ]
         
         \addplot[

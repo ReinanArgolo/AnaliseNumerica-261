@@ -1,0 +1,150 @@
+\documentclass[a4paper,12pt]{article}
+
+% Pacotes fundamentais
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[brazil]{babel}
+\usepackage{helvet}
+\renewcommand{\familydefault}{\sfdefault}
+\usepackage{geometry}
+\usepackage{amsmath, amssymb, amsfonts}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{indentfirst}
+\usepackage{setspace} % Para espaçamento entre linhas
+
+% Configuração das margens (Padrão ABNT aproximado)
+\geometry{
+    top=3cm,
+    bottom=2cm,
+    left=3cm,
+    right=2cm
+}
+
+% Configuração para códigos (listings)
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{green},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{gray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+
+\lstset{style=mystyle}
+
+\begin{document}
+
+% --- CAPA ---
+\begin{titlepage}
+    \centering
+    \onehalfspacing
+
+    \includegraphics[width=2cm]{img/uesc.png} % Ajuste o tamanho conforme necessário
+    \vspace{0.5cm}
+    
+    \textbf{\Large Universidade Estadual de Santa Cruz – UESC}
+    
+    \vfill
+    
+    \textbf{\large Relatórios de Implementações de Métodos da Disciplina\\ Análise Numérica}
+    
+    \vfill
+    
+    % Preâmbulo (Bloco alinhado à direita)
+    \begin{flushright}
+        \begin{minipage}{0.5\textwidth}
+            \textbf{Relatório de implementações realizadas por} Reinan Lopes Argolo \\
+            Disciplina Análise Numérica. \\
+            Curso Ciência da Computação \\
+            Semestre 2026.1 \\
+            Professor Gesil Sampaio Amarante II
+        \end{minipage}
+    \end{flushright}
+    
+    \vfill
+    
+    \textbf{Ilhéus – BA} \\
+    \textbf{202X}
+    
+\end{titlepage}
+% --- FIM DA CAPA ---
+
+% Sumário
+\tableofcontents
+\newpage
+
+% Lista de Figuras
+\listoffigures
+\newpage
+
+% --- CORPO DO TEXTO ---
+
+\section{Linguagem(ns) Escolhida(s) e justificativas}
+Discorra sobre as linguagens e ferramentas empregadas, suas vantagens e limitações para a implementação dos métodos.
+
+\newpage
+\section{Método 1}
+
+\subsection{Estratégia de Implementação}
+Descreva as escolhas que teve que fazer para poder superar eventuais dificuldades com limitações da linguagem, do ambiente de programação, etc.
+De que forma resolveu tratar os erros, critérios de parada, formato de saída e quaisquer outros fatores importantes para a solução dos problemas.
+
+\subsection{Estrutura dos Arquivos de Entrada/Saída}
+Descreva o formato dos arquivos de entrada e saída e justifique as escolhas.
+
+\subsection{Problema teste 1, 2, 3...}
+Use problemas das seções “Problemas Aplicados a Projetos” (ao final de cada capítulo) do livro Cálculo Numérico, de Neide Franco, para demonstrar que a sua implementação funciona e traz resultados da forma mais eficiente que lhe foi possível. Use, ao menos 3 problemas. Mostre os resultados e teste se eles realmente são a solução. Se não funcionar e você não entender o porquê, explique o que tentou e faça hipóteses.
+
+\subsection{Dificuldades enfrentadas}
+(Descreva as dificuldades aqui)
+
+\newpage
+\section{Método 2}
+
+\subsection{Estratégia de Implementação}
+Descreva as escolhas que teve que fazer para poder superar eventuais dificuldades com limitações da linguagem, do ambiente de programação, etc.
+De que forma resolveu tratar os erros, critérios de parada, formato de saída e quaisquer outros fatores importantes para a solução dos problemas.
+
+\subsection{Estrutura dos Arquivos de Entrada/Saída}
+Descreva o formato dos arquivos de entrada e saída e justifique as escolhas.
+
+\subsection{Problema teste 1, 2, 3...}
+Use problemas das seções “Problemas Aplicados a Projetos” (ao final de cada capítulo) do livro Cálculo Numérico, de Neide Franco, para demonstrar que a sua implementação funciona e traz resultados da forma mais eficiente que lhe foi possível. Use, ao menos 3 problemas. Mostre os resultados e teste se eles realmente são a solução. Se não funcionar e você não entender o porquê, explique o que tentou e faça hipóteses.
+
+\subsection{Dificuldades enfrentadas}
+(Descreva as dificuldades aqui)
+
+\newpage
+\section{Considerações Finais}
+(Escreva suas considerações finais aqui)
+
+\newpage
+% Referências Bibliográficas
+\begin{thebibliography}{99}
+
+\bibitem{franco}
+FRANCO, Neide Bertoldi. \emph{Cálculo Numérico}. São Paulo: Pearson, 2006.
+
+% Adicione outras referências aqui
+% \bibitem{id_referencia} AUTOR. Título. Local: Editora, Ano.
+
+\end{thebibliography}
+
+\end{document}

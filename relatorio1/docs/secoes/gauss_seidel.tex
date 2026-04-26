@@ -146,7 +146,7 @@ Seguindo o paradigma modular consolidado, a malha de hiperparâmetros (vetor ini
 
 \begin{table}[H]
 \centering
-\caption{Convergência Espacial Acelerada do Campo (Problema 5.5 - Gauss-Seidel)}
+\caption{Convergência Espacial Acelerada do Campo}
 \label{tab:seidel_prob55}
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{ccccc}
@@ -160,8 +160,8 @@ Seguindo o paradigma modular consolidado, a malha de hiperparâmetros (vetor ini
 }
 \end{table}
 
-\textbf{Análise Numérica e Sensibilidade Vetorial:} A síntese cronológica ditada pela Tabela \ref{tab:seidel_prob55} documenta um corte massivo no esforço bruto da unidade de processamento flutuante. Dos 32 estágios contínuos exigidos outrora por Jacobi, o engajamento contíguo de Seidel comprimiu a saturação térmica em 18 ciclos. Observa-se ainda que o decaimento não exibe ressonâncias paramétricas, fluindo mono-direcionalmente em obediência às condições de valor de contorno isoladas em $u = -150^\circ\text{C}$ nas extremidades. A matriz de resposta demonstrou coerência física idêntica aos processos exatos de Fatoração LU ($u_5 \approx -50^\circ\text{C}$), coroando o método como a aproximação canônica ótima frente a topologias de banda estreitamente esparsas na ausência de hiper-relaxação sucessiva (SOR).
+\textbf{Análise Numérica e Sensibilidade Vetorial:} A síntese cronológica ditada pela Tabela \ref{tab:seidel_prob55} documenta um corte massivo no esforço bruto da unidade de processamento flutuante. Dos 32 estágios contínuos exigidos outrora por Jacobi, o engajamento contíguo de Seidel comprimiu a saturação térmica em 18 ciclos. Observa-se ainda que o decaimento não exibe ressonâncias paramétricas, fluindo mono-direcionalmente em obediência às condições de valor de contorno isoladas em $u = -150^\circ\text{C}$ nas extremidades. A aproximação do centro da malha ($u_5$) atinge a temperatura de equilíbrio $50^\circ\text{C}$ com um erro relativo inferior a $10^{-5}$, evidenciando a precisão e estabilidade do método mesmo em topologias de alta dimensionalidade. A propagação numérica do calor é, portanto, acelerada pela atualização imediata dos estados nodais, reduzindo o número total de iterações necessárias para atingir a convergência dentro do critério estabelecido.
 
 \subsection{Dificuldades Enfrentadas}
 
-A síntese crítica de desempenho identificou que as vantagens inerentes a Seidel implicam perdas agudas na escalabilidade contemporânea. Diferentemente do Jacobi, o método não pode ser decomposto linearmente para processos massivamente paralelos (GPGPU), já que a iteração em $x_i$ depende imperativamente que a \textit{thread} responsável por $x_{i-1}$ termine sua execução. Dessa forma, observa-se ainda que em estruturas mal condicionadas limítrofes, a injeção imediata de um salto espúrio em $x_1$ induz um efeito chicote desestabilizando todos os valores decorrentes da mesma iteração, ampliando transitoriamente as flutuações antes que a restrição de Sassenfeld possa reordenar o trajeto contínuo.
+A síntese crítica de desempenho identificou que as vantagens inerentes a Seidel implicam perdas agudas na escalabilidade contemporânea. Diferentemente do Jacobi, o método não pode ser decomposto linearmente para processos massivamente paralelos (GPGPU), já que a iteração em $x_i$ depende imperativamente que a \textit{thread} responsável por $x_{i-1}$ termine sua execução. Dessa forma, observa-se ainda que em estruturas mal condicionadas limítrofes, a injeção imediata de um salto espúrio em $x_1$ induz um efeito de desestabilização em todos os valores decorrentes da mesma iteração, ampliando transitoriamente as flutuações antes que a restrição de Sassenfeld possa reordenar o trajeto contínuo.
