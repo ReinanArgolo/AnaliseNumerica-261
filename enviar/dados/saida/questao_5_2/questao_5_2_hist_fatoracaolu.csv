@@ -1,0 +1,14 @@
+iter,fase,k,linha_pivo,linha_alvo,pivo,multiplicador,acao
+0,fatoracao_LU,,,,,,inicio_fatoracao
+1,fatoracao_LU,0,0,1,20.0,-0.5,armazenar_multiplicador_L_e_anular_U
+2,fatoracao_LU,0,0,2,20.0,-0.2,armazenar_multiplicador_L_e_anular_U
+3,fatoracao_LU,1,1,2,20.0,-0.35,armazenar_multiplicador_L_e_anular_U
+4,substituicao_progressiva,,,,,,inicio_substituicao_progressiva
+5,substituicao_progressiva,0,,0,1.0,,calcular_y[i]
+6,substituicao_progressiva,1,,1,1.0,,calcular_y[i]
+7,substituicao_progressiva,2,,2,1.0,,calcular_y[i]
+8,substituicao_regressiva,,,,,,iniciosubstituicao_regressiva
+9,substituicao_regressiva,2,,2,16.75,,calcular_x[i]
+10,substituicao_regressiva,1,,1,20.0,,calcular_x[i]
+11,substituicao_regressiva,0,,0,20.0,,calcular_x[i]
+12,solucao,,,,,,solucao_obtida

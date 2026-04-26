@@ -1,0 +1,14 @@
+# Parametros globais (fallback)
+a:1.08
+b:1.20
+x0:1.11
+tol:1e-6
+max_iter:100
+
+# Parametros especificos por funcao
+f1_a:1.10
+f1_b:1.20
+f1_x0:1.12
+f2_a:1.08
+f2_b:1.15
+f2_x0:1.11

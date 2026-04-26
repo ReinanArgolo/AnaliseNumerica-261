@@ -1,0 +1,13 @@
+# Parâmetros para primeira função (f1)
+f1_a:1.0
+f1_b:2.0
+f1_x0:0.5
+f1_tol:1e-5
+f1_max_iter:100
+
+# Parâmetros para segunda função (f2)
+f2_a:5.0
+f2_b:9.0
+f2_x0:2.5
+f2_tol:1e-5
+f2_max_iter:100

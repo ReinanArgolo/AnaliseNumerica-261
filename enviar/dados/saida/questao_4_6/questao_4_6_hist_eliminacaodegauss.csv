@@ -1,0 +1,8 @@
+iter,fase,k,linha_pivo,linha_alvo,pivo,multiplicador,acao
+0,eliminacao,0,0,1,14.0,0.2857142857142857,anular_elemento
+1,eliminacao,0,0,2,14.0,0.2857142857142857,anular_elemento
+2,eliminacao,1,1,2,5.857142857142858,1.0,anular_elemento
+3,substituicao_regressiva,2,,2,-1.0,,calcular_x[i]
+4,substituicao_regressiva,1,,1,5.857142857142858,,calcular_x[i]
+5,substituicao_regressiva,0,,0,14.0,,calcular_x[i]
+6,retrosubstituicao,2,,,,,solucao_obtida
