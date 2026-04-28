@@ -54,18 +54,55 @@ def calcular_regressao_mmq(pontos):
     return a, b
 
 
-def calcular_erro(pontos, a, b):
+def calcular_coeficiente_correlacao(pontos, a, b):
+    """
+    Calcula o coeficiente de correlação (r) para os pontos e a linha de regressão dada por y = ax + b.
+    
+    utiloiza a fórmula de correlação de Pearson:
+    r = (n * Σ(xy) - Σx * Σy) / sqrt((n * Σ(x^2) - (Σx)^2) * (n * Σ(y^2) - (Σy)^2))
+    
+    return:
+    - r: Coeficiente de correlação, variando entre -1 e 1.
+    """
+
     sum_prod_xy = sum(p[0] * p[1] for p in pontos)
     sum_x = sum(p[0] for p in pontos)
     sum_y = sum(p[1] for p in pontos)
+    sum_x2 = sum(p[0]**2 for p in pontos)
+    sum_y2 = sum(p[1]**2 for p in pontos)
 
-    prod_sum_xy = sum_x * sum_y
+    n_pontos = len(pontos)
 
-    numerador = ((pontos.len() + 1) * sum_prod_xy) - sum_x * sum_y
+    numerador = ((n_pontos) * sum_prod_xy) - (sum_x * sum_y)
 
+    variacao_x = math.sqrt(n_pontos * sum_x2 - sum_x**2)
+    variacao_y = math.sqrt(n_pontos * sum_y2 - sum_y**2)
+
+    denominador = variacao_x * variacao_y
+
+    if denominador == 0:
+        return 0
+    
+    erro = numerador / denominador
+
+    return math.sqrt(erro)
+
+
+import math
+
+def calcular_desvio_padrao_residuos(pontos, a, b):
+    n = len(pontos)
+    
+    if n <= 2:
+        return 0.0 
+
+    soma_quadrados_residuos = sum((y - (a * x + b))**2 for x, y in pontos)
+    variancia_residuos = soma_quadrados_residuos / (n - 2)
+    
+    return math.sqrt(variancia_residuos)
     
 
-def salvar_resultados_csv(caminho_arquivo, pontos, a, b):
+def salvar_resultados_csv(caminho_arquivo, pontos, a, b, r2=None, desvio_padrao_residuos=None):
     """
     Salva os pontos originais, os valores preditos e o erro em um CSV.
     """
@@ -82,26 +119,23 @@ def salvar_resultados_csv(caminho_arquivo, pontos, a, b):
             escritor.writerow([])
             escritor.writerow(['Coeficiente Angular (a)', a])
             escritor.writerow(['Coeficiente Linear (b)', b])
-            
-            # Coeficiente de Determinação R^2 (opcional, mas bom para o relatório)
-            media_y = sum(p[1] for p in pontos) / len(pontos)
-            sq_total = sum((p[1] - media_y)**2 for p in pontos)
-            sq_res = sum((p[1] - (a * p[0] + b))**2 for p in pontos)
-            r2 = 1 - (sq_res / sq_total) if sq_total != 0 else 1
-            escritor.writerow(['R^2', r2])
+            escritor.writerow(['Coeficiente de Correlação (r)', r2])
+            escritor.writerow(['Desvio Padrão dos Resíduos', desvio_padrao_residuos])
             
     except Exception as e:
         print(f"Erro ao salvar CSV: {e}")
 
 if __name__ == "__main__":
     # Exemplo de uso
-    arquivo_entrada = 'input/dados.txt'
+    arquivo_entrada = 'input/dados_valid.txt'
     arquivo_saida = 'output/resultado_regressao.csv'
     
     # Criar um arquivo de exemplo se não existir
     import os
     if not os.path.exists('input'):
         os.makedirs('input')
+
+    # cria arquivos de teste
     if not os.path.exists(arquivo_entrada):
         with open(arquivo_entrada, 'w') as f:
             f.write("1 1.2\n2 1.9\n3 3.2\n4 4.1\n5 5.0")
@@ -109,8 +143,14 @@ if __name__ == "__main__":
     dados = ler_dados_txt(arquivo_entrada)
     if dados:
         coef_a, coef_b = calcular_regressao_mmq(dados)
+        coef_correlacao = calcular_coeficiente_correlacao(dados, coef_a, coef_b)
+        desvio_padrao_residuos = calcular_desvio_padrao_residuos(dados, coef_a, coef_b)
+        print(f"Coeficiente de Correlação (r): {coef_correlacao:.4f}")
+        print(f"Desvio Padrão dos Resíduos: {desvio_padrao_residuos:.4f}") 
+
         if not os.path.exists('output'):
             os.makedirs('output')
-        salvar_resultados_csv(arquivo_saida, dados, coef_a, coef_b)
+
+        salvar_resultados_csv(arquivo_saida, dados, coef_a, coef_b, r2=coef_correlacao, desvio_padrao_residuos=desvio_padrao_residuos)
         print(f"Regressão concluída: y = {coef_a:.4f}x + {coef_b:.4f}")
         print(f"Resultados salvos em {arquivo_saida}")
