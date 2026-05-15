@@ -1,0 +1,38 @@
+\documentclass[../main.tex]{subfiles}
+
+\begin{document}
+
+\section{Derivacao e Integracao Numerica}
+
+\subsection{Derivadas numericas}
+
+Foram implementadas aproximacoes progressiva, regressiva e central para a
+primeira derivada. Para a segunda derivada foi usada a formula central:
+\[
+    f''(x) \approx \frac{f(x+h)-2f(x)+f(x-h)}{h^2}.
+\]
+
+Tambem foi incluida a extrapolacao de Richardson, que combina duas aproximacoes
+com passos \(h\) e \(h/2\):
+\[
+    R = A(h/2) + \frac{A(h/2)-A(h)}{2^p-1},
+\]
+onde \(p\) e a ordem do erro do metodo usado.
+
+\subsection{Regras de integracao}
+
+As regras implementadas foram:
+
+\begin{itemize}
+    \item trapezio simples e composto;
+    \item Simpson \(1/3\) simples e composto;
+    \item Simpson \(3/8\) simples e composto;
+    \item quadratura de Gauss-Legendre com 2, 3 e 4 pontos.
+\end{itemize}
+
+Para os exercicios que pedem erro relativo menor que uma tolerancia, foi usado
+um processo simples: calcula-se Simpson \(1/3\) composto, dobra-se o numero de
+subintervalos e compara-se a variacao relativa entre duas aproximacoes
+consecutivas.
+
+\end{document}

@@ -1,0 +1,43 @@
+\documentclass[../main.tex]{subfiles}
+
+\begin{document}
+
+\section{Testes com Exercicios do Livro}
+
+Os testes seguem os exercicios indicados do livro de Neide Franco. As entradas
+ficam em \texttt{input/exercicios} e as saidas em CSV ficam em
+\texttt{output/exercicios}.
+
+\subsection{Exercicios do Capitulo 8}
+
+No exercicio 8.1, foi usada regressao linear para o numero de acidentes e
+regressao quadratica para os acidentes por 10000 veiculos. Seguindo a
+observacao do enunciado, o tempo foi deslocado usando \(x = ano - 1980\).
+
+No exercicio 8.5, os dados da placa de orificio foram ajustados por um
+polinomio de grau 2. No exercicio 8.11, o modelo \(a x^b\) foi linearizado com
+logaritmos para ajustar separadamente os PNBs em dolares correntes e constantes.
+
+\subsection{Exercicios do Capitulo 10}
+
+No exercicio 10.2, os tres pontos da trajetoria do projetil geram o polinomio
+\[
+    P(x) = x - 0.04x^2.
+\]
+A partir dele foram calculados o angulo de lancamento, a velocidade inicial e a
+altura em \(x=5\).
+
+Nos exercicios 10.6 e 10.9 foram usadas interpolacoes polinomiais. O exercicio
+10.6 calcula resistencias por polinomios de grau 2 e 3 usando os pontos mais
+proximos de cada consulta. O exercicio 10.9 usa interpolacao direta para
+calcular a corrente no varistor e interpolacao inversa de grau 2 para estimar a
+tensao quando \(E_1=10\).
+
+\subsection{Exercicios do Capitulo 11}
+
+Os exercicios 11.1 e 11.6 foram resolvidos por Simpson composto com refinamento
+automatico ate a variacao relativa ficar abaixo de \(10^{-5}\). O exercicio
+11.11 calcula a area acumulada de uma distribuicao normal ate \(x=5\), tambem
+por integracao numerica.
+
+\end{document}

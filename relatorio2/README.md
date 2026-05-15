@@ -46,6 +46,24 @@ Depois execute:
 python .\metodos\mmq_continuo_polinomial.py
 ```
 
+## Outros metodos implementados
+
+```powershell
+python .\metodos\interpolacao_lagrange.py
+python .\metodos\interpolacao_newton.py
+python .\metodos\derivadas_numericas.py
+python .\metodos\integracao_numerica.py
+```
+
+## Testes com exercicios do livro
+
+As entradas dos exercicios ficam em `input/exercicios/` e os resultados em
+`output/exercicios/`.
+
+```powershell
+python .\testes_livro_neide.py
+```
+
 ## Compilacao do relatorio completo
 
 Entre na pasta do relatorio:

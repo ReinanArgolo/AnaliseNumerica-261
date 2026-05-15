@@ -1,0 +1,36 @@
+\documentclass[../main.tex]{subfiles}
+
+\begin{document}
+
+\section{Interpolacao Polinomial}
+
+\subsection{Polinomios de Lagrange}
+
+A interpolacao de Lagrange foi implementada montando cada base \(L_i(x)\)
+diretamente:
+\[
+    L_i(x) = \prod_{j \ne i} \frac{x - x_j}{x_i - x_j}.
+\]
+O polinomio final e calculado por
+\[
+    P(x) = \sum_{i=0}^{n} y_i L_i(x).
+\]
+
+No codigo, os termos sao multiplicados como polinomios simples, guardados pela
+lista de coeficientes \([c_0,c_1,\ldots,c_n]\). Isso deixa facil avaliar o
+polinomio em qualquer ponto e tambem escrever a expressao obtida no CSV.
+
+\subsection{Diferencas divididas de Newton}
+
+No metodo de Newton, primeiro e montada a tabela de diferencas divididas. O
+polinomio fica na forma:
+\[
+    P(x) = f[x_0] + f[x_0,x_1](x-x_0) + \cdots
+    + f[x_0,\ldots,x_n](x-x_0)\cdots(x-x_{n-1}).
+\]
+
+Essa forma e conveniente porque permite avaliar o polinomio com uma estrutura
+parecida com o metodo de Horner. Para facilitar a leitura dos resultados, o
+codigo tambem converte o polinomio para potencias de \(x\).
+
+\end{document}
