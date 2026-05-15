@@ -2,14 +2,15 @@
 
 from __future__ import annotations
 
-import math
 from pathlib import Path
 
 try:
+    from metodos.funcoes import criar_funcao
     from metodos.io_utils import salvar_csv
     from metodos.polinomios import avaliar_polinomio, formatar_polinomio
     from metodos.sistemas_lineares import resolver_sistema_gauss
 except ModuleNotFoundError:
+    from funcoes import criar_funcao
     from io_utils import salvar_csv
     from polinomios import avaliar_polinomio, formatar_polinomio
     from sistemas_lineares import resolver_sistema_gauss
@@ -34,29 +35,6 @@ def ler_parametros(caminho_arquivo: str | Path) -> dict[str, str]:
             dados[chave.strip().lower()] = valor.strip()
 
     return dados
-
-
-def criar_funcao(expressao: str):
-    """Cria uma funcao a partir de uma expressao em x.
-
-    Exemplo de expressao: sin(x) + x**2
-    """
-    permitidos = {
-        "abs": abs,
-        "sqrt": math.sqrt,
-        "sin": math.sin,
-        "cos": math.cos,
-        "tan": math.tan,
-        "exp": math.exp,
-        "log": math.log,
-        "pi": math.pi,
-        "e": math.e,
-    }
-
-    def f(x: float) -> float:
-        return float(eval(expressao, {"__builtins__": {}}, {**permitidos, "x": x}))
-
-    return f
 
 
 def integrar_simpson(funcao, a: float, b: float, subintervalos: int = 1000) -> float:

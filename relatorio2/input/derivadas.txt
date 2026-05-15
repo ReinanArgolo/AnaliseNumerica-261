@@ -1,0 +1,3 @@
+funcao=sin(x)
+x=1
+h=0.1

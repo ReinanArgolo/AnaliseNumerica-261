@@ -15,6 +15,31 @@ def avaliar_polinomio(coeficientes: list[float], x: float) -> float:
     return valor
 
 
+def somar_polinomios(p: list[float], q: list[float]) -> list[float]:
+    """Soma dois polinomios escritos por coeficientes."""
+    tamanho = max(len(p), len(q))
+    resultado = [0.0 for _ in range(tamanho)]
+
+    for i in range(tamanho):
+        if i < len(p):
+            resultado[i] += p[i]
+        if i < len(q):
+            resultado[i] += q[i]
+
+    return resultado
+
+
+def multiplicar_polinomios(p: list[float], q: list[float]) -> list[float]:
+    """Multiplica dois polinomios escritos por coeficientes."""
+    resultado = [0.0 for _ in range(len(p) + len(q) - 1)]
+
+    for i in range(len(p)):
+        for j in range(len(q)):
+            resultado[i + j] += p[i] * q[j]
+
+    return resultado
+
+
 def formatar_polinomio(coeficientes: list[float]) -> str:
     """Monta uma representacao simples do polinomio ajustado."""
     partes: list[str] = []
