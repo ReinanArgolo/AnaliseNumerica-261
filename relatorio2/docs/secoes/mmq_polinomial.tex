@@ -1,0 +1,43 @@
+\documentclass[../main.tex]{subfiles}
+
+\begin{document}
+
+\section{Minimos Quadrados Polinomial}
+
+\subsection{Caso discreto}
+
+No caso discreto, a entrada e um conjunto de pontos \((x_i, y_i)\). Para ajustar
+um polinomio de grau \(m\),
+\[
+    p(x) = c_0 + c_1x + c_2x^2 + \cdots + c_mx^m,
+\]
+o codigo monta as equacoes normais usando somatorios. A matriz do sistema recebe
+os termos \(\sum x_i^{j+k}\), enquanto o vetor independente recebe os termos
+\(\sum y_i x_i^k\).
+
+Depois de montar o sistema, os coeficientes sao encontrados por eliminacao de
+Gauss implementada no proprio projeto.
+
+\subsection{Caso continuo}
+
+No caso continuo, o objetivo e aproximar uma funcao \(f(x)\) em um intervalo
+\([a,b]\). As equacoes normais usam integrais:
+\[
+    \int_a^b p(x)x^k dx = \int_a^b f(x)x^k dx.
+\]
+
+As integrais de potencias de \(x\), que formam a matriz, sao calculadas pela
+formula exata. Ja as integrais que envolvem \(f(x)\) sao aproximadas pela regra
+composta de Simpson, tambem implementada diretamente no codigo.
+
+\subsection{Arquivos de entrada e saida}
+
+O caso discreto le `input/mmq\_discreto.txt`, com um ponto por linha. O caso
+continuo le `input/mmq\_continuo.txt`, com os parametros `funcao`, `a`, `b`,
+`grau` e `subintervalos`.
+
+Ambos os metodos escrevem CSV em UTF-8 na pasta `output`, contendo o polinomio
+encontrado, os coeficientes e uma tabela de comparacao entre os valores reais e
+os valores aproximados.
+
+\end{document}

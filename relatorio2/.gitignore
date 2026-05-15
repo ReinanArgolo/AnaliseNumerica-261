@@ -1,0 +1,15 @@
+# Python
+__pycache__/
+*.py[cod]
+
+# Artefatos auxiliares do LaTeX
+docs/out/*.aux
+docs/out/*.log
+docs/out/*.lof
+docs/out/*.out
+docs/out/*.toc
+
+# Cache do editor e sistema operacional
+.vscode/
+.idea/
+Thumbs.db

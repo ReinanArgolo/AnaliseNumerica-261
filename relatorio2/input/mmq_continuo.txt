@@ -1,0 +1,7 @@
+# Ajuste continuo de f(x) no intervalo [a,b].
+# Use ** para potencia. Exemplo: x**2 + sin(x)
+funcao=sin(x)
+a=0
+b=3.141592653589793
+grau=2
+subintervalos=1000

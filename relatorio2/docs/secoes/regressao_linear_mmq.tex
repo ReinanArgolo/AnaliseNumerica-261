@@ -1,0 +1,58 @@
+\documentclass[../main.tex]{subfiles}
+
+\begin{document}
+
+\section{Regressao Linear por Minimos Quadrados}
+
+\subsection{Estrategia de implementacao}
+
+O metodo calcula a reta
+\[
+    y = ax + b
+\]
+que melhor se ajusta a um conjunto de pontos pelo criterio dos minimos
+quadrados. Os coeficientes sao obtidos pelas somas acumuladas de \(x\), \(y\),
+\(xy\) e \(x^2\), sem uso de bibliotecas prontas de regressao.
+
+O coeficiente angular e calculado por
+\[
+    a = \frac{n\sum xy - \sum x \sum y}{n\sum x^2 - (\sum x)^2}
+\]
+e o coeficiente linear por
+\[
+    b = \bar{y} - a\bar{x}.
+\]
+
+O codigo tambem calcula o coeficiente de correlacao de Pearson, o coeficiente
+de determinacao e o desvio padrao dos residuos. O tratamento de erro impede a
+execucao quando todos os valores de \(x\) sao iguais, pois nesse caso o
+denominador da formula de \(a\) fica nulo.
+
+\subsection{Estrutura dos arquivos de entrada e saida}
+
+Os arquivos de entrada sao textos em UTF-8, com um ponto por linha:
+
+\begin{lstlisting}[language={},caption={Formato de entrada em TXT}]
+1 1.2
+2 1.9
+3 3.2
+\end{lstlisting}
+
+O arquivo CSV de saida tambem e salvo em UTF-8. Ele contem os pontos originais,
+os valores preditos pela reta ajustada, os residuos e, ao final, os indicadores
+globais do ajuste.
+
+\subsection{Problemas teste}
+
+Esta secao deve ser preenchida com pelo menos tres problemas aplicados. Para
+cada problema, recomenda-se registrar os dados de entrada, a reta obtida, os
+residuos e uma verificacao numerica dos resultados.
+
+\subsection{Dificuldades enfrentadas}
+
+Uma dificuldade importante e manter a implementacao simples sem abrir mao das
+validacoes. Por isso, a leitura dos arquivos e a geracao dos CSVs foram
+separadas em funcoes auxiliares, enquanto as formulas numericas permanecem em
+funcoes especificas do metodo.
+
+\end{document}

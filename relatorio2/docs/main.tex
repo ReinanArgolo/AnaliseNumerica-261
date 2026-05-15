@@ -1,0 +1,69 @@
+\documentclass[a4paper,12pt]{article}
+
+\input{preambulo}
+
+\begin{document}
+
+\pagenumbering{gobble}
+
+% --- CAPA ---
+\begin{titlepage}
+    \centering
+    \onehalfspacing
+
+    \includegraphics[width=2cm]{uesc.png}
+    \vspace{0.5cm}
+
+    \textbf{\Large Universidade Estadual de Santa Cruz -- UESC}
+
+    \vfill
+
+    \textbf{\large Relatorios de Implementacoes de Metodos da Disciplina\\ Analise Numerica}
+
+    \vfill
+
+    \begin{flushright}
+        \begin{minipage}{0.5\textwidth}
+            \textbf{Relatorio de implementacoes realizadas por} Reinan Lopes Argolo \\
+            Disciplina Analise Numerica. \\
+            Curso Ciencia da Computacao \\
+            Semestre 2026.1 \\
+            Professor Gesil Sampaio Amarante II
+        \end{minipage}
+    \end{flushright}
+
+    \vfill
+
+    \textbf{Ilheus -- BA} \\
+    \textbf{2026}
+\end{titlepage}
+% --- FIM DA CAPA ---
+
+\pagenumbering{roman}
+\tableofcontents
+\newpage
+
+\listoffigures
+\newpage
+
+\pagenumbering{arabic}
+\subfile{secoes/linguagem}
+\newpage
+
+\subfile{secoes/regressao_linear_mmq}
+\newpage
+
+\subfile{secoes/mmq_polinomial}
+\newpage
+
+\subfile{secoes/consideracoes_finais}
+\newpage
+
+\begin{thebibliography}{99}
+
+\bibitem{franco}
+FRANCO, Neide Bertoldi. \emph{Calculo Numerico}. Sao Paulo: Pearson, 2006.
+
+\end{thebibliography}
+
+\end{document}
