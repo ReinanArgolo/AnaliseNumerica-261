@@ -1,0 +1,6 @@
+item,valor
+polinomio,0 + 1*x + -0.04*x^2
+angulo_rad,0.7853981633974483
+angulo_graus,45.0
+velocidade_inicial,15.700318468107582
+altitude_em_5m,4.0

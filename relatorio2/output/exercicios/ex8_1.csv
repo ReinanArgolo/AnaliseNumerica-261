@@ -1,0 +1,3 @@
+item,polinomio,previsao_2000
+regressao_linear_acidentes,8.02159 + 0.362485*x,15.27129521586931
+regressao_quadratica_taxa,1.6985 + -0.0368563*x + 0.00115007*x^2,1.4214014060166735

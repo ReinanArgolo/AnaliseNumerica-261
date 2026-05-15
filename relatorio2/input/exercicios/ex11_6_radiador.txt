@@ -1,0 +1,5 @@
+# Exercicio 11.6
+lambda1=3.933666e-5
+lambda2=5.895923e-5
+tolerancia=1e-5
+temperaturas=2000,6000

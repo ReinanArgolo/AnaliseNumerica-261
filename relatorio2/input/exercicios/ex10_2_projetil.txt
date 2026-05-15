@@ -1,0 +1,4 @@
+# Exercicio 10.2 - pontos da trajetoria x y
+0 0
+10 6
+20 4

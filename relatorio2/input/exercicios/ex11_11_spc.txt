@@ -1,0 +1,5 @@
+# Exercicio 11.11
+media=4.991
+desvio=0.005
+x0=5
+tolerancia=1e-5

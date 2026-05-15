@@ -1,0 +1,6 @@
+# Exercicio 11.1
+lambda1=4e-5
+lambda2=7e-5
+tolerancia=1e-5
+temperaturas_i=2000,2250,2500,2750,3000
+temperaturas_ii=2000,2200,2400,2600,2800,3000
