@@ -4,14 +4,35 @@
 
 \section{Linguagem escolhida e justificativas}
 
-As implementacoes dos metodos numericos foram feitas em Python, sem o uso de
-bibliotecas prontas para os algoritmos numericos. A linguagem foi escolhida por
-ter sintaxe simples, boa legibilidade e recursos nativos suficientes para
-manipulacao de arquivos texto e CSV em UTF-8.
+As implementacoes dos metodos numericos foram feitas em Python. A escolha da
+linguagem foi motivada pela legibilidade da sintaxe, pela facilidade de separar
+o codigo em funcoes pequenas e pela disponibilidade de recursos nativos para
+manipular arquivos de texto e arquivos CSV em UTF-8.
 
-As bibliotecas padrao usadas no projeto ficam restritas a tarefas auxiliares,
-como leitura e escrita de arquivos, calculos matematicos elementares e
-organizacao de caminhos. Dessa forma, a parte numerica continua implementada
-diretamente no codigo do projeto, permitindo acompanhar cada formula usada.
+Um cuidado importante do projeto foi nao usar bibliotecas prontas para resolver
+os metodos numericos. Assim, nao foram usadas funcoes como
+\texttt{numpy.polyfit}, rotinas de integracao do \texttt{scipy}, modelos de
+regressao do \texttt{sklearn} ou qualquer ferramenta equivalente. As formulas de
+minimos quadrados, interpolacao, derivacao, integracao, extrapolacao de
+Richardson e quadratura de Gauss foram implementadas diretamente no codigo.
+
+As bibliotecas usadas tiveram apenas papel de apoio:
+
+\begin{itemize}
+    \item \texttt{math}, para funcoes elementares como exponencial, logaritmo,
+    seno, cosseno e raiz quadrada;
+    \item \texttt{csv}, para gravar tabelas de saida em formato CSV;
+    \item \texttt{pathlib}, para organizar caminhos de arquivos de forma mais
+    clara;
+    \item \texttt{matplotlib}, apenas para gerar graficos dos resultados ja
+    calculados pelos metodos implementados manualmente.
+\end{itemize}
+
+As entradas dos exercicios foram guardadas em arquivos TXT, dentro da pasta de
+entradas do projeto. As saidas numericas foram salvas em CSV na pasta de
+resultados, e as figuras usadas no relatorio foram salvas em uma pasta propria
+para graficos. Essa separacao facilita a repeticao dos testes: a execucao do
+script principal de testes regenera os resultados e os graficos do relatorio a
+partir dos dados de entrada.
 
 \end{document}

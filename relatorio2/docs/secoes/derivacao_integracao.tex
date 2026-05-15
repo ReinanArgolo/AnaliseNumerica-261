@@ -4,97 +4,217 @@
 
 \section{Derivacao e Integracao Numerica}
 
-\subsection{Derivadas numericas}
+\subsection{Metodos implementados e objetivo numerico}
 
-Foram implementadas aproximacoes progressiva, regressiva e central para a
-primeira derivada. Para a segunda derivada foi usada a formula central:
-\[
-    f''(x) \approx \frac{f(x+h)-2f(x)+f(x-h)}{h^2}.
-\]
+Esta parte do projeto reune formulas de derivacao numerica e regras de
+integracao. As derivadas numericas aproximam \(f'(x)\) e \(f''(x)\) a partir de
+valores da funcao em pontos proximos. As regras de integracao aproximam
+integrais definidas quando a primitiva nao e conveniente ou quando os dados
+estao em forma numerica.
 
-Tambem foi incluida a extrapolacao de Richardson, que combina duas aproximacoes
-com passos \(h\) e \(h/2\):
-\[
-    R = A(h/2) + \frac{A(h/2)-A(h)}{2^p-1},
-\]
-onde \(p\) e a ordem do erro do metodo usado.
-
-\subsection{Regras de integracao}
-
-As regras implementadas foram:
+Foram implementadas:
 
 \begin{itemize}
+    \item diferencas progressiva, regressiva e central para a primeira
+    derivada;
+    \item diferenca central para a segunda derivada;
+    \item extrapolacao de Richardson;
     \item trapezio simples e composto;
     \item Simpson \(1/3\) simples e composto;
     \item Simpson \(3/8\) simples e composto;
     \item quadratura de Gauss-Legendre com 2, 3 e 4 pontos.
 \end{itemize}
 
-Para os exercicios que pedem erro relativo menor que uma tolerancia, foi usado
-um processo simples: calcula-se Simpson \(1/3\) composto, dobra-se o numero de
-subintervalos e compara-se a variacao relativa entre duas aproximacoes
-consecutivas.
+\subsection{Implementacao em Python}
 
-\subsection{Problemas teste}
+As funcoes de derivacao estao no modulo de derivadas numericas, e as regras de
+integracao estao no modulo de integracao numerica. A funcao de refinamento,
+definida no script de testes do livro, usa Simpson \(1/3\) composto e dobra o
+numero de subintervalos ate que a variacao relativa entre duas aproximacoes
+consecutivas seja menor que a tolerancia do enunciado.
 
-\subsubsection{Exercicio 11.1: eficiencia luminosa de corpo negro}
+Para a regra de Simpson \(1/3\) composta, usada nos exercicios aplicados, o
+codigo calcula:
+\[
+    \int_a^b f(x)\,dx \approx \frac{h}{3}
+    \left[f(x_0)+4\sum_{\text{i impar}}f(x_i)
+    +2\sum_{\text{i par}}f(x_i)+f(x_n)\right],
+\]
+com \(n\) par e \(h=(b-a)/n\).
 
-O exercicio 11.1 pede o calculo da eficiencia luminosa por uma integral da
-equacao de Planck no intervalo de comprimentos de onda de \(4\cdot10^{-5}\) a
-\(7\cdot10^{-5}\) cm. A integral foi calculada por Simpson \(1/3\) composto,
-refinando o numero de subintervalos ate a variacao relativa ficar menor que
-\(10^{-5}\).
+A quadratura de Gauss-Legendre foi implementada manualmente com raizes e pesos
+tabelados para 2, 3 e 4 pontos. A transformacao de intervalo usada foi:
+\[
+    x = \frac{a+b}{2}+\frac{b-a}{2}t.
+\]
 
-Para o conjunto com incremento de \(250K\), os resultados foram:
+\subsection{Exercicio 11.1: eficiencia luminosa de corpo negro}
+
+\paragraph{Enunciado e objetivo numerico}
+O exercicio 11.1 pede a eficiencia luminosa de um corpo negro, definida por uma
+integral da equacao de Planck no intervalo visivel de comprimento de onda. A
+expressao usada foi:
+\[
+    EFF =
+    \frac{64.77}{T^4}
+    \int_{4\cdot10^{-5}}^{7\cdot10^{-5}}
+    \frac{dx}{x^5\left(e^{1.432/(Tx)}-1\right)}.
+\]
+O enunciado pede erro relativo menor que \(10^{-5}\).
+
+\paragraph{Metodo empregado}
+Foi usada a regra de Simpson \(1/3\) composta com refinamento automatico. A cada
+passo, o numero de subintervalos e dobrado. A parada ocorre quando
+\[
+    \frac{|I_{novo}-I_{antigo}|}{\max(1,|I_{novo}|)} < 10^{-5}.
+\]
+
+\paragraph{Implementacao}
+Os parametros foram lidos do TXT do exercicio. O script gerou um CSV principal
+com as eficiencias e outro CSV com o historico de refinamento. Esse historico
+registra, para cada temperatura, a quantidade de subintervalos usada e o erro
+relativo estimado.
+
+\paragraph{Resultados}
+Para o conjunto com incremento de 250 K:
+\[
+\begin{array}{c|c|c}
+T(K) & \text{eficiencia} & \text{subintervalos} \\
+\hline
+2000 & 0.805807 & 32 \\
+2250 & 1.828785 & 32 \\
+2500 & 3.426141 & 32 \\
+2750 & 5.595158 & 32 \\
+3000 & 8.255324 & 16
+\end{array}
+\]
+
+Para o conjunto com incremento de 200 K, as eficiencias foram:
 \[
 \begin{array}{c|c}
 T(K) & \text{eficiencia} \\
 \hline
 2000 & 0.805807 \\
-2250 & 1.828785 \\
-2500 & 3.426141 \\
-2750 & 5.595158 \\
+2200 & 1.579765 \\
+2400 & 2.716444 \\
+2600 & 4.228195 \\
+2800 & 6.091532 \\
 3000 & 8.255324
 \end{array}
 \]
 
-Para o conjunto com incremento de \(200K\), os valores extremos coincidem em
-2000K e 3000K, e os intermediarios foram \(1.579765\), \(2.716444\),
-\(4.228195\) e \(6.091532\). Os dados completos estao em
-\path{output/exercicios/ex11_1.csv}.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.82\textwidth]{ex11_1_eficiencia_luminosa.png}
+    \caption{Eficiencia luminosa em funcao da temperatura no exercicio 11.1.}
+\end{figure}
 
-\subsubsection{Exercicio 11.6: radiacao emitida por radiador perfeito}
+\paragraph{Interpretacao}
+A eficiencia cresce com a temperatura, comportamento fisicamente coerente: ao
+aumentar \(T\), uma parcela maior da radiacao emitida se desloca para a faixa
+visivel. O refinamento convergiu com poucos subintervalos, e os erros relativos
+registrados no CSV ficaram abaixo de \(10^{-5}\).
 
-O exercicio 11.6 usa outra forma da integral de Planck, agora para obter a
-radiacao emitida \(Q\) entre \(\lambda_1=3.933666\cdot10^{-5}\) cm e
-\(\lambda_2=5.895923\cdot10^{-5}\) cm. O mesmo refinamento por Simpson composto
-foi usado ate erro relativo menor que \(10^{-5}\).
+\subsection{Exercicio 11.6: radiacao emitida por radiador perfeito}
 
-Os valores encontrados foram:
+\paragraph{Enunciado e objetivo numerico}
+O exercicio 11.6 pede o calculo da radiacao emitida por unidade de area e tempo:
 \[
-\begin{array}{c|c}
-T(K) & Q \\
+    Q=\int_{\lambda_1}^{\lambda_2}
+    \frac{2\pi hc^2}{\lambda^5\left(e^{hc/(k\lambda T)}-1\right)}
+    d\lambda,
+\]
+com \(\lambda_1=3.933666\cdot10^{-5}\) cm,
+\(\lambda_2=5.895923\cdot10^{-5}\) cm e temperaturas de 2000 K e 6000 K.
+
+\paragraph{Metodo empregado}
+Tambem foi usada Simpson \(1/3\) composta com refinamento automatico ate erro
+relativo menor que \(10^{-5}\). Essa escolha e adequada porque a funcao e
+continua no intervalo informado e pode ser avaliada diretamente.
+
+\paragraph{Implementacao}
+Os dados foram lidos do TXT do exercicio. O codigo usa as constantes
+\(h=6.6256\cdot10^{-27}\), \(c=2.99793\cdot10^{10}\) e
+\(k=1.38054\cdot10^{-16}\). Os resultados finais e o refinamento foram salvos
+em CSV.
+
+\paragraph{Resultados}
+\[
+\begin{array}{c|c|c|c}
+T(K) & Q & \text{subintervalos} & \text{erro relativo} \\
 \hline
-2000 & 1.631928752\cdot10^6 \\
-6000 & 1.900530912\cdot10^{10}
+2000 & 1.631928752\cdot10^6 & 16 & 7.65\cdot10^{-6}\\
+6000 & 1.900530912\cdot10^{10} & 8 & 9.90\cdot10^{-7}
 \end{array}
 \]
-A saida esta em \path{output/exercicios/ex11_6.csv}.
 
-\subsubsection{Exercicio 11.11: probabilidade em distribuicao normal}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.82\textwidth]{ex11_6_radiacao.png}
+    \caption{Radiacao calculada para 2000 K e 6000 K no exercicio 11.6.}
+\end{figure}
 
-O exercicio 11.11 pede a area acumulada de uma distribuicao normal com media
-\(\bar{x}=4.991\) kg e desvio padrao \(S=0.005\) kg ate \(x=5\). Como a normal
-e simetrica, o codigo calcula numericamente a integral de \(\bar{x}\) ate 5 e
-soma \(0.5\).
+\paragraph{Interpretacao}
+O valor de \(Q\) para 6000 K e varias ordens de grandeza maior que para 2000 K,
+o que e coerente com a forte dependencia da radiacao em relacao a temperatura.
+O grafico foi colocado em escala logaritmica para tornar visivel essa diferenca.
 
-O resultado foi:
+\subsection{Exercicio 11.11: probabilidade na distribuicao normal}
+
+\paragraph{Enunciado e objetivo numerico}
+O exercicio 11.11 trata do peso de pacotes de acucar de 5 kg. A media da amostra
+e \(\bar{x}=4.991\) kg e o desvio padrao e \(S=0.005\) kg. O objetivo e calcular
+a probabilidade acumulada ate \(x=5\):
+\[
+    F(5)=\int_{-\infty}^{5}
+    \frac{1}{S\sqrt{2\pi}}
+    e^{-\frac{1}{2}\left(\frac{x-\bar{x}}{S}\right)^2}\,dx.
+\]
+
+\paragraph{Metodo empregado}
+Como a distribuicao normal e simetrica em torno da media, foi usado:
+\[
+    F(5)=0.5+\int_{\bar{x}}^{5} f(x)\,dx.
+\]
+A integral de \(\bar{x}\) ate 5 foi calculada por Simpson composto com
+refinamento por tolerancia.
+
+\paragraph{Implementacao}
+Os parametros foram lidos do TXT do exercicio. O resultado final e o historico
+de refinamento foram salvos em CSV.
+
+\paragraph{Resultados}
+O valor encontrado foi:
 \[
     F(5)=0.964070.
 \]
-Assim, a probabilidade de um pacote ter peso menor ou igual a 5 kg e de
-aproximadamente \(96.407\%\). Em uma amostra de 100 pacotes, isso corresponde a
-aproximadamente \(96.41\) pacotes. A cauda acima de 5 kg ficou em
-\(3.593\%\). O CSV esta em \path{output/exercicios/ex11_11.csv}.
+Logo:
+\[
+    P(X\le 5)=96.407\%,
+    \qquad
+    P(X>5)=3.593\%.
+\]
+Em uma amostra de 100 pacotes, isso corresponde a aproximadamente \(96.41\)
+pacotes com peso menor ou igual a 5 kg.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.82\textwidth]{ex11_11_normal.png}
+    \caption{Distribuicao normal e area acumulada ate 5 kg no exercicio 11.11.}
+\end{figure}
+
+\paragraph{Interpretacao}
+Como a media esta abaixo de 5 kg, a area ate 5 kg e maior que 50\%. O resultado
+de aproximadamente 96.4\% indica que quase todos os pacotes devem pesar no
+maximo 5 kg, dentro do modelo normal assumido pelo enunciado. A cauda acima de
+5 kg e pequena, cerca de 3.6\%.
+
+\subsection{Validacao dos resultados de integracao}
+
+Nos tres exercicios, o processo de refinamento por tolerancia convergiu. Os
+graficos confirmam a coerencia dos resultados: a eficiencia luminosa cresce com
+a temperatura, a radiacao emitida aumenta fortemente quando a temperatura passa
+de 2000 K para 6000 K, e a area acumulada da normal fica majoritariamente a
+esquerda de 5 kg porque a media e \(4.991\) kg.
 
 \end{document}

@@ -3,3 +3,5 @@ F(5),0.9640696492083545
 probabilidade_menos_ou_igual_5kg,0.9640696492083545
 probabilidade_acima_de_5kg,0.03593035079164553
 pacotes_menos_ou_igual_5kg_em_100,96.40696492083545
+subintervalos,16
+erro_relativo,5.413685419952685e-07

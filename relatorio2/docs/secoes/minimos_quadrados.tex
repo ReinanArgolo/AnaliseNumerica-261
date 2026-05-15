@@ -1,0 +1,278 @@
+\documentclass[../main.tex]{subfiles}
+
+\begin{document}
+
+\section{Minimos Quadrados}
+
+\subsection{Metodo implementado e objetivo numerico}
+
+O metodo dos minimos quadrados foi usado para ajustar funcoes simples a dados
+experimentais. A ideia central e escolher os coeficientes de um modelo de forma
+que a soma dos quadrados dos residuos seja minima. Para pontos
+\((x_i,y_i)\), o residuo e
+\[
+    r_i = y_i - p(x_i),
+\]
+e o criterio minimizado e
+\[
+    E = \sum_{i=1}^{n} r_i^2.
+\]
+
+No projeto foram implementados tres casos principais. O primeiro e a regressao
+linear, em que \(p(x)=a_0+a_1x\). O segundo e o ajuste polinomial discreto, no
+qual o grau pode ser escolhido livremente. O terceiro e o modelo de potencia,
+\(y=ax^b\), resolvido por linearizacao logaritmica.
+
+\subsection{Implementacao em Python}
+
+Os codigos principais usados nesta parte sao:
+
+\begin{itemize}
+    \item \texttt{metodos/regressao\_linear\_mmq.py}, para a regressao linear,
+    coeficiente de correlacao, \(R^2\) e residuos;
+    \item \texttt{metodos/mmq\_discreto\_polinomial.py}, para ajuste de
+    polinomios de qualquer grau por equacoes normais;
+    \item \texttt{metodos/sistemas\_lineares.py}, com eliminacao de Gauss com
+    pivoteamento parcial;
+    \item \texttt{metodos/polinomios.py}, com avaliacao e formatacao de
+    polinomios;
+    \item \texttt{testes\_livro\_neide.py}, que organiza os exercicios do livro,
+    gera CSVs detalhados e produz os graficos.
+\end{itemize}
+
+A leitura dos dados e feita a partir de arquivos TXT em UTF-8. Cada linha de
+entrada contem os valores numericos do problema, e linhas iniciadas por
+\texttt{\#} sao ignoradas. Os resultados sao gravados em CSV tambem em UTF-8,
+usando a funcao auxiliar \texttt{salvar\_csv}.
+
+Para o ajuste polinomial de grau \(m\), o sistema normal implementado e:
+\[
+    \sum_{j=0}^{m} c_j \sum_{i=1}^{n} x_i^{j+k}
+    =
+    \sum_{i=1}^{n} y_i x_i^k,
+    \quad k=0,1,\ldots,m.
+\]
+Esse sistema e montado manualmente com somatorios e resolvido pela eliminacao
+de Gauss do proprio projeto.
+
+\subsection{Exercicio 8.1: acidentes em veiculos motorizados}
+
+\paragraph{Enunciado e objetivo numerico}
+O exercicio 8.1 apresenta dados sobre acidentes em veiculos motorizados no
+Brasil entre 1980 e 1998. O item (a) pede uma regressao linear do numero de
+acidentes no tempo, e o item (b) pede uma regressao quadratica para a taxa de
+acidentes por 10000 veiculos. Em ambos os casos, o objetivo e prever o valor
+para o ano 2000.
+
+\paragraph{Metodo empregado}
+No item (a), foi usada regressao linear por minimos quadrados. No item (b), foi
+usado minimos quadrados polinomial de grau 2. Seguindo a orientacao do
+enunciado, a variavel independente foi deslocada:
+\[
+    x = ano - 1980.
+\]
+Isso evita operar diretamente com numeros grandes como 1980, 1985 e 1998.
+
+\paragraph{Desenvolvimento matematico}
+Para os acidentes em milhares, o modelo usado foi
+\[
+    y = a_0 + a_1x.
+\]
+Para a taxa de acidentes por 10000 veiculos, o modelo usado foi
+\[
+    y = a_0 + a_1x + a_2x^2.
+\]
+Em ambos os casos, os coeficientes foram obtidos pelas equacoes normais do
+metodo dos minimos quadrados.
+
+\paragraph{Implementacao}
+Os dados foram lidos do TXT do exercicio. O script principal de testes separa
+as colunas da tabela em dois conjuntos de pontos: acidentes em milhares e
+acidentes por 10000 veiculos. Depois chama a rotina de ajuste polinomial. Os
+CSVs detalhados foram salvos separadamente, um para o modelo linear dos
+acidentes e outro para o modelo quadratico da taxa.
+
+\paragraph{Resultados}
+Para o numero de acidentes, o ajuste obtido foi:
+\[
+    y = 8.02159 + 0.362485x.
+\]
+Para \(x=20\), correspondente ao ano 2000:
+\[
+    y(20)=15.2713.
+\]
+Logo, a previsao foi de aproximadamente \(15.2713\) milhares de acidentes.
+
+Para a taxa de acidentes por 10000 veiculos, o polinomio ajustado foi:
+\[
+    y = 1.6985 - 0.0368563x + 0.00115007x^2.
+\]
+No ano 2000:
+\[
+    y(20)=1.42140.
+\]
+
+\[
+\begin{array}{c|c|c}
+\text{modelo} & \text{soma dos residuos ao quadrado} & R^2 \\
+\hline
+\text{acidentes, grau 1} & 2.123973 & 0.938071 \\
+\text{taxa, grau 2} & 0.004692 & 0.939921
+\end{array}
+\]
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.82\textwidth]{ex8_1_acidentes_linear.png}
+    \caption{Regressao linear do numero de acidentes no exercicio 8.1.}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.82\textwidth]{ex8_1_taxa_quadratica.png}
+    \caption{Regressao quadratica da taxa de acidentes no exercicio 8.1.}
+\end{figure}
+
+\paragraph{Interpretacao}
+O grafico da regressao linear mostra uma tendencia geral de crescimento do
+numero de acidentes, embora alguns pontos intermediarios se afastem da reta. O
+valor de \(R^2\) proximo de \(0.94\) indica que a reta explica boa parte da
+variacao observada. Para a taxa por 10000 veiculos, a parabola captura uma
+queda inicial e uma leve retomada ao final, o que justifica o uso do termo
+quadratico.
+
+\subsection{Exercicio 8.5: coeficiente de placa de orificio}
+
+\paragraph{Enunciado e objetivo numerico}
+O exercicio 8.5 fornece valores experimentais do coeficiente \(C\) em funcao da
+razao \(x=A/A_1\). O objetivo e ajustar os pontos por
+\[
+    C(x)=a_0+a_1x+a_2x^2.
+\]
+
+\paragraph{Metodo empregado}
+Foi usado minimos quadrados polinomial discreto de grau 2, pois ha mais pontos
+experimentais do que coeficientes. Assim, em vez de interpolar todos os dados, o
+programa encontra a parabola que minimiza a soma dos quadrados dos residuos.
+
+\paragraph{Desenvolvimento matematico}
+O sistema normal montado pelo codigo foi:
+\[
+\begin{bmatrix}
+10 & 5.5 & 3.85\\
+5.5 & 3.85 & 3.025\\
+3.85 & 3.025 & 2.5333
+\end{bmatrix}
+\begin{bmatrix}
+a_0\\a_1\\a_2
+\end{bmatrix}
+=
+\begin{bmatrix}
+7.4\\4.391\\3.2319
+\end{bmatrix}.
+\]
+Resolvendo esse sistema por eliminacao de Gauss, obtem-se os coeficientes do
+polinomio ajustado.
+
+\paragraph{Implementacao}
+Os dados foram lidos do TXT do exercicio. A funcao de ajuste polinomial monta
+as equacoes normais e chama o resolvedor de Gauss. O sistema normal foi salvo
+em um CSV proprio, e a tabela completa de comparacao foi salva no CSV principal
+do exercicio.
+
+\paragraph{Resultados}
+O polinomio obtido foi:
+\[
+    C(x)=0.650167 - 0.231742x + 0.564394x^2.
+\]
+
+\[
+\begin{array}{c|c|c|c}
+x & C\text{ observado} & C\text{ ajustado} & \text{residuo} \\
+\hline
+0.10 & 0.62 & 0.632636 & -0.012636 \\
+0.50 & 0.68 & 0.675394 & 0.004606 \\
+0.80 & 0.81 & 0.825985 & -0.015985 \\
+1.00 & 1.00 & 0.982818 & 0.017182
+\end{array}
+\]
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.82\textwidth]{ex8_5_orificio.png}
+    \caption{Ajuste quadratico para o coeficiente \(C\) no exercicio 8.5.}
+\end{figure}
+
+\paragraph{Interpretacao}
+O ajuste acompanha a tendencia crescente dos dados. Os maiores residuos em
+modulo aparecem proximos das extremidades, principalmente em \(x=1\), onde o
+valor tabelado e \(1.00\) e o valor ajustado e \(0.982818\). Ainda assim, os
+residuos sao pequenos para a escala do problema, e o grafico mostra uma curva
+coerente com os pontos experimentais.
+
+\subsection{Exercicio 8.11: modelo de potencia para o PNB}
+
+\paragraph{Enunciado e objetivo numerico}
+O exercicio 8.11 fornece o Produto Nacional Bruto em dolares correntes e em
+dolares constantes. O enunciado pede que ambas as series sejam aproximadas por
+uma funcao do tipo:
+\[
+    y = ax^b.
+\]
+Depois, o modelo deve ser usado para prever os valores no ano 2000.
+
+\paragraph{Metodo empregado}
+O modelo de potencia nao e linear nos parametros originais. Por isso, foi usada
+a transformacao logaritmica:
+\[
+    \ln y = \ln a + b\ln x.
+\]
+Assim, o problema vira uma regressao linear entre \(X=\ln x\) e \(Y=\ln y\).
+Como \(x\) precisa ser positivo, usei \(x=ano-1979\).
+
+\paragraph{Implementacao}
+A funcao de regressao por potencia transforma os pontos por logaritmo, chama o
+ajuste linear e depois recupera \(a=e^{c_0}\). Os dados de entrada estao no TXT
+do exercicio. O CSV resumido guarda os parametros dos dois modelos, e a tabela
+detalhada registra valores observados, valores estimados e residuos.
+
+\paragraph{Resultados}
+Para o PNB em dolares correntes:
+\[
+    y = 225.107890x^{0.425689},
+    \quad y(21)=822.7053.
+\]
+Para o PNB em dolares constantes:
+\[
+    y = 329.451061x^{0.236483},
+    \quad y(21)=676.8197.
+\]
+A razao entre as previsoes foi:
+\[
+    \frac{822.7053}{676.8197}=1.21555.
+\]
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.82\textwidth]{ex8_11_pnb_corrente_constante.png}
+    \caption{Ajuste por modelo de potencia para os PNBs do exercicio 8.11.}
+\end{figure}
+
+\paragraph{Interpretacao}
+O modelo indica que o PNB em dolares correntes cresce mais rapidamente do que o
+PNB em dolares constantes. A razao \(1.21555\) sugere que, para 2000, o valor em
+dolares correntes seria cerca de \(21.55\%\) maior que o valor em dolares
+constantes. Numericamente, essa diferenca representa o efeito acumulado da
+inflacao no modelo ajustado.
+
+\subsection{Validacao dos resultados de minimos quadrados}
+
+Os graficos confirmam que os ajustes seguem a tendencia principal dos dados. Em
+8.1, os dois modelos apresentaram \(R^2\) proximo de \(0.94\), indicando boa
+capacidade explicativa para uma tabela pequena. Em 8.5, os residuos sao
+pequenos e alternam sinais, comportamento esperado em um ajuste por minimos
+quadrados. Em 8.11, a transformacao logaritmica permitiu tratar o modelo de
+potencia com as mesmas ferramentas da regressao linear, sem usar rotinas prontas
+de ajuste.
+
+\end{document}

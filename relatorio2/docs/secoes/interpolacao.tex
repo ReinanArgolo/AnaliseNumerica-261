@@ -4,68 +4,151 @@
 
 \section{Interpolacao Polinomial}
 
-\subsection{Polinomios de Lagrange}
+\subsection{Metodo implementado e objetivo numerico}
 
-A interpolacao de Lagrange foi implementada montando cada base \(L_i(x)\)
-diretamente:
+A interpolacao polinomial foi usada para construir um polinomio que passa
+exatamente por um conjunto de pontos conhecidos. Diferentemente dos minimos
+quadrados, aqui nao se busca reduzir residuos: se os pontos sao distintos, o
+polinomio interpolador satisfaz
 \[
-    L_i(x) = \prod_{j \ne i} \frac{x - x_j}{x_i - x_j}.
-\]
-O polinomio final e calculado por
-\[
-    P(x) = \sum_{i=0}^{n} y_i L_i(x).
+    P(x_i)=y_i,\quad i=0,1,\ldots,n.
 \]
 
-No codigo, os termos sao multiplicados como polinomios simples, guardados pela
-lista de coeficientes \([c_0,c_1,\ldots,c_n]\). Isso deixa facil avaliar o
-polinomio em qualquer ponto e tambem escrever a expressao obtida no CSV.
+Foram implementadas duas formas equivalentes do polinomio interpolador:
+Lagrange e Newton por diferencas divididas. A forma de Lagrange e direta e boa
+para demonstrar a construcao teorica. A forma de Newton e mais pratica quando
+se deseja reaproveitar uma tabela de diferencas divididas.
 
-\subsection{Diferencas divididas de Newton}
+\subsection{Implementacao em Python}
 
-No metodo de Newton, primeiro e montada a tabela de diferencas divididas. O
-polinomio fica na forma:
+Os arquivos principais sao:
+
+\begin{itemize}
+    \item \texttt{metodos/interpolacao\_lagrange.py}, que monta as bases
+    \(L_i(x)\), multiplica polinomios e soma os termos \(y_iL_i(x)\);
+    \item \texttt{metodos/interpolacao\_newton.py}, que calcula diferencas
+    divididas e avalia o polinomio pela forma aninhada de Newton;
+    \item \texttt{metodos/polinomios.py}, que avalia, soma, multiplica e formata
+    polinomios;
+    \item \texttt{testes\_livro\_neide.py}, que seleciona os dados dos
+    exercicios, escolhe pontos proximos quando necessario e gera os CSVs.
+\end{itemize}
+
+Na forma de Lagrange, cada base e calculada por
 \[
-    P(x) = f[x_0] + f[x_0,x_1](x-x_0) + \cdots
-    + f[x_0,\ldots,x_n](x-x_0)\cdots(x-x_{n-1}).
+    L_i(x)=\prod_{j\ne i}\frac{x-x_j}{x_i-x_j},
+\]
+e o polinomio final e
+\[
+    P(x)=\sum_{i=0}^{n}y_iL_i(x).
 \]
 
-Essa forma e conveniente porque permite avaliar o polinomio com uma estrutura
-parecida com o metodo de Horner. Para facilitar a leitura dos resultados, o
-codigo tambem converte o polinomio para potencias de \(x\).
-
-\subsection{Problemas teste}
-
-\subsubsection{Exercicio 10.2: trajetoria de um projetil}
-
-O exercicio 10.2 fornece os pontos \((0,0)\), \((10,6)\) e \((20,4)\) da
-trajetoria de um projetil. Usando interpolacao por Lagrange, foi obtido:
+Na forma de Newton, o polinomio e escrito como
 \[
-    P(x) = x - 0.04x^2.
+    P(x)=f[x_0]+f[x_0,x_1](x-x_0)+\cdots+
+    f[x_0,\ldots,x_n](x-x_0)\cdots(x-x_{n-1}).
 \]
+O codigo tambem converte o polinomio para potencias de \(x\), pois essa forma e
+mais simples de apresentar no relatorio.
 
+\subsection{Exercicio 10.2: trajetoria de um projetil}
+
+\paragraph{Enunciado e objetivo numerico}
+O exercicio informa que um projetil parte da origem, passa pelo ponto
+\((10,6)\) e atinge uma barreira em \((20,4)\). Com esses tres pontos, o
+objetivo e interpolar a trajetoria, determinar o angulo de lancamento
+\(\psi\), a velocidade inicial \(v_0\), e calcular a altitude em \(x=5\) m.
+
+\paragraph{Metodo empregado}
+Foi usada interpolacao por Lagrange, pois os tres pontos determinam uma unica
+parabola. Como a trajetoria fisica de um projetil sem resistencia do ar tambem
+e quadratica em \(x\), o polinomio interpolador tem interpretacao direta.
+
+\paragraph{Desenvolvimento matematico}
+Com os pontos \((0,0)\), \((10,6)\) e \((20,4)\), o polinomio obtido foi:
+\[
+    P(x)=x-0.04x^2.
+\]
 Comparando com a equacao teorica
 \[
-    y = x\tan\psi - \frac{1}{2}g\frac{x^2}{v_0^2\cos^2\psi},
+    y=x\tan\psi-\frac{1}{2}g\frac{x^2}{v_0^2\cos^2\psi},
 \]
-temos \(\tan\psi = 1\), logo \(\psi = 45^\circ\). Com \(g=9.86\), a velocidade
-inicial calculada foi:
+temos:
 \[
-    v_0 = 15.7003 \text{ m/s}.
+    \tan\psi=1 \quad\Rightarrow\quad \psi=45^\circ.
 \]
-No ponto \(x=5\), a altitude calculada foi:
+Como o coeficiente de \(x^2\) e \(-0.04\), usando \(g=9.86\), obtem-se:
 \[
-    P(5)=4.0\text{ m}.
+    v_0=\sqrt{\frac{-g(1+\tan^2\psi)}{2(-0.04)}}=15.7003\text{ m/s}.
 \]
-Os resultados estao em \path{output/exercicios/ex10_2.csv}.
 
-\subsubsection{Exercicio 10.6: resistencia de um fio}
+\paragraph{Implementacao}
+Os dados foram lidos do TXT do exercicio. A rotina de Lagrange construiu o
+polinomio, e a rotina de avaliacao foi usada para calcular \(P(5)\). O resumo
+numerico fica no CSV do exercicio.
 
-O exercicio 10.6 pede estimativas de resistencia para comprimentos de 1730 m e
-3200 m usando parabolas de grau 2 e 3. Para cada consulta, o programa escolheu
-os pontos mais proximos e montou o polinomio interpolador por diferencas
-divididas de Newton.
+\paragraph{Resultados}
+A altitude em \(x=5\) foi:
+\[
+    P(5)=5-0.04(25)=4.0\text{ m}.
+\]
 
-Os valores obtidos foram:
+\[
+\begin{array}{c|c}
+\text{grandeza} & \text{valor} \\
+\hline
+\psi & 45^\circ \\
+v_0 & 15.7003\text{ m/s} \\
+P(5) & 4.0\text{ m}
+\end{array}
+\]
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.82\textwidth]{ex10_2_trajetoria_projetil.png}
+    \caption{Trajetoria interpolada do projetil no exercicio 10.2.}
+\end{figure}
+
+\paragraph{Interpretacao}
+O grafico mostra a parabola passando exatamente pelos tres pontos informados no
+enunciado. O angulo de \(45^\circ\) surge porque o termo linear do polinomio e
+igual a 1, isto e, \(\tan\psi=1\). A altitude em 5 m fica abaixo da altitude em
+10 m, mas ainda em subida, coerente com o formato da trajetoria.
+
+\subsection{Exercicio 10.6: resistencia de um fio}
+
+\paragraph{Enunciado e objetivo numerico}
+O exercicio fornece resistencias medidas para varios comprimentos de um fio e
+pede estimativas para 1730 m e 3200 m usando parabolas de grau 2 e grau 3.
+
+\paragraph{Metodo empregado}
+Foi usada interpolacao de Newton por diferencas divididas. Para cada valor a
+estimar, o programa escolheu os pontos mais proximos, pois a interpolacao tende
+a ser mais confiavel quando os nos estao perto do ponto consultado.
+
+\paragraph{Desenvolvimento matematico}
+Para \(x=1730\), os pontos usados no grau 2 foram \(1000\), \(1500\) e \(2000\).
+No grau 3, foi acrescentado o ponto \(2500\). Para \(x=3200\), foram usados os
+pontos \(2500\), \(3000\), \(3500\) e, no grau 3, tambem \(4000\).
+
+Um exemplo de tabela de diferencas divididas para 1730 m e grau 2 e:
+\[
+\begin{array}{c|c|c|c}
+x & f[x] & f[x_i,x_{i+1}] & f[x_i,x_{i+1},x_{i+2}]\\
+\hline
+1000 & 5.48 & 0.00484 & 1.36\cdot10^{-6}\\
+1500 & 7.90 & 0.00620 & \\
+2000 & 11.00 & &
+\end{array}
+\]
+
+\paragraph{Implementacao}
+A tabela de entrada esta no TXT do exercicio. A rotina de diferencas divididas
+calcula os coeficientes de Newton, e a conversao para potencias gera uma forma
+expandida do polinomio. Os pontos escolhidos e as diferencas divididas foram
+salvos em CSVs separados para facilitar a verificacao.
+
+\paragraph{Resultados}
 \[
 \begin{array}{c|c|c}
 \text{comprimento} & \text{grau} & \text{resistencia aproximada} \\
@@ -76,30 +159,76 @@ Os valores obtidos foram:
 3200 & 3 & 17.899840
 \end{array}
 \]
-A pequena diferenca entre grau 2 e grau 3 mostra o efeito de incluir mais um
-ponto na interpolacao. A saida completa esta em
-\path{output/exercicios/ex10_6.csv}.
 
-\subsubsection{Exercicio 10.9: circuito com varistor}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.82\textwidth]{ex10_6_resistencia_interpolacao.png}
+    \caption{Interpolacao da resistencia do fio no exercicio 10.6.}
+\end{figure}
 
-No exercicio 10.9, a corrente \(I\) e tabelada em funcao da tensao \(E_2\) no
-varistor. No item (a), foi usado o polinomio interpolador sobre todos os pontos
-para calcular \(I\) quando \(E_2=2.3\). O valor obtido foi:
+\paragraph{Interpretacao}
+As estimativas de grau 2 e grau 3 ficaram proximas, mas nao identicas. Isso e
+esperado: ao usar mais um ponto, o polinomio passa a incorporar informacao de
+uma regiao um pouco maior da tabela. A coerencia entre os dois valores sugere
+que os resultados sao estaveis para os pontos escolhidos.
+
+\subsection{Exercicio 10.9: circuito com varistor}
+
+\paragraph{Enunciado e objetivo numerico}
+O exercicio apresenta uma tabela de corrente \(I\) em funcao da tensao \(E_2\)
+em um varistor. No item (a), pede-se a corrente para \(E_2=2.3\), e depois as
+tensoes \(E_1\) e \(E\) no circuito com \(R_1=10\Omega\). No item (b), pede-se
+uma interpolacao inversa de grau 2 para determinar \(E_2\) quando \(E_1=10\) V.
+
+\paragraph{Metodo empregado}
+No item (a), foi usada interpolacao direta por Newton sobre todos os pontos da
+tabela. No item (b), foi feita interpolacao inversa: a corrente passou a ser a
+variavel independente e \(E_2\) passou a ser a variavel dependente. Como
 \[
-    I(2.3) = 0.810152.
+    E_1=R_1I,
 \]
-Como \(R_1=10\Omega\), entao:
+quando \(E_1=10\) e \(R_1=10\), temos \(I=1\).
+
+\paragraph{Implementacao}
+Os dados foram lidos do TXT do exercicio. A avaliacao do polinomio de Newton
+calculou \(I(2.3)\). Para o item (b), foram escolhidos os tres pontos mais
+proximos de \(I=1\), salvos em um CSV especifico da interpolacao inversa.
+
+\paragraph{Resultados}
+Para \(E_2=2.3\):
 \[
-    E_1 = R_1 I = 8.10152,
+    I=0.810152\text{ A}.
+\]
+Assim:
+\[
+    E_1=10I=8.10152\text{ V},
     \quad
-    E = E_1 + E_2 = 10.40152.
+    E=E_1+E_2=10.40152\text{ V}.
+\]
+Na interpolacao inversa, para \(I=1\), o resultado foi:
+\[
+    E_2=2.46417\text{ V}.
 \]
 
-No item (b), foi usada interpolacao inversa de grau 2. Para \(E_1=10\), temos
-\(I=1\), e a tensao estimada no varistor foi:
-\[
-    E_2 = 2.46417\text{ V}.
-\]
-Os resultados estao registrados em \path{output/exercicios/ex10_9.csv}.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.82\textwidth]{ex10_9_varistor.png}
+    \caption{Interpolacao da curva do varistor no exercicio 10.9.}
+\end{figure}
+
+\paragraph{Interpretacao}
+A curva do varistor cresce de forma nao linear, confirmando que a relacao entre
+corrente e tensao nao e simplesmente ohmica. A interpolacao direta fornece a
+corrente para uma tensao intermediaria, enquanto a interpolacao inversa permite
+resolver o problema contrario: encontrar a tensao associada a uma corrente
+determinada.
+
+\subsection{Validacao dos resultados de interpolacao}
+
+No exercicio 10.2, a parabola passa exatamente pelos pontos do enunciado e
+possui interpretacao fisica coerente. No exercicio 10.6, os resultados de grau
+2 e 3 sao proximos, indicando estabilidade local da interpolacao. No exercicio
+10.9, o grafico confirma a curvatura da relacao \(E_2 \times I\), justificando
+o uso de um polinomio em vez de uma reta.
 
 \end{document}
