@@ -44,9 +44,30 @@ globais do ajuste.
 
 \subsection{Problemas teste}
 
-Esta secao deve ser preenchida com pelo menos tres problemas aplicados. Para
-cada problema, recomenda-se registrar os dados de entrada, a reta obtida, os
-residuos e uma verificacao numerica dos resultados.
+\subsubsection{Exercicio 8.1: acidentes em veiculos motorizados}
+
+O exercicio 8.1 pede uma regressao linear para o numero de acidentes no tempo.
+Seguindo a recomendacao do proprio enunciado, usei a variavel
+\[
+    x = ano - 1980,
+\]
+evitando trabalhar diretamente com anos grandes. A entrada usada esta em
+\path{input/exercicios/ex8_1_acidentes.txt}.
+
+Para o numero de acidentes, em milhares, o programa obteve:
+\[
+    y = 8.02159 + 0.362485x.
+\]
+Para o ano 2000, temos \(x=20\), entao:
+\[
+    y(20) = 15.2713.
+\]
+Assim, a previsao obtida foi de aproximadamente \(15.2713\) milhares de
+acidentes. O resultado completo foi salvo em
+\path{output/exercicios/ex8_1.csv}.
+
+Esse teste verifica o metodo de regressao linear porque usa exatamente o modelo
+\(y=ax+b\), alem de exercitar o calculo dos coeficientes por minimos quadrados.
 
 \subsection{Dificuldades enfrentadas}
 

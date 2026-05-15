@@ -35,4 +35,66 @@ um processo simples: calcula-se Simpson \(1/3\) composto, dobra-se o numero de
 subintervalos e compara-se a variacao relativa entre duas aproximacoes
 consecutivas.
 
+\subsection{Problemas teste}
+
+\subsubsection{Exercicio 11.1: eficiencia luminosa de corpo negro}
+
+O exercicio 11.1 pede o calculo da eficiencia luminosa por uma integral da
+equacao de Planck no intervalo de comprimentos de onda de \(4\cdot10^{-5}\) a
+\(7\cdot10^{-5}\) cm. A integral foi calculada por Simpson \(1/3\) composto,
+refinando o numero de subintervalos ate a variacao relativa ficar menor que
+\(10^{-5}\).
+
+Para o conjunto com incremento de \(250K\), os resultados foram:
+\[
+\begin{array}{c|c}
+T(K) & \text{eficiencia} \\
+\hline
+2000 & 0.805807 \\
+2250 & 1.828785 \\
+2500 & 3.426141 \\
+2750 & 5.595158 \\
+3000 & 8.255324
+\end{array}
+\]
+
+Para o conjunto com incremento de \(200K\), os valores extremos coincidem em
+2000K e 3000K, e os intermediarios foram \(1.579765\), \(2.716444\),
+\(4.228195\) e \(6.091532\). Os dados completos estao em
+\path{output/exercicios/ex11_1.csv}.
+
+\subsubsection{Exercicio 11.6: radiacao emitida por radiador perfeito}
+
+O exercicio 11.6 usa outra forma da integral de Planck, agora para obter a
+radiacao emitida \(Q\) entre \(\lambda_1=3.933666\cdot10^{-5}\) cm e
+\(\lambda_2=5.895923\cdot10^{-5}\) cm. O mesmo refinamento por Simpson composto
+foi usado ate erro relativo menor que \(10^{-5}\).
+
+Os valores encontrados foram:
+\[
+\begin{array}{c|c}
+T(K) & Q \\
+\hline
+2000 & 1.631928752\cdot10^6 \\
+6000 & 1.900530912\cdot10^{10}
+\end{array}
+\]
+A saida esta em \path{output/exercicios/ex11_6.csv}.
+
+\subsubsection{Exercicio 11.11: probabilidade em distribuicao normal}
+
+O exercicio 11.11 pede a area acumulada de uma distribuicao normal com media
+\(\bar{x}=4.991\) kg e desvio padrao \(S=0.005\) kg ate \(x=5\). Como a normal
+e simetrica, o codigo calcula numericamente a integral de \(\bar{x}\) ate 5 e
+soma \(0.5\).
+
+O resultado foi:
+\[
+    F(5)=0.964070.
+\]
+Assim, a probabilidade de um pacote ter peso menor ou igual a 5 kg e de
+aproximadamente \(96.407\%\). Em uma amostra de 100 pacotes, isso corresponde a
+aproximadamente \(96.41\) pacotes. A cauda acima de 5 kg ficou em
+\(3.593\%\). O CSV esta em \path{output/exercicios/ex11_11.csv}.
+
 \end{document}

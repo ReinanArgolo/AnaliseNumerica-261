@@ -32,12 +32,84 @@ composta de Simpson, tambem implementada diretamente no codigo.
 
 \subsection{Arquivos de entrada e saida}
 
-O caso discreto le `input/mmq\_discreto.txt`, com um ponto por linha. O caso
-continuo le `input/mmq\_continuo.txt`, com os parametros `funcao`, `a`, `b`,
-`grau` e `subintervalos`.
+O caso discreto le \path{input/mmq_discreto.txt}, com um ponto por linha. O caso
+continuo le o arquivo \path{input/mmq_continuo.txt}. Nele sao informados os
+parametros \texttt{funcao}, \texttt{a}, \texttt{b}, \texttt{grau} e
+\texttt{subintervalos}.
 
-Ambos os metodos escrevem CSV em UTF-8 na pasta `output`, contendo o polinomio
+Ambos os metodos escrevem CSV em UTF-8 na pasta \texttt{output}, contendo o polinomio
 encontrado, os coeficientes e uma tabela de comparacao entre os valores reais e
 os valores aproximados.
+
+\subsection{Problemas teste}
+
+\subsubsection{Exercicio 8.1: regressao quadratica da taxa de acidentes}
+
+A segunda parte do exercicio 8.1 pede uma regressao quadratica para os acidentes
+por 10000 veiculos. Novamente foi usado \(x = ano - 1980\). O polinomio obtido
+foi:
+\[
+    p(x) = 1.6985 - 0.0368563x + 0.00115007x^2.
+\]
+Para o ano 2000, isto e, \(x=20\), o valor encontrado foi:
+\[
+    p(20) = 1.42140.
+\]
+Esse resultado representa a previsao de aproximadamente \(1.4214\) acidentes por
+10000 veiculos. O CSV gerado esta em
+\texttt{output/exercicios/ex8\_1.csv}.
+
+\subsubsection{Exercicio 8.5: coeficiente da placa de orificio}
+
+O exercicio 8.5 fornece valores experimentais do coeficiente \(C\) em funcao de
+\(x=A/A_1\), e pede o ajuste por
+\[
+    C(x) = a_0 + a_1x + a_2x^2.
+\]
+Com os dados de \texttt{input/exercicios/ex8\_5\_orificio.txt}, o programa
+obteve:
+\[
+    C(x) = 0.650167 - 0.231742x + 0.564394x^2.
+\]
+
+Alguns valores calculados foram:
+\[
+\begin{array}{c|c|c}
+x & C\text{ da tabela} & C\text{ ajustado} \\
+\hline
+0.10 & 0.62 & 0.632636 \\
+0.50 & 0.68 & 0.675394 \\
+0.80 & 0.81 & 0.825985 \\
+1.00 & 1.00 & 0.982818
+\end{array}
+\]
+Os residuos ficaram pequenos para a maioria dos pontos, indicando um ajuste
+coerente com a tendencia crescente dos dados. A tabela completa esta em
+\path{output/exercicios/ex8_5.csv}.
+
+\subsubsection{Exercicio 8.11: PNB por modelo de potencia}
+
+O exercicio 8.11 pede o ajuste dos PNBs por uma funcao do tipo \(a x^b\). Para
+usar minimos quadrados, apliquei logaritmo nos dois lados:
+\[
+    \ln y = \ln a + b\ln x.
+\]
+Como o modelo de potencia exige \(x>0\), usei \(x=ano-1979\).
+
+Para o PNB em dolares correntes, o programa obteve:
+\[
+    y = 225.107890x^{0.425689},
+\]
+com previsao para 2000 igual a \(822.7053\) milhoes. Para o PNB em dolares
+constantes:
+\[
+    y = 329.451061x^{0.236483},
+\]
+com previsao para 2000 igual a \(676.8197\) milhoes.
+
+A razao entre os valores previstos foi \(1.21555\). Isso indica que, no ano
+2000, o PNB em dolares correntes ficaria cerca de \(21.55\%\) acima do valor em
+dolares constantes segundo o modelo ajustado. Os resultados foram salvos em
+\path{output/exercicios/ex8_11.csv}.
 
 \end{document}

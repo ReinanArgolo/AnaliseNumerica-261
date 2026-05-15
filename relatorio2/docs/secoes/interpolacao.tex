@@ -33,4 +33,73 @@ Essa forma e conveniente porque permite avaliar o polinomio com uma estrutura
 parecida com o metodo de Horner. Para facilitar a leitura dos resultados, o
 codigo tambem converte o polinomio para potencias de \(x\).
 
+\subsection{Problemas teste}
+
+\subsubsection{Exercicio 10.2: trajetoria de um projetil}
+
+O exercicio 10.2 fornece os pontos \((0,0)\), \((10,6)\) e \((20,4)\) da
+trajetoria de um projetil. Usando interpolacao por Lagrange, foi obtido:
+\[
+    P(x) = x - 0.04x^2.
+\]
+
+Comparando com a equacao teorica
+\[
+    y = x\tan\psi - \frac{1}{2}g\frac{x^2}{v_0^2\cos^2\psi},
+\]
+temos \(\tan\psi = 1\), logo \(\psi = 45^\circ\). Com \(g=9.86\), a velocidade
+inicial calculada foi:
+\[
+    v_0 = 15.7003 \text{ m/s}.
+\]
+No ponto \(x=5\), a altitude calculada foi:
+\[
+    P(5)=4.0\text{ m}.
+\]
+Os resultados estao em \path{output/exercicios/ex10_2.csv}.
+
+\subsubsection{Exercicio 10.6: resistencia de um fio}
+
+O exercicio 10.6 pede estimativas de resistencia para comprimentos de 1730 m e
+3200 m usando parabolas de grau 2 e 3. Para cada consulta, o programa escolheu
+os pontos mais proximos e montou o polinomio interpolador por diferencas
+divididas de Newton.
+
+Os valores obtidos foram:
+\[
+\begin{array}{c|c|c}
+\text{comprimento} & \text{grau} & \text{resistencia aproximada} \\
+\hline
+1730 & 2 & 9.241544 \\
+1730 & 3 & 9.292921 \\
+3200 & 2 & 17.796800 \\
+3200 & 3 & 17.899840
+\end{array}
+\]
+A pequena diferenca entre grau 2 e grau 3 mostra o efeito de incluir mais um
+ponto na interpolacao. A saida completa esta em
+\path{output/exercicios/ex10_6.csv}.
+
+\subsubsection{Exercicio 10.9: circuito com varistor}
+
+No exercicio 10.9, a corrente \(I\) e tabelada em funcao da tensao \(E_2\) no
+varistor. No item (a), foi usado o polinomio interpolador sobre todos os pontos
+para calcular \(I\) quando \(E_2=2.3\). O valor obtido foi:
+\[
+    I(2.3) = 0.810152.
+\]
+Como \(R_1=10\Omega\), entao:
+\[
+    E_1 = R_1 I = 8.10152,
+    \quad
+    E = E_1 + E_2 = 10.40152.
+\]
+
+No item (b), foi usada interpolacao inversa de grau 2. Para \(E_1=10\), temos
+\(I=1\), e a tensao estimada no varistor foi:
+\[
+    E_2 = 2.46417\text{ V}.
+\]
+Os resultados estao registrados em \path{output/exercicios/ex10_9.csv}.
+
 \end{document}
