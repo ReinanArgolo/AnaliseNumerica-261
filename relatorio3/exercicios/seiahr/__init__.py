@@ -1,0 +1,1 @@
+"""Caso epidêmico hipotético SEIAHR."""

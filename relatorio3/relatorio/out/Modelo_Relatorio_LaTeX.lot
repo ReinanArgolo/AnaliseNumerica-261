@@ -1,0 +1,25 @@
+\babel@toc {brazil}{}\relax 
+\contentsline {table}{\numberline {1}{\ignorespaces Resultados do Método de Euler Explícito no Exercício 12.3.}}{7}{table.1}%
+\contentsline {table}{\numberline {2}{\ignorespaces Resultados do Método de Euler Explícito no Exercício 12.10.}}{8}{table.2}%
+\contentsline {table}{\numberline {3}{\ignorespaces Valores inicial e final do Método de Euler Explícito no Exercício 12.16.}}{8}{table.3}%
+\contentsline {table}{\numberline {4}{\ignorespaces Estado final do Método de Euler Explícito no modelo SEIAHR normalizado.}}{9}{table.4}%
+\contentsline {table}{\numberline {5}{\ignorespaces Resultados do Método de Heun no Exercício 12.3.}}{10}{table.5}%
+\contentsline {table}{\numberline {6}{\ignorespaces Resultados do Método de Heun no Exercício 12.10.}}{11}{table.6}%
+\contentsline {table}{\numberline {7}{\ignorespaces Valores inicial e final do Método de Heun no Exercício 12.16.}}{12}{table.7}%
+\contentsline {table}{\numberline {8}{\ignorespaces Estado final do Método de Heun no modelo SEIAHR normalizado.}}{12}{table.8}%
+\contentsline {table}{\numberline {9}{\ignorespaces Resultados do Método do Ponto Médio no Exercício 12.3.}}{14}{table.9}%
+\contentsline {table}{\numberline {10}{\ignorespaces Resultados do Método do Ponto Médio no Exercício 12.10.}}{14}{table.10}%
+\contentsline {table}{\numberline {11}{\ignorespaces Valores inicial e final do Método do Ponto Médio no Exercício 12.16.}}{15}{table.11}%
+\contentsline {table}{\numberline {12}{\ignorespaces Estado final do Método do Ponto Médio no modelo SEIAHR normalizado.}}{15}{table.12}%
+\contentsline {table}{\numberline {13}{\ignorespaces Resultados do Método de Runge-Kutta de Quarta Ordem no Exercício 12.3.}}{17}{table.13}%
+\contentsline {table}{\numberline {14}{\ignorespaces Resultados do Método de Runge-Kutta de Quarta Ordem no Exercício 12.10.}}{18}{table.14}%
+\contentsline {table}{\numberline {15}{\ignorespaces Valores inicial e final do Método de Runge-Kutta de Quarta Ordem no Exercício 12.16.}}{18}{table.15}%
+\contentsline {table}{\numberline {16}{\ignorespaces Estado final do Método de Runge-Kutta de Quarta Ordem no modelo SEIAHR normalizado.}}{19}{table.16}%
+\contentsline {table}{\numberline {17}{\ignorespaces Valores finais no Exercício 12.3.}}{20}{table.17}%
+\contentsline {table}{\numberline {18}{\ignorespaces Erros absolutos finais no Exercício 12.3.}}{20}{table.18}%
+\contentsline {table}{\numberline {19}{\ignorespaces Valores e erros finais no Exercício 12.10.}}{21}{table.19}%
+\contentsline {table}{\numberline {20}{\ignorespaces Valores selecionados do Exercício 12.16 pelo método RK4.}}{22}{table.20}%
+\contentsline {table}{\numberline {21}{\ignorespaces Evolução selecionada do modelo SEIAHR normalizado pelo RK4.}}{23}{table.21}%
+\contentsline {table}{\numberline {22}{\ignorespaces Comparação ponto a ponto do Método Shooting no problema da haste.}}{25}{table.22}%
+\contentsline {table}{\numberline {23}{\ignorespaces Comparação ponto a ponto das Diferenças Finitas no problema da haste.}}{27}{table.23}%
+\contentsline {table}{\numberline {24}{\ignorespaces Comparação ponto a ponto entre Shooting e Diferenças Finitas.}}{28}{table.24}%

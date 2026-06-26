@@ -1,0 +1,1 @@
+"""Implementações dos métodos numéricos."""

@@ -1,0 +1,82 @@
+\babel@toc {brazil}{}\relax 
+\contentsline {section}{\numberline {1}Linguagem Escolhida e Justificativas}{5}{section.1}%
+\contentsline {section}{\numberline {2}Métodos para Problemas de Valor Inicial}{6}{section.2}%
+\contentsline {subsection}{\numberline {2.1}Método de Euler Explícito}{6}{subsection.2.1}%
+\contentsline {subsubsection}{\numberline {2.1.1}Fundamentação Teórica}{6}{subsubsection.2.1.1}%
+\contentsline {subsubsection}{\numberline {2.1.2}Estratégia de Implementação}{6}{subsubsection.2.1.2}%
+\contentsline {subsubsection}{\numberline {2.1.3}Estrutura dos Arquivos de Entrada e Saída}{6}{subsubsection.2.1.3}%
+\contentsline {subsubsection}{\numberline {2.1.4}Problemas Teste}{7}{subsubsection.2.1.4}%
+\contentsline {paragraph}{Problema Teste 1: Exercício 12.3 -- velocidade com resistência do ar}{7}{section*.4}%
+\contentsline {paragraph}{Problema Teste 2: Exercício 12.10 -- crescimento populacional}{7}{section*.5}%
+\contentsline {paragraph}{Problema Teste 3: Exercício 12.16 -- sistema hospedeiro-parasita}{8}{section*.6}%
+\contentsline {paragraph}{Problema Teste 4: Modelo SEIAHR -- simulação epidêmica hipotética}{8}{section*.7}%
+\contentsline {subsubsection}{\numberline {2.1.5}Validação dos Resultados}{9}{subsubsection.2.1.5}%
+\contentsline {subsubsection}{\numberline {2.1.6}Dificuldades Enfrentadas}{9}{subsubsection.2.1.6}%
+\contentsline {subsection}{\numberline {2.2}Método de Euler Melhorado / Heun}{9}{subsection.2.2}%
+\contentsline {subsubsection}{\numberline {2.2.1}Fundamentação Teórica}{9}{subsubsection.2.2.1}%
+\contentsline {subsubsection}{\numberline {2.2.2}Estratégia de Implementação}{10}{subsubsection.2.2.2}%
+\contentsline {subsubsection}{\numberline {2.2.3}Estrutura dos Arquivos de Entrada e Saída}{10}{subsubsection.2.2.3}%
+\contentsline {subsubsection}{\numberline {2.2.4}Problemas Teste}{10}{subsubsection.2.2.4}%
+\contentsline {paragraph}{Problema Teste 1: Exercício 12.3 -- velocidade com resistência do ar}{10}{section*.8}%
+\contentsline {paragraph}{Problema Teste 2: Exercício 12.10 -- crescimento populacional}{11}{section*.9}%
+\contentsline {paragraph}{Problema Teste 3: Exercício 12.16 -- sistema hospedeiro-parasita}{11}{section*.10}%
+\contentsline {paragraph}{Problema Teste 4: Modelo SEIAHR -- simulação epidêmica hipotética}{12}{section*.11}%
+\contentsline {subsubsection}{\numberline {2.2.5}Validação dos Resultados}{12}{subsubsection.2.2.5}%
+\contentsline {subsubsection}{\numberline {2.2.6}Dificuldades Enfrentadas}{13}{subsubsection.2.2.6}%
+\contentsline {subsection}{\numberline {2.3}Método do Ponto Médio}{13}{subsection.2.3}%
+\contentsline {subsubsection}{\numberline {2.3.1}Fundamentação Teórica}{13}{subsubsection.2.3.1}%
+\contentsline {subsubsection}{\numberline {2.3.2}Estratégia de Implementação}{13}{subsubsection.2.3.2}%
+\contentsline {subsubsection}{\numberline {2.3.3}Estrutura dos Arquivos de Entrada e Saída}{13}{subsubsection.2.3.3}%
+\contentsline {subsubsection}{\numberline {2.3.4}Problemas Teste}{13}{subsubsection.2.3.4}%
+\contentsline {paragraph}{Problema Teste 1: Exercício 12.3 -- velocidade com resistência do ar}{13}{section*.12}%
+\contentsline {paragraph}{Problema Teste 2: Exercício 12.10 -- crescimento populacional}{14}{section*.13}%
+\contentsline {paragraph}{Problema Teste 3: Exercício 12.16 -- sistema hospedeiro-parasita}{15}{section*.14}%
+\contentsline {paragraph}{Problema Teste 4: Modelo SEIAHR -- simulação epidêmica hipotética}{15}{section*.15}%
+\contentsline {subsubsection}{\numberline {2.3.5}Validação dos Resultados}{16}{subsubsection.2.3.5}%
+\contentsline {subsubsection}{\numberline {2.3.6}Dificuldades Enfrentadas}{16}{subsubsection.2.3.6}%
+\contentsline {subsection}{\numberline {2.4}Método de Runge-Kutta de Quarta Ordem}{16}{subsection.2.4}%
+\contentsline {subsubsection}{\numberline {2.4.1}Fundamentação Teórica}{16}{subsubsection.2.4.1}%
+\contentsline {subsubsection}{\numberline {2.4.2}Estratégia de Implementação}{16}{subsubsection.2.4.2}%
+\contentsline {subsubsection}{\numberline {2.4.3}Estrutura dos Arquivos de Entrada e Saída}{17}{subsubsection.2.4.3}%
+\contentsline {subsubsection}{\numberline {2.4.4}Problemas Teste}{17}{subsubsection.2.4.4}%
+\contentsline {paragraph}{Problema Teste 1: Exercício 12.3 -- velocidade com resistência do ar}{17}{section*.16}%
+\contentsline {paragraph}{Problema Teste 2: Exercício 12.10 -- crescimento populacional}{17}{section*.17}%
+\contentsline {paragraph}{Problema Teste 3: Exercício 12.16 -- sistema hospedeiro-parasita}{18}{section*.18}%
+\contentsline {paragraph}{Problema Teste 4: Modelo SEIAHR -- simulação epidêmica hipotética}{19}{section*.19}%
+\contentsline {subsubsection}{\numberline {2.4.5}Validação dos Resultados}{19}{subsubsection.2.4.5}%
+\contentsline {subsubsection}{\numberline {2.4.6}Dificuldades Enfrentadas}{19}{subsubsection.2.4.6}%
+\contentsline {subsection}{\numberline {2.5}Análise Comparativa dos Métodos para Problemas de Valor Inicial}{20}{subsection.2.5}%
+\contentsline {subsubsection}{\numberline {2.5.1}Avaliação no Exercício 12.3}{20}{subsubsection.2.5.1}%
+\contentsline {subsubsection}{\numberline {2.5.2}Avaliação no Exercício 12.10}{21}{subsubsection.2.5.2}%
+\contentsline {subsubsection}{\numberline {2.5.3}Avaliação no Exercício 12.16}{21}{subsubsection.2.5.3}%
+\contentsline {subsubsection}{\numberline {2.5.4}Avaliação no Modelo Epidêmico SEIAHR}{22}{subsubsection.2.5.4}%
+\contentsline {subsubsection}{\numberline {2.5.5}Conclusão Analítica Global dos Métodos de PVI}{23}{subsubsection.2.5.5}%
+\contentsline {section}{\numberline {3}Métodos para Problemas de Valor de Contorno}{23}{section.3}%
+\contentsline {subsection}{\numberline {3.1}Método Shooting}{23}{subsection.3.1}%
+\contentsline {subsubsection}{\numberline {3.1.1}Fundamentação Teórica}{23}{subsubsection.3.1.1}%
+\contentsline {subsubsection}{\numberline {3.1.2}Estratégia de Implementação}{24}{subsubsection.3.1.2}%
+\contentsline {subsubsection}{\numberline {3.1.3}Estrutura dos Arquivos de Entrada e Saída}{24}{subsubsection.3.1.3}%
+\contentsline {subsubsection}{\numberline {3.1.4}Problemas Teste}{24}{subsubsection.3.1.4}%
+\contentsline {paragraph}{Problema Teste 1: Condução de calor em uma haste}{24}{section*.20}%
+\contentsline {subsubsection}{\numberline {3.1.5}Validação dos Resultados}{25}{subsubsection.3.1.5}%
+\contentsline {subsubsection}{\numberline {3.1.6}Dificuldades Enfrentadas}{25}{subsubsection.3.1.6}%
+\contentsline {subsection}{\numberline {3.2}Método das Diferenças Finitas}{26}{subsection.3.2}%
+\contentsline {subsubsection}{\numberline {3.2.1}Fundamentação Teórica}{26}{subsubsection.3.2.1}%
+\contentsline {subsubsection}{\numberline {3.2.2}Estratégia de Implementação}{26}{subsubsection.3.2.2}%
+\contentsline {subsubsection}{\numberline {3.2.3}Estrutura dos Arquivos de Entrada e Saída}{26}{subsubsection.3.2.3}%
+\contentsline {subsubsection}{\numberline {3.2.4}Problemas Teste}{26}{subsubsection.3.2.4}%
+\contentsline {paragraph}{Problema Teste 1: Condução de calor em uma haste}{26}{section*.21}%
+\contentsline {subsubsection}{\numberline {3.2.5}Validação dos Resultados}{27}{subsubsection.3.2.5}%
+\contentsline {subsubsection}{\numberline {3.2.6}Dificuldades Enfrentadas}{27}{subsubsection.3.2.6}%
+\contentsline {subsection}{\numberline {3.3}Análise Comparativa dos Métodos para Problemas de Valor de Contorno}{27}{subsection.3.3}%
+\contentsline {subsubsection}{\numberline {3.3.1}Avaliação do problema da haste com 10 pontos internos}{27}{subsubsection.3.3.1}%
+\contentsline {subsubsection}{\numberline {3.3.2}Comparação entre Shooting e Diferenças Finitas}{28}{subsubsection.3.3.2}%
+\contentsline {subsubsection}{\numberline {3.3.3}Conclusão Analítica Global dos Métodos de PVC}{28}{subsubsection.3.3.3}%
+\contentsline {section}{\numberline {4}Organização Geral da Implementação}{29}{section.4}%
+\contentsline {subsection}{\numberline {4.1}Modularização do Código}{29}{subsection.4.1}%
+\contentsline {subsection}{\numberline {4.2}Arquivos de Entrada}{29}{subsection.4.2}%
+\contentsline {subsection}{\numberline {4.3}Arquivos de Saída}{29}{subsection.4.3}%
+\contentsline {subsection}{\numberline {4.4}Geração de Tabelas}{30}{subsection.4.4}%
+\contentsline {subsection}{\numberline {4.5}Geração de Gráficos}{30}{subsection.4.5}%
+\contentsline {subsection}{\numberline {4.6}Restrições de Implementação}{30}{subsection.4.6}%
+\contentsline {section}{\numberline {5}Considerações Finais}{30}{section.5}%
