@@ -672,6 +672,269 @@ Os compartimentos possuem interpretações distintas: \(S\) representa suscetív
 
 A forma não normalizada \(\lambda=\beta(I+A)\) faz a força de infecção crescer diretamente com números absolutos de pessoas. Para uma população de \(400000\) indivíduos, essa formulação torna o sistema numericamente instável e epidemiologicamente menos plausível. A forma normalizada, por outro lado, expressa a fração efetiva de contatos infectantes e mantém as variáveis em escala compatível com a interpretação populacional.
 
+\subsection{Análise Detalhada do Modelo Epidêmico SEIAHR}
+
+\subsubsection{Formulação Matemática do Modelo}
+
+O modelo SEIAHR foi utilizado para representar a dinâmica de uma epidemia hipotética em uma população fechada. A formulação adotada separa a população em suscetíveis, expostos, infectados sintomáticos, infectados assintomáticos, hospitalizados e recuperados. Além disso, foi acrescentada a variável \(D(t)\), destinada a registrar as mortes acumuladas ao longo da simulação.
+
+\[
+    \frac{dS}{dt}=-\lambda[(1-\chi)S]
+\]
+
+\[
+    \frac{dE}{dt}=\lambda[(1-\chi)S]-\alpha E
+\]
+
+\[
+    \frac{dI}{dt}=(1-p)\alpha E-\delta I
+\]
+
+\[
+    \frac{dA}{dt}=p\alpha E-\delta A
+\]
+
+\[
+    \frac{dH}{dt}=\phi\delta I-(\rho+\mu)H
+\]
+
+\[
+    \frac{dR}{dt}=(1-\phi)\delta I+\rho H+\delta A
+\]
+
+\[
+    \frac{dD}{dt}=\mu H
+\]
+
+Na simulação principal, a força de infecção foi escrita na forma normalizada:
+
+\[
+    \lambda=\beta\frac{I+A}{N}.
+\]
+
+O termo \(N\) representa a população ainda pertencente aos compartimentos epidemiológicos ativos:
+
+\[
+    N=S+E+I+A+H+R.
+\]
+
+A variável \(D(t)\) não entra em \(N\), pois representa população removida por óbito. Essa distinção é importante: o sistema original possuía mortalidade no termo \(\mu H\), mas não apresentava um compartimento explícito para contabilizar os óbitos acumulados. Por isso, \(D(t)\) foi incluído como variável auxiliar de interpretação epidemiológica.
+
+\subsubsection{Interpretação dos Compartimentos}
+
+O compartimento \(S(t)\) reúne os indivíduos suscetíveis, isto é, aqueles que ainda podem ser infectados. O compartimento \(E(t)\) representa indivíduos expostos, já infectados, mas ainda em período de incubação. Depois desse estágio, uma fração dos expostos passa para \(I(t)\), formada por infectados sintomáticos, enquanto outra parte passa para \(A(t)\), formada por assintomáticos. Os sintomáticos podem se recuperar diretamente ou ingressar em \(H(t)\), que representa hospitalizados no instante considerado. Os indivíduos que deixam os estados infecciosos sem óbito são acumulados em \(R(t)\), enquanto \(D(t)\) registra as mortes acumuladas. Assim, o modelo descreve não apenas o crescimento da infecção, mas também os fluxos de recuperação, hospitalização e perda populacional.
+
+\subsubsection{Parâmetros Utilizados na Simulação}
+
+\begin{table}[H]
+    \centering
+    \caption{Parâmetros utilizados na simulação do modelo SEIAHR.}
+    \begin{tabular}{c|l|c}
+        \hline
+        \textbf{Parâmetro} & \textbf{Interpretação} & \textbf{Valor utilizado} \\
+        \hline
+        \(\chi\) & Fração de quarentenados & 0,6 \\
+        \(\alpha\) & Taxa de incubação & 0,33 \\
+        \(p\) & Fração de assintomáticos & 0,75 \\
+        \(\delta\) & Taxa de recuperação & 0,1 \\
+        \(\phi\) & Taxa de hospitalização & 0,01 \\
+        \(\mu\) & Taxa de mortalidade hospitalar & 0,03 \\
+        \(\beta\) & Taxa de transmissão & 0,5 \\
+        \(\rho\) & Taxa de recuperação dos hospitalizados & 0,1 \\
+        \hline
+    \end{tabular}
+    \label{tab:parametros-seiahr}
+\end{table}
+
+O parâmetro \(\rho\) não foi informado no enunciado original e, por isso, foi adotado como hipótese de simulação. Essa hipótese precisa ser explicitada porque alterações em \(\rho\) afetam diretamente a permanência em \(H(t)\), o crescimento de \(R(t)\) e o acúmulo de \(D(t)\). Quanto maior a recuperação hospitalar, menor tende a ser o tempo médio em hospitalização e menor tende a ser a exposição ao termo de mortalidade \(\mu H\).
+
+\subsubsection{Condições Iniciais e Configuração Computacional}
+
+\begin{table}[H]
+    \centering
+    \caption{Condições iniciais utilizadas no modelo SEIAHR.}
+    \begin{tabular}{c|l|c}
+        \hline
+        \textbf{Variável} & \textbf{Interpretação} & \textbf{Valor inicial} \\
+        \hline
+        \(S(0)\) & Suscetíveis & 400000 \\
+        \(E(0)\) & Expostos & 0 \\
+        \(I(0)\) & Infectados sintomáticos & 1 \\
+        \(A(0)\) & Assintomáticos & 0 \\
+        \(H(0)\) & Hospitalizados & 0 \\
+        \(R(0)\) & Recuperados & 0 \\
+        \(D(0)\) & Mortes acumuladas & 0 \\
+        \hline
+    \end{tabular}
+    \label{tab:condicoes-iniciais-seiahr}
+\end{table}
+
+A simulação foi realizada no intervalo
+
+\[
+    0 \leq t \leq 50,
+\]
+
+com passo
+
+\[
+    h=1.
+\]
+
+Euler, Heun e Ponto Médio foram utilizados na comparação geral entre métodos. Entretanto, a interpretação epidemiológica detalhada foi feita com o RK4, pois esse método apresentou maior precisão nos problemas com solução analítica e maior estabilidade nos sistemas acoplados avaliados anteriormente.
+
+\subsubsection{Evolução Temporal dos Compartimentos}
+
+\begin{table}[H]
+    \centering
+    \caption{Evolução dos compartimentos do modelo SEIAHR ao longo dos 50 dias usando RK4.}
+    \resizebox{\textwidth}{!}{
+    \begin{tabular}{c|rrrrrrr}
+        \hline
+        \textbf{Dia} & \textbf{\(S(t)\)} & \textbf{\(E(t)\)} & \textbf{\(I(t)\)} & \textbf{\(A(t)\)} & \textbf{\(H(t)\)} & \textbf{\(R(t)\)} & \textbf{\(D(t)\)} \\
+        \hline
+        0 & 400000,000000 & 0,000000 & 1,000000 & 0,000000 & 0,000000 & 0,000000 & 0,000000 \\
+        5 & 399999,055412 & 0,465601 & 0,706571 & 0,300120 & 0,002982 & 0,469048 & 0,000265 \\
+        10 & 399997,881490 & 0,688128 & 0,618690 & 0,752431 & 0,003935 & 1,054528 & 0,000797 \\
+        15 & 399996,256752 & 0,962668 & 0,644583 & 1,264359 & 0,004351 & 1,865866 & 0,001420 \\
+        20 & 399993,992511 & 1,342445 & 0,766819 & 1,894451 & 0,004861 & 2,996806 & 0,002108 \\
+        25 & 399990,835758 & 1,871678 & 0,989159 & 2,721220 & 0,005777 & 4,573509 & 0,002899 \\
+        30 & 399986,434607 & 2,609504 & 1,330606 & 3,842455 & 0,007307 & 6,771650 & 0,003871 \\
+        35 & 399980,298562 & 3,638148 & 1,825724 & 5,386580 & 0,009661 & 9,836193 & 0,005132 \\
+        40 & 399971,743859 & 5,072205 & 2,527570 & 7,527762 & 0,013112 & 14,108669 & 0,006824 \\
+        45 & 399959,817352 & 7,071397 & 3,513049 & 10,505819 & 0,018043 & 20,065201 & 0,009140 \\
+        50 & 399943,190489 & 9,858308 & 4,891144 & 14,653217 & 0,025001 & 28,369505 & 0,012338 \\
+        \hline
+    \end{tabular}}
+    \label{tab:evolucao-seiahr-rk4}
+\end{table}
+
+A Tabela \ref{tab:evolucao-seiahr-rk4} mostra que, no intervalo de 50 dias, a dinâmica ainda se encontra em fase de crescimento gradual. Os expostos, sintomáticos e assintomáticos aumentam ao longo do período, mas sem explosão numérica. Esse comportamento é compatível com a força de infecção normalizada e com a presença de uma fração relevante de quarentena.
+
+\subsubsection{Análise dos Suscetíveis}
+
+A população suscetível apresenta comportamento decrescente ao longo da simulação, como esperado para modelos compartimentais em que a transição de \(S\) para \(E\) é governada pela força de infecção. No caso normalizado, a redução ocorre de forma gradual, pois a taxa efetiva de contato é ponderada pelo tamanho populacional total. A simulação iniciou com \(S(0)=400000\) e terminou com \(S(50)=399943,190489\). A queda é pequena em termos relativos, mas epidemiologicamente coerente com uma simulação iniciada por apenas um infectado sintomático.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{../graficos/seiahr_s.png}
+    \caption{Evolução dos suscetíveis no modelo SEIAHR normalizado durante os 50 dias de simulação.}
+\end{figure}
+
+\subsubsection{Análise dos Expostos}
+
+O compartimento \(E(t)\) recebe indivíduos oriundos de \(S(t)\) e perde indivíduos pela taxa de incubação \(\alpha\). Por essa razão, seu crescimento antecipa o crescimento de \(I(t)\) e \(A(t)\): antes de aparecerem novos sintomáticos ou assintomáticos, os indivíduos passam pelo estágio exposto. No intervalo observado, \(E(t)\) não apresentou pico; ao contrário, cresceu de \(0\) para \(E(50)=9,858308\). Isso indica que, nos 50 dias simulados, o processo epidêmico ainda não atingiu uma fase de esgotamento dos suscetíveis.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{../graficos/seiahr_e.png}
+    \caption{Evolução dos expostos no modelo SEIAHR, indicando o estágio de incubação anterior aos compartimentos infecciosos.}
+\end{figure}
+
+\subsubsection{Análise dos Infectados Sintomáticos}
+
+Os infectados sintomáticos recebem a fração \((1-p)\alpha E\). Como \(p=0{,}75\), apenas 25\% dos indivíduos expostos seguem para o compartimento sintomático. Esse parâmetro ajuda a explicar por que \(I(t)\) permanece menor que \(A(t)\) durante a simulação. Ao final do intervalo, obteve-se \(I(50)=4,891144\). Não houve pico de infectados sintomáticos dentro dos 50 dias; a trajetória permaneceu crescente, embora em escala controlada pela normalização da força de infecção.
+
+\subsubsection{Análise dos Assintomáticos}
+
+O compartimento \(A(t)\) recebe a parcela \(p\alpha E\), isto é, 75\% dos expostos que deixam o período de incubação. Por isso, espera-se maior quantidade de assintomáticos que de sintomáticos, como foi observado numericamente. Além disso, \(A(t)\) também contribui para a força de infecção \(\lambda\), de modo que indivíduos assintomáticos continuam influenciando novas infecções. Ao final da simulação, \(A(50)=14,653217\), valor superior ao de \(I(50)\), em concordância com a escolha de \(p=0{,}75\).
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{../graficos/seiahr_infectados_assintomaticos.png}
+    \caption{Comparação entre infectados sintomáticos e assintomáticos no modelo SEIAHR, evidenciando a influência da fração \(p=0{,}75\).}
+\end{figure}
+
+\subsubsection{Análise dos Hospitalizados}
+
+O compartimento \(H(t)\) recebe o fluxo \(\phi\delta I\). Como \(\phi=0{,}01\), apenas uma pequena fração dos infectados sintomáticos ingressa em hospitalização. Além disso, \(H(t)\) diminui por recuperação hospitalar, representada por \(\rho H\), e por morte, representada por \(\mu H\). O valor final \(H(50)=0,025001\) é pequeno, mas coerente com os parâmetros utilizados e com a baixa escala de \(I(t)\) na simulação normalizada.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{../graficos/seiahr_h.png}
+    \caption{Evolução dos hospitalizados no modelo SEIAHR normalizado, determinada pela entrada proporcional a infectados sintomáticos e pela saída por recuperação ou óbito.}
+\end{figure}
+
+\subsubsection{Análise dos Recuperados}
+
+O compartimento \(R(t)\) recebe contribuições de três origens: sintomáticos que se recuperam sem hospitalização, hospitalizados que se recuperam e assintomáticos que deixam o estado infeccioso. Por isso, \(R(t)\) deve ser monotonicamente crescente. A trajetória obtida confirma essa propriedade, passando de \(R(0)=0\) para \(R(50)=28,369505\). Esse crescimento indica que indivíduos estão deixando os compartimentos infecciosos ao longo da simulação.
+
+\subsubsection{Análise das Mortes Acumuladas}
+
+As mortes acumuladas são determinadas por
+
+\[
+    D'(t)=\mu H(t).
+\]
+
+Logo, \(D(t)\) não é igual a \(H(t)\). O compartimento \(H(t)\) representa pessoas hospitalizadas naquele instante, enquanto \(D(t)\) representa todos os óbitos acumulados até o dia considerado. Por definição, \(D(t)\) deve ser monotonicamente crescente. Ao final dos 50 dias, a estimativa de perdas acumuladas é dada por \(D(50)\). Na simulação principal com RK4 e força de infecção normalizada, obteve-se \(D(50)=0,012338\), o que corresponde ao número acumulado de óbitos previsto pelo modelo para o intervalo analisado.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{../graficos/seiahr_recuperados_mortes.png}
+    \caption{Evolução de recuperados e mortes acumuladas no modelo SEIAHR. A variável \(D(t)\) representa óbitos acumulados e não deve ser confundida com hospitalizados.}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{../graficos/seiahr_comparativo.png}
+    \caption{Evolução geral dos compartimentos principais do modelo SEIAHR normalizado durante os 50 dias de simulação.}
+\end{figure}
+
+\subsubsection{Comparação entre Força de Infecção Normalizada e Não Normalizada}
+
+Foram consideradas duas formas para a força de infecção. A primeira é
+
+\[
+    \lambda=\beta(I+A),
+\]
+
+e a segunda é
+
+\[
+    \lambda=\beta\frac{I+A}{N}.
+\]
+
+A forma não normalizada pode gerar crescimento artificialmente explosivo quando \(I\) e \(A\) são números absolutos de pessoas, pois a força de infecção passa a crescer diretamente com o número bruto de indivíduos infectantes. A forma normalizada foi adotada como simulação principal porque os compartimentos representam contagens populacionais absolutas.
+
+\begin{table}[H]
+    \centering
+    \caption{Comparação entre as formulações normalizada e não normalizada da força de infecção.}
+    \resizebox{\textwidth}{!}{
+    \begin{tabular}{l|cc}
+        \hline
+        \textbf{Indicador} & \textbf{\(\lambda=\beta(I+A)\)} & \textbf{\(\lambda=\beta(I+A)/N\)} \\
+        \hline
+        Comportamento numérico & Crescimento excessivo em população absoluta & Evolução gradual e controlada \\
+        Crescimento dos infectados & Artificialmente acelerado & Compatível com a escala populacional \\
+        Estabilidade da simulação & Instável para os parâmetros adotados & Estável nos 50 dias simulados \\
+        Realismo para população absoluta & Baixo & Maior \\
+        Uso na análise principal & Não recomendado & Recomendado \\
+        \hline
+    \end{tabular}}
+    \label{tab:comparacao-lambda-seiahr}
+\end{table}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{../graficos/seiahr_comparacao_metodos_i.png}
+    \caption{Comparação entre Euler, Heun, Ponto Médio e RK4 para os infectados sintomáticos \(I(t)\) no modelo SEIAHR normalizado.}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{../graficos/seiahr_comparacao_metodos_d.png}
+    \caption{Comparação entre Euler, Heun, Ponto Médio e RK4 para as mortes acumuladas \(D(t)\) no modelo SEIAHR normalizado.}
+\end{figure}
+
+\subsubsection{Interpretação Epidemiológica dos Resultados}
+
+Os suscetíveis evoluem de forma decrescente, mas a redução é lenta porque a força de infecção foi normalizada pelo tamanho populacional. Os expostos crescem ao longo dos 50 dias e funcionam como estágio intermediário que antecede o aumento dos infectados sintomáticos e assintomáticos. Os infectados sintomáticos ainda crescem no dia 50, portanto não há pico de infecção dentro do intervalo analisado. Os assintomáticos são relevantes porque, além de numerosos devido a \(p=0{,}75\), também participam da força de infecção. Os hospitalizados permanecem poucos em relação ao total porque dependem da fração \(\phi=0{,}01\) aplicada aos sintomáticos. A estimativa de perdas no período é \(D(50)=0,012338\). O resultado é sensível aos parâmetros: reduzir \(\chi\) ou aumentar \(\beta\) tende a ampliar a transmissão; aumentar \(\delta\) acelera a saída dos compartimentos infecciosos; aumentar \(\phi\) eleva hospitalizações; aumentar \(\mu\) amplia mortes acumuladas; e modificar \(\rho\) altera a permanência em \(H(t)\), com efeitos indiretos sobre \(R(t)\) e \(D(t)\).
+
+\subsubsection{Limitações do Modelo}
+
+O modelo é hipotético e deve ser interpretado como instrumento de estudo numérico e qualitativo, não como previsão real de pandemia. Os parâmetros foram mantidos fixos ao longo do tempo, sem natalidade, migração, reinfecção, vacinação ou saturação hospitalar. Além disso, \(\rho\) foi assumido por hipótese, já que não foi fornecido no enunciado. Os resultados dependem fortemente da forma escolhida para \(\lambda\), especialmente quando os compartimentos são tratados como números absolutos de pessoas. Essas limitações não invalidam o exercício numérico, mas delimitam o alcance da interpretação epidemiológica.
+
 \subsubsection{Conclusão Analítica Global dos Métodos de PVI}
 
 A comparação confirma o comportamento teórico esperado. Euler é simples e didático, mas menos preciso. Heun e Ponto Médio apresentam ganho expressivo de precisão com pequeno aumento de custo. RK4 é o método mais robusto entre os testados, especialmente quando há crescimento acumulativo ou sistemas acoplados.
