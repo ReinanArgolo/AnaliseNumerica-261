@@ -51,12 +51,14 @@ Cada relatório é independente. Consulte suas instruções específicas:
 ├── relatorio2/   # ajuste, interpolação, derivação e integração
 ├── relatorio3/   # equações diferenciais e problemas de contorno
 ├── Modelos/      # modelo acadêmico em LaTeX
-└── Livros/       # materiais de consulta da disciplina
+└── enviar/       # pacote original de entrega do primeiro relatório
 ```
 
 Em cada relatório, as entradas e os resultados permanecem junto da respectiva
 implementação para facilitar a reprodução dos experimentos. Os PDFs compilados
-permitem consultar os resultados sem configurar um ambiente LaTeX.
+permitem consultar os resultados sem configurar um ambiente LaTeX. As referências
+bibliográficas utilizadas são identificadas nos próprios relatórios; materiais
+de terceiros não são redistribuídos neste repositório.
 
 ## Compilação dos relatórios
 
